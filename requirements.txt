@@ -3,3 +3,6 @@
 torch
 gradio
 transformers
+tqdm
+scikit-learn
+accelerate
