@@ -146,11 +146,11 @@ def text_generation(test_data):
 
 if __name__ == "__main__":
     ### Prepare data
-    lyrics = pd.read_csv('dataset/lyrics-data.csv')
+    lyrics = pd.read_csv('/Users/prosci/gits/Transformers---Lyrics-Generator/examples/pau/dataset/lyrics-data.csv')
     lyrics = lyrics[lyrics['language']=='en']
 
     # Only keep popular artists, with genre Rock/Pop and popularity high enough
-    artists = pd.read_csv('dataset/artists-data.csv')
+    artists = pd.read_csv('/Users/prosci/gits/Transformers---Lyrics-Generator/examples/pau/dataset/artists-data.csv')
     artists = artists[(artists['Genres'].isin(['Rock'])) & (artists['Popularity']>5)]
     df = lyrics.merge(artists[['Artist', 'Genres', 'Link']], left_on='ALink', right_on='Link', how='inner')
     df = df.drop(columns=['ALink','SLink','language','Link'])
@@ -159,7 +159,7 @@ if __name__ == "__main__":
     df = df[df['Lyric'].apply(lambda x: len(x.split(' ')) < 350)]
 
     # Create a very small test set to compare generated text with the reality
-    test_set = df.sample(n = 200)
+    test_set = df.sample(n = 2)
     df = df.loc[~df.index.isin(test_set.index)]
 
     # Reset the indexes
@@ -171,7 +171,7 @@ if __name__ == "__main__":
     test_set['Lyric'] = test_set['Lyric'].str.split().str[:-20].apply(' '.join)
 
     # Create dataset object
-    dataset = SongLyrics(df['Lyric'].head(2), df, truncate=True, gpt2_type="gpt2")
+    dataset = SongLyrics(df['Lyric'].head(2), df, truncate=False, gpt2_type="gpt2")
 
     # Get the tokenizer and model
     tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
@@ -179,5 +179,34 @@ if __name__ == "__main__":
 
     # Train the model
     model = train(dataset, model, tokenizer, save_model_on_epoch=True)
+    #torch.load('wreckgar-4.pt')
+    #model.load_state_dict(torch.load('wreckgar-4.pt'))
+    #model.eval()
+
+    #model = torch.load('wreckgar-4.pt')
+
+    #Run the functions to generate the lyrics
+    generated_lyrics = text_generation(test_set)
+
+    #Loop to keep only generated text and add it as a new column in the dataframe
+    my_generations=[]
+
+    for i in range(len(generated_lyrics)):
+        a = test_set['Lyric'][i].split()[-30:] #Get the matching string we want (30 words)
+        b = ' '.join(a)
+        c = ' '.join(generated_lyrics[i]) #Get all that comes after the matching string
+        my_generations.append(c.split(b)[-1])
+
+    test_set['Generated_lyrics'] = my_generations
+
+
+    #Finish the sentences when there is a point, remove after that
+    final=[]
+
+    for i in range(len(test_set)):
+        to_remove = test_set['Generated_lyrics'][i].split('.')[-1]
+        final.append(test_set['Generated_lyrics'][i].replace(to_remove,''))
+
+    test_set['Generated_lyrics'] = final
 
 
