@@ -3,3 +3,4 @@
 torch
 gradio
 transformers
+pandas

@@ -3,10 +3,10 @@ import numpy as np
 import os
 import random
 import torch
+from lyrics_dataset import SongLyrics
 from torch.utils.data import Dataset, DataLoader
 from transformers import GPT2Tokenizer, GPT2LMHeadModel, AdamW, get_linear_schedule_with_warmup
 from tqdm import tqdm, trange
-from lyrics_dataset import SongLyrics
 import torch.nn.functional as F
 import csv
 
@@ -75,6 +75,75 @@ def train(
             )
     return model
 
+def generate(
+    model,
+    tokenizer,
+    prompt,
+    entry_count=10,
+    entry_length=30, #maximum number of words
+    top_p=0.8,
+    temperature=1.,
+):
+    model.eval()
+    generated_num = 0
+    generated_list = []
+
+    filter_value = -float("Inf")
+
+    with torch.no_grad():
+
+        for entry_idx in trange(entry_count):
+
+            entry_finished = False
+            generated = torch.tensor(tokenizer.encode(prompt)).unsqueeze(0)
+
+            for i in range(entry_length):
+                outputs = model(generated, labels=generated)
+                loss, logits = outputs[:2]
+                logits = logits[:, -1, :] / (temperature if temperature > 0 else 1.0)
+
+                sorted_logits, sorted_indices = torch.sort(logits, descending=True)
+                cumulative_probs = torch.cumsum(F.softmax(sorted_logits, dim=-1), dim=-1)
+
+                sorted_indices_to_remove = cumulative_probs > top_p
+                sorted_indices_to_remove[..., 1:] = sorted_indices_to_remove[
+                    ..., :-1
+                ].clone()
+                sorted_indices_to_remove[..., 0] = 0
+
+                indices_to_remove = sorted_indices[sorted_indices_to_remove]
+                logits[:, indices_to_remove] = filter_value
+
+                next_token = torch.multinomial(F.softmax(logits, dim=-1), num_samples=1)
+                generated = torch.cat((generated, next_token), dim=1)
+
+                if next_token in tokenizer.encode("<|endoftext|>"):
+                    entry_finished = True
+
+                if entry_finished:
+
+                    generated_num = generated_num + 1
+
+                    output_list = list(generated.squeeze().numpy())
+                    output_text = tokenizer.decode(output_list)
+                    generated_list.append(output_text)
+                    break
+            
+            if not entry_finished:
+              output_list = list(generated.squeeze().numpy())
+              output_text = f"{tokenizer.decode(output_list)}<|endoftext|>" 
+              generated_list.append(output_text)
+                
+    return generated_list
+
+#Function to generate multiple sentences. Test data should be a dataframe
+def text_generation(test_data):
+  generated_lyrics = []
+  for i in range(len(test_data)):
+    x = generate(model.to('cpu'), tokenizer, test_data['Lyric'][i], entry_count=1)
+    generated_lyrics.append(x)
+  return generated_lyrics
+
 if __name__ == "__main__":
     ### Prepare data
     lyrics = pd.read_csv('dataset/lyrics-data.csv')
@@ -102,11 +171,13 @@ if __name__ == "__main__":
     test_set['Lyric'] = test_set['Lyric'].str.split().str[:-20].apply(' '.join)
 
     # Create dataset object
-    dataset = SongLyrics(df['Lyric'], df, truncate=True, gpt2_type="gpt2")
+    dataset = SongLyrics(df['Lyric'].head(2), df, truncate=True, gpt2_type="gpt2")
 
     # Get the tokenizer and model
     tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
     model = GPT2LMHeadModel.from_pretrained('gpt2')
 
     # Train the model
-    model = train(dataset, model, tokenizer)
+    model = train(dataset, model, tokenizer, save_model_on_epoch=True)
+
+

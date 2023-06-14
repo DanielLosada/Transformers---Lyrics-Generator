@@ -9,7 +9,7 @@ class SongLyrics(Dataset):
         self.tokenizer = GPT2Tokenizer.from_pretrained(gpt2_type)
         self.lyrics = []
 
-        for row in df['Lyric']:
+        for row in control_code:
           self.lyrics.append(torch.tensor(
                 self.tokenizer.encode(f"<|{control_code}|>{row[:max_length]}<|endoftext|>")
             ))               
