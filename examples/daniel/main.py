@@ -1,62 +1,80 @@
-import tqdm
+import re
+import argparse
+import json
 import torch
-from transformers import GPT2LMHeadModel, GPT2Tokenizer, Trainer, TrainingArguments
-from dataset import Lyrics
-from torch.optim import Adam
-from torch.utils.data import DataLoader
 
-def train(lyricsLoader, model, optim):
-    model.train()
-    epochs = 10
+from datasets import load_dataset
+from transformers import AutoTokenizer, AutoModelForCausalLM, DataCollatorForLanguageModeling, Trainer, TrainingArguments
+from dataset import LyricsDataset
 
-    for i in tqdm.tqdm(range(epochs)):
-        for X, a in lyricsLoader:
-            print("X: ", type(X))
-            print("len X: ", len(X))
-            #print("a: ", a)
-            #X = torch.tensor(X).to(device)
-            #a = torch.tensor(a).to(device)
-            optim.zero_grad()
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print("Device:", device)
 
-            loss = model(X, attention_mask=a)
-            loss.backward()
-            optim.step()
-        torch.save(model.state_dict(), "model_state.pt")
-            
-def infer(inp):
-    inp = '<startofstring> ' + inp + ' <endofstring>'
-    inp = tokenizer(inp)
-    output = model.generate(**inp)
-    output = tokenizer.decode(output[0])
+def tokenize(element):
+    outputs = tokenizer(
+        element["lyrics"],
+        truncation=True,
+        max_length=context_length,
+        return_overflowing_tokens=True,
+        return_length=True,
+    )
+    input_batch = []
+    for length, input_ids in zip(outputs["length"], outputs["input_ids"]):
+        if length == context_length:
+            input_batch.append(input_ids)
+    return {"input_ids": input_batch}
 
-device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+if __name__ == "__main__":
+    #Load the configuration file
+    with open('config.json', 'r') as f:
+        config = json.load(f)
 
-tokenizer = GPT2Tokenizer.from_pretrained("gpt2-large")
-tokenizer.add_special_tokens({
-    "bos_token": '<startofstring>',
-    "eos_token": '<endofstring>',
-    'pad_token': '[PAD]'
-})
+    parser = argparse.ArgumentParser(prog='Lyrics generator')
+    parser.add_argument("--trainSingleArtist", type=str, help="Prepare the dataset of the choosen artist. And train the model")
+    parser.add_argument("--trainMultipleArtists", action="store_true", help="Prepare the dataset of all the artists. And train the model")
 
-model = GPT2LMHeadModel.from_pretrained("gpt2-large", pad_token_id=tokenizer.eos_token_id)
-#model.to(device)
+    #Parse the command-line arguments
+    args = parser.parse_args()
 
-#print("tokenizer.eos_token_id: ", tokenizer.eos_token_id)
-#print(tokenizer.decode(tokenizer.eos_token_id))
-#print("tokenizer.bos_token_id: ", tokenizer.bos_token_id)
-#print(tokenizer.decode(tokenizer.bos_token_id))
+    if(args.trainSingleArtist):
+        print("Artist: ", args.trainSingleArtist)
+        ly = LyricsDataset(config, args.trainSingleArtist)
+        dataset = ly.load_dataset_single_artist()
 
+        context_length = 128
+        tokenizer = AutoTokenizer.from_pretrained(config["model"])
+        tokenizer = tokenizer.to(device)
+        tokenizer.pad_token = tokenizer.eos_token
 
-lyrics = Lyrics('./archive/AAP Rocky.csv', tokenizer)
-#print("lyrics: ", lyrics)
-lyricsLoader = DataLoader(lyrics, batch_size=64)
-#print("lyricsLoader: ", lyricsLoader)
-optim = Adam(model.parameters())
+        
+        tokenized_datasets = dataset.map(
+            tokenize, batched=True, remove_columns=dataset["train"].column_names
+        )
 
-train(lyricsLoader, model, optim)
-#sequence = f"Hello "
+        #Load model
+        model = AutoModelForCausalLM.from_pretrained(config["model"])
+        model.to(device)
 
-#input = tokenizer.encode(sequence, return_tensors="pt")
-#generated = model.generate(input, max_length=100, do_sample=True, no_repeat_ngram_size=2)
-#print(tokenizer.decode(generated[0], skip_special_tokens=True))
+        model_size = sum(t.numel() for t in model.parameters())
+        print(f"{config['model']} size: {model_size/1000**2:.1f}M parameters")
+
+        training_args = TrainingArguments("test-trainer", evaluation_strategy="epoch", num_train_epochs=10)
+        data_collator = DataCollatorForLanguageModeling(tokenizer, mlm=False, device=device)
+
+        trainer = Trainer(
+            model,
+            training_args,
+            train_dataset=tokenized_datasets["train"],
+            eval_dataset=tokenized_datasets["test"],
+            data_collator=data_collator,
+            tokenizer=tokenizer,
+            #compute_metrics=compute_metrics,
+        )
+
+        trainer.train()
+
+    if(args.trainMultipleArtists):
+        ly = LyricsDataset(config, args.trainSingleArtist)
+        dataset = ly.load_dataset_multiple_artists()
+
 
