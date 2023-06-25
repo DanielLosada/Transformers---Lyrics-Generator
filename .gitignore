@@ -1,0 +1,4 @@
+*.csv
+*.txt
+examples/daniel/models/*
+examples/daniel/trainer/*
