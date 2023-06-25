@@ -14,3 +14,8 @@ and install the dependencies
 ```
 pip install -r requirements.txt
 ```
+
+To see GPU usage info, nvidia-ml-py must be installed as follows:
+```
+python -m pip install nvidia-ml-py
+```

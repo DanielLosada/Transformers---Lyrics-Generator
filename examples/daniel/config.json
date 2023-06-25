@@ -1,0 +1,6 @@
+{
+    "base_dir": "./",
+    "dataset_zip": "archive.zip",
+    "dataset_path": "data",
+    "model": "DistilGPT2"
+}

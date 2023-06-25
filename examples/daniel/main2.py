@@ -31,7 +31,7 @@ build_text_files(test,'test_dataset.txt')
 print("Train dataset length: "+str(len(train)))
 print("Test dataset length: "+ str(len(test)))
 
-tokenizer = AutoTokenizer.from_pretrained("gpt2-xl")
+tokenizer = AutoTokenizer.from_pretrained("gpt2")
 
 train_path = 'train_dataset.txt'
 test_path = 'test_dataset.txt'
@@ -54,7 +54,7 @@ def load_dataset(train_path,test_path,tokenizer):
 
 train_dataset,test_dataset,data_collator = load_dataset(train_path,test_path,tokenizer)
 
-model = AutoModelWithLMHead.from_pretrained("gpt2-xl")
+model = AutoModelWithLMHead.from_pretrained("gpt2")
 
 training_args = TrainingArguments(
     output_dir="./gpt2", #The output directory

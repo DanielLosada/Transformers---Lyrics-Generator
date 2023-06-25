@@ -6,7 +6,6 @@ from datasets import load_dataset, concatenate_datasets
 
 # Preprocessing function
 def preprocess_lyrics(data):
-    print("DATA: ", data)
     # Remove the first line
     data['lyrics'] = data['lyrics'].split('\n', 1)[-1]
     
