@@ -24,6 +24,24 @@ def print_summary(result):
     print(f"Samples/second: {result.metrics['train_samples_per_second']:.2f}")
     print_gpu_utilization()
 
+def remove_consecutive_duplicates(arr, max_repeat):
+    results = []
+    if len(arr) >= max_repeat:
+        current_word = arr[0]
+        results.append(arr[0])
+        count = 1
+        for x in range(1, len(arr)):
+            if arr[x] != current_word:
+                current_word = arr[x]
+                count = 0
+            if current_word == arr[x]:
+                count += 1
+            if max_repeat >= count:
+                results.append(arr[x])
+        return results
+    else:
+        return arr
+            
 def post_process(output_sequences):
     predictions = []
     generated_sequences = []
@@ -35,29 +53,18 @@ def post_process(output_sequences):
         generated_sequence = generated_sequence.tolist()
         text = tokenizer.decode(generated_sequence, clean_up_tokenization_spaces=True, skip_special_tokens=True)
         generated_sequences.append(text.strip())
-
     for i, g in enumerate(generated_sequences):
         res = str(g).replace('\n\n\n', '\n').replace('\n\n', '\n')
         lines = res.split('\n')
-        # print(lines)
-        i = max_repeat
-        while i != len(lines):
-          remove_count = 0
-          for index in range(0, max_repeat):
-            # print(i - index - 1, i - index)
-            if lines[i - index - 1] == lines[i - index]:
-              remove_count += 1
-          if remove_count == max_repeat:
-            lines.pop(i)
-            i -= 1
-          else:
-            i += 1
+        print(lines)
+        lines = remove_consecutive_duplicates(lines, max_repeat)        
         predictions.append('\n'.join(lines))
 
     return predictions
 
 
 def tokenize(element):
+    context_length = 128
     outputs = tokenizer(
         element["lyrics"],
         truncation=True,
@@ -71,35 +78,8 @@ def tokenize(element):
             input_batch.append(input_ids)
     return {"input_ids": input_batch}
 
-if __name__ == "__main__":
-    print_gpu_utilization()
-    #Load the configuration file
-    with open('config.json', 'r') as f:
-        config = json.load(f)
-
-    parser = argparse.ArgumentParser(prog='Lyrics generator')
-    parser.add_argument("--trainSingleArtist", type=str, help="Prepare the dataset of the choosen artist. And train the model")
-    parser.add_argument("--trainMultipleArtists", action="store_true", help="Prepare the dataset of all the artists. And train the model")
-    parser.add_argument("--generateSingleArtist", type=str, help="Pass the artist name to generate lyrics. Use the same name you used to train it.")
-
-    #Parse the command-line arguments
-    args = parser.parse_args()
-
-    if(args.trainSingleArtist):
-        print("Artist: ", args.trainSingleArtist)
-        ly = LyricsDataset(config, args.trainSingleArtist)
-        dataset = ly.load_dataset_single_artist()
-        dataset
-
-        context_length = 128
-        tokenizer = AutoTokenizer.from_pretrained(config["model"])
-        tokenizer.pad_token = tokenizer.eos_token
-
+def train_model(tokenized_datasets):
         
-        tokenized_datasets = dataset.map(
-            tokenize, batched=True, remove_columns=dataset["train"].column_names
-        )
-
         #Load model
         print("Loading model")
         model = AutoModelForCausalLM.from_pretrained(config["model"])
@@ -123,43 +103,70 @@ if __name__ == "__main__":
         print_gpu_utilization()
         trainer.train()
         #print_summary(result)
-        #trainer.save_model("./models/" + args.trainSingleArtist.replace(" ", "_"))
-        start = "You are" 
+        trainer.save_model("./models/" + args.trainSingleArtist.replace(" ", "_"))
         
-        num_sequences =  3 
-        #@markdown Generation settings:
-        min_length =  10
-        max_length =   100
-        temperature = 1.51 
-        top_p = 0.9 
-        top_k = 30 
-        repetition_penalty =  1.0
+def generate():
+    
+    start = "Nigga,"
+    num_sequences =  3
+    min_length =  1
+    max_length =   5
+    temperature = 1.51 
+    top_p = 0.9 
+    top_k = 30 
+    repetition_penalty =  1.0
 
-        encoded_prompt = tokenizer(start, add_special_tokens=False, return_tensors="pt").input_ids
-        encoded_prompt = encoded_prompt.to(trainer.model.device)
-        print(encoded_prompt)
+    encoded_prompt = tokenizer(start, add_special_tokens=False, return_tensors="pt").input_ids
+    encoded_prompt.to(device)
+    print("encoded_prompt: ", encoded_prompt)
 
-        # prediction
-        output_sequences = trainer.model.generate(
-                                input_ids=encoded_prompt,
-                                max_length=max_length,
-                                min_length=min_length,
-                                temperature=float(temperature),
-                                top_p=float(top_p),
-                                top_k=int(top_k),
-                                do_sample=True,
-                                repetition_penalty=repetition_penalty,
-                                num_return_sequences=num_sequences
-                                )
+    print("Loading model")
+    model = AutoModelForCausalLM.from_pretrained("./models/" + args.generateSingleArtist.replace(" ", "_") + "/")
+    output_sequences = model.generate(
+                    input_ids=encoded_prompt,
+                    max_length=max_length,
+                    min_length=min_length,
+                    temperature=float(temperature),
+                    top_p=float(top_p),
+                    top_k=int(top_k),
+                    do_sample=True,
+                    repetition_penalty=repetition_penalty,
+                    num_return_sequences=num_sequences)
+    print("output_sequences: ", output_sequences)
+    generated = post_process(output_sequences)
+    for text in generated:
+        print(text)
 
-        print(output_sequences)
-        print("Going to post_process generation")
-        for generated_sequence_idx, generated_sequence in enumerate(output_sequences):
-            generated_sequence = generated_sequence.tolist()
-            text = tokenizer.decode(generated_sequence, clean_up_tokenization_spaces=True, skip_special_tokens=True)
-            print(text)
-        post_process(output_sequences)
 
+
+if __name__ == "__main__":
+    print_gpu_utilization()
+    #Load the configuration file
+    with open('config.json', 'r') as f:
+        config = json.load(f)
+
+    parser = argparse.ArgumentParser(prog='Lyrics generator')
+    parser.add_argument("--trainSingleArtist", type=str, help="Prepare the dataset of the choosen artist. And train the model")
+    parser.add_argument("--trainMultipleArtists", action="store_true", help="Prepare the dataset of all the artists. And train the model")
+    parser.add_argument("--generateSingleArtist", type=str, help="Pass the artist name to generate lyrics. Use the same name you used to train it.")
+
+    #Parse the command-line arguments
+    args = parser.parse_args()
+
+    if(args.trainSingleArtist):
+        print("Artist: ", args.trainSingleArtist)
+        ly = LyricsDataset(config, args.trainSingleArtist)
+        dataset = ly.load_dataset_single_artist()
+
+        tokenizer = AutoTokenizer.from_pretrained(config["model"])
+        tokenizer.pad_token = tokenizer.eos_token
+
+        tokenized_datasets = dataset.map(
+            tokenize, batched=True, remove_columns=dataset["train"].column_names
+        )
+
+        train_model(tokenized_datasets)
+        
     if(args.trainMultipleArtists):
         ly = LyricsDataset(config, args.trainSingleArtist)
         dataset = ly.load_dataset_multiple_artists()
@@ -168,34 +175,7 @@ if __name__ == "__main__":
         #generation_config = GenerationConfig.from_pretrained("./models/" + args.generateSingleArtist.replace(" ", "_") + "/")
         tokenizer = AutoTokenizer.from_pretrained(config["model"])
         tokenizer.pad_token = tokenizer.eos_token
-    
-        start = "You are"
-        num_sequences =  1
-        min_length =  1
-        max_length =   5
-        temperature = 1.51 
-        top_p = 0.9 
-        top_k = 30 
-        repetition_penalty =  1.0
-
-        encoded_prompt = tokenizer(start, add_special_tokens=False, return_tensors="pt").input_ids
-        encoded_prompt.to(device)
-        print("encoded_prompt: ", encoded_prompt)
-
-        print("Loading model")
-        model = AutoModelForCausalLM.from_pretrained("./models/" + args.generateSingleArtist.replace(" ", "_") + "/")
-        output_sequences = model.generate(
-                        input_ids=encoded_prompt,
-                        max_length=max_length,
-                        min_length=min_length,
-                        temperature=float(temperature),
-                        top_p=float(top_p),
-                        top_k=int(top_k),
-                        do_sample=True,
-                        repetition_penalty=repetition_penalty,
-                        num_return_sequences=num_sequences)
-        print("output_sequences: ", output_sequences)
-        post_process(output_sequences)
+        generate()
         pass
 
 
