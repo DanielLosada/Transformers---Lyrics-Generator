@@ -105,7 +105,7 @@ def train_model(tokenized_datasets, save_name):
         #print_summary(result)
         trainer.save_model("./models/" + save_name.replace(" ", "_"))
         
-def generate(model, initial_prompt):
+def generate(model_name, initial_prompt):
     num_sequences =  3
     min_length =  1
     max_length =   5
@@ -119,7 +119,7 @@ def generate(model, initial_prompt):
     print("encoded_prompt: ", encoded_prompt)
 
     print("Loading model")
-    model = AutoModelForCausalLM.from_pretrained("./models/" + model.replace(" ", "_") + "/")
+    model = AutoModelForCausalLM.from_pretrained("./models/" + model_name.replace(" ", "_") + "/")
     output_sequences = model.generate(
                     input_ids=encoded_prompt,
                     max_length=max_length,
