@@ -57,3 +57,4 @@ class LyricsDataset():
         print("combined_dataset: ", combined_dataset)
         combined_dataset = combined_dataset.train_test_split(test_size=0.1)
         print("combined_dataset: ", combined_dataset)
+        return combined_dataset

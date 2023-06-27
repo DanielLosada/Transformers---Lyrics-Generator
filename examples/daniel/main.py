@@ -78,7 +78,7 @@ def tokenize(element):
             input_batch.append(input_ids)
     return {"input_ids": input_batch}
 
-def train_model(tokenized_datasets):
+def train_model(tokenized_datasets, save_name):
         
         #Load model
         print("Loading model")
@@ -103,11 +103,9 @@ def train_model(tokenized_datasets):
         print_gpu_utilization()
         trainer.train()
         #print_summary(result)
-        trainer.save_model("./models/" + args.trainSingleArtist.replace(" ", "_"))
+        trainer.save_model("./models/" + save_name.replace(" ", "_"))
         
-def generate():
-    
-    start = "Nigga,"
+def generate(model, initial_prompt):
     num_sequences =  3
     min_length =  1
     max_length =   5
@@ -116,12 +114,12 @@ def generate():
     top_k = 30 
     repetition_penalty =  1.0
 
-    encoded_prompt = tokenizer(start, add_special_tokens=False, return_tensors="pt").input_ids
+    encoded_prompt = tokenizer(initial_prompt, add_special_tokens=False, return_tensors="pt").input_ids
     encoded_prompt.to(device)
     print("encoded_prompt: ", encoded_prompt)
 
     print("Loading model")
-    model = AutoModelForCausalLM.from_pretrained("./models/" + args.generateSingleArtist.replace(" ", "_") + "/")
+    model = AutoModelForCausalLM.from_pretrained("./models/" + model.replace(" ", "_") + "/")
     output_sequences = model.generate(
                     input_ids=encoded_prompt,
                     max_length=max_length,
@@ -149,7 +147,8 @@ if __name__ == "__main__":
     parser.add_argument("--trainSingleArtist", type=str, help="Prepare the dataset of the choosen artist. And train the model")
     parser.add_argument("--trainMultipleArtists", action="store_true", help="Prepare the dataset of all the artists. And train the model")
     parser.add_argument("--generateSingleArtist", type=str, help="Pass the artist name to generate lyrics. Use the same name you used to train it.")
-
+    parser.add_argument("--generateMultipleArtist", type=str, help="Pass the artist name to generate lyrics with the model trained with multiple artistrs. Use the same name you used to train it.")
+    
     #Parse the command-line arguments
     args = parser.parse_args()
 
@@ -165,18 +164,33 @@ if __name__ == "__main__":
             tokenize, batched=True, remove_columns=dataset["train"].column_names
         )
 
-        train_model(tokenized_datasets)
+        train_model(tokenized_datasets, args.trainSingleArtist)
         
     if(args.trainMultipleArtists):
-        ly = LyricsDataset(config, args.trainSingleArtist)
+        ly = LyricsDataset(config)
         dataset = ly.load_dataset_multiple_artists()
-    
-    if(args.generateSingleArtist):
-        #generation_config = GenerationConfig.from_pretrained("./models/" + args.generateSingleArtist.replace(" ", "_") + "/")
+        print("dataset: ", dataset)
         tokenizer = AutoTokenizer.from_pretrained(config["model"])
         tokenizer.pad_token = tokenizer.eos_token
-        generate()
-        pass
+
+        tokenized_datasets = dataset.map(
+            tokenize, batched=True, remove_columns=dataset["train"].column_names
+        )
+
+        train_model(tokenized_datasets, "multipleArtists")
+    
+    if(args.generateSingleArtist):
+        tokenizer = AutoTokenizer.from_pretrained(config["model"])
+        tokenizer.pad_token = tokenizer.eos_token
+        initial_prompt = "You are"
+        generate(args.generateSingleArtist, initial_prompt)
+
+    if(args.generateMultipleArtist):
+        tokenizer = AutoTokenizer.from_pretrained(config["model"])
+        tokenizer.pad_token = tokenizer.eos_token
+        initial_prompt = "You are"
+        generate("multipleArtists", args.generateMultipleArtist + ': ' + initial_prompt)
+        
 
 
 
