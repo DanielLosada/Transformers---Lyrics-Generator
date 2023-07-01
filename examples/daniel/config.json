@@ -1,6 +1,7 @@
 {
     "base_dir": "./",
     "dataset_zip": "archive.zip",
-    "dataset_path": "data",
+    "artists_dataset_path": "artists_data",
+    "genres_dataset_path": "genres_data",
     "model": "DistilGPT2"
 }

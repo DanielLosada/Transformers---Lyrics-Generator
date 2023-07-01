@@ -6,7 +6,7 @@ import torch
 from pynvml import *
 from datasets import load_dataset
 from transformers import AutoTokenizer, AutoModelForCausalLM, DataCollatorForLanguageModeling, Trainer, TrainingArguments
-from dataset import LyricsDataset
+from dataset import LyricsDataset, LyricsGenresDataset
 from transformers import GenerationConfig
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -78,6 +78,21 @@ def tokenize(element):
             input_batch.append(input_ids)
     return {"input_ids": input_batch}
 
+def tokenize_genres(element):
+    context_length = 128
+    outputs = tokenizer(
+        element["Lyric"],
+        truncation=True,
+        max_length=context_length,
+        return_overflowing_tokens=True,
+        return_length=True,
+    )
+    input_batch = []
+    for length, input_ids in zip(outputs["length"], outputs["input_ids"]):
+        if length == context_length:
+            input_batch.append(input_ids)
+    return {"input_ids": input_batch}
+
 def train_model(tokenized_datasets, save_name):
         
         #Load model
@@ -117,11 +132,13 @@ def generate(model_name, initial_prompt):
     encoded_prompt = tokenizer(initial_prompt, add_special_tokens=False, return_tensors="pt").input_ids
     encoded_prompt.to(device)
     print("encoded_prompt: ", encoded_prompt)
+    print("attention mask: ", encoded_prompt.ne(tokenizer.pad_token_id).long())
 
     print("Loading model")
     model = AutoModelForCausalLM.from_pretrained("./models/" + model_name.replace(" ", "_") + "/")
     output_sequences = model.generate(
                     input_ids=encoded_prompt,
+                    attention_mask=encoded_prompt.ne(tokenizer.pad_token_id).long(),  # Attention mask
                     max_length=max_length,
                     min_length=min_length,
                     temperature=float(temperature),
@@ -148,7 +165,7 @@ if __name__ == "__main__":
     parser.add_argument("--trainMultipleArtists", action="store_true", help="Prepare the dataset of all the artists. And train the model")
     parser.add_argument("--generateSingleArtist", type=str, help="Pass the artist name to generate lyrics. Use the same name you used to train it.")
     parser.add_argument("--generateMultipleArtist", type=str, help="Pass the artist name to generate lyrics with the model trained with multiple artistrs. Use the same name you used to train it.")
-    
+    parser.add_argument("--trainGenre", type=str, help="Pass the genre to train the model with songs of that genre")
     #Parse the command-line arguments
     args = parser.parse_args()
 
@@ -178,16 +195,30 @@ if __name__ == "__main__":
         )
 
         train_model(tokenized_datasets, "multipleArtists")
+
+    if(args.trainGenre):
+        ly = LyricsGenresDataset(config, args.trainGenre)
+        dataset = ly.load_dataset_genre()
+        tokenizer = AutoTokenizer.from_pretrained(config["model"])
+        tokenizer.pad_token = tokenizer.eos_token
+
+        tokenized_datasets = dataset.map(
+            tokenize_genres, batched=True, remove_columns=dataset["train"].column_names
+        )
+
+        train_model(tokenized_datasets, args.trainSingleArtist)
     
     if(args.generateSingleArtist):
         tokenizer = AutoTokenizer.from_pretrained(config["model"])
         tokenizer.pad_token = tokenizer.eos_token
+        tokenizer.pad_token_id = tokenizer.eos_token_id  # Set pad token ID to EOS token ID
         initial_prompt = "You are"
         generate(args.generateSingleArtist, initial_prompt)
 
     if(args.generateMultipleArtist):
         tokenizer = AutoTokenizer.from_pretrained(config["model"])
         tokenizer.pad_token = tokenizer.eos_token
+        tokenizer.pad_token_id = tokenizer.eos_token_id  # Set pad token ID to EOS token ID
         initial_prompt = "You are"
         generate("multipleArtists", args.generateMultipleArtist + ': ' + initial_prompt)
         
