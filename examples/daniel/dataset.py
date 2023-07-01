@@ -4,6 +4,9 @@ import zipfile
 
 from datasets import load_dataset, concatenate_datasets
 
+files_to_delete = ["(Scriptonite)", "BTS", "Damso", "Genius English Translations", "Genius Romanizations", "JuL", "Nekfeu", "Oxxxymiron"]
+files_to_multiartist = ["50 Cent", "Imagine Dragons", "Justin Bieber", "Taylor Swift", "Queen", "Lil Peep", "Arctic Monkeys", "The Notorious B.I.G.", "Radiohead", "Mac Miller"]
+
 # Preprocessing function
 def preprocess_lyrics(data):
     # Remove the first line
@@ -29,6 +32,14 @@ class LyricsDataset():
             with zipfile.ZipFile(os.path.join(self.config["base_dir"], self.config["dataset_zip"]), 'r') as zip_ref:
                 zip_ref.extractall(self.config["dataset_path"])
                 print("Successfully extracted the contents of the zip file.")
+            
+        for file_name in files_to_delete:
+            file_path = os.path.join(self.config["dataset_path"], f"{file_name}.csv")
+            if os.path.exists(file_path):
+                os.remove(file_path)
+                print(f"Deleted file: {file_path}")
+            else:
+                print(f"File not found: {file_path}")
         else:
             print("The 'data' folder is not empty. Skipping extraction.")
     
