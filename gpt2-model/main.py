@@ -44,8 +44,9 @@ def train_model(dataset, tokenized_dataset, save_name):
     trainer.save_model("./models/" + save_name.replace(" ", "_"))
 
 if __name__ == "__main__":
-    #print(os.getcwd())
-    
+    os.chdir('/home/paurosci/gits/Transformers---Lyrics-Generator/gpt2-model')
+    print(os.getcwd())
+
     # Load the configuration file
     with open('config.json', 'r') as f:
         config = json.load(f)
@@ -67,20 +68,34 @@ if __name__ == "__main__":
         print("Selected single-artist training: ", args.train_single_artist)
         lyrics_dataset = LyricsDataset(config, args.train_single_artist, args.dataset_selection)
         lyrics_dataset.load_dataset_single_artist()
-        tokenized_dataset = lyrics_dataset.dataset.map(lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names)
+        tokenized_dataset = lyrics_dataset.dataset.map(
+            lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
+        )
         train_model(lyrics_dataset, tokenized_dataset, args.train_single_artist)
+    
     elif(args.train_multiple_artist):
         print("Selected multi-artist tranining")
+        lyrics_dataset = LyricsDataset(config, args.train_single_artist, args.dataset_selection)
+        lyrics_dataset.load_dataset_multiple_artists()
+        tokenized_dataset = lyrics_dataset.dataset.map(
+            lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
+        )
+        train_model(lyrics_dataset, tokenized_dataset, "multipleArtists")
 
     if(args.generate_single_artist):
         print("Selected single-artist generation: ", args.generate_single_artist)
         lyrics_generator_params = LyricsGeneratorParams
         lyrics_generator_params.max_length = 10
-
-
         lyrics_generator = LyricsGenerator(config, args.generate_single_artist, lyrics_generator_params)
         lyrics_generator.generate_lyrics(initial_prompt="My name is")
+    
     elif(args.generate_multiple_artist):
         print("Selected multiple-artist generation")
+        lyrics_generator_params = LyricsGeneratorParams
+        lyrics_generator_params.max_length = 10
+        initial_prompt="You are"
+        lyrics_generator = LyricsGenerator(config, "multipleArtists", lyrics_generator_params)
+        lyrics_generator.generate_lyrics(args.generate_multiple_artist + ': ' + initial_prompt)
+
 
 
