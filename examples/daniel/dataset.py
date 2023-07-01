@@ -24,7 +24,7 @@ def preprocess_lyrics_multiple_artists(data):
 
 class LyricsDataset():
     
-    def __init__(self, config, artist):
+    def __init__(self, config, artist = ""):
         self.config = config
         self.artist = artist
 
@@ -53,9 +53,11 @@ class LyricsDataset():
     def load_dataset_multiple_artists(self):
         folder_path = os.path.join(self.config["base_dir"], self.config["dataset_path"])
         csv_files = [filename for filename in os.listdir(folder_path) if filename.endswith(".csv")]
+        csv_files_to_keep = [filename for filename in csv_files if any(artist in filename for artist in files_to_multiartist)]
         print("csv_files: ", csv_files)
+        print("csv_files_to_keep: ", csv_files_to_keep)
         datasets = []
-        for file in csv_files:
+        for file in csv_files_to_keep:
             print("FILE: ", file)
             csv_path = os.path.join(self.config["base_dir"], self.config["dataset_path"], file)
             csvFile = load_dataset("csv", data_files=csv_path, split="train")
