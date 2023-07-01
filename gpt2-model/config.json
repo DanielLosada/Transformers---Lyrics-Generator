@@ -1,9 +1,10 @@
 {
-    "base_dir":"/Users/prosci/gits/Transformers---Lyrics-Generator/gpt2-model",
+    "base_dir":"./",
     "dataset_path":"data",
     "dataset_zip":
-        {
-            "genious-lyrics":"datasets/archive.zip",
-            "79-musical-genres":"datasets/archive2.zip"
-        }
+    {
+        "genious-lyrics":"datasets/archive.zip",
+        "79-musical-genres":""
+    },
+    "model":"DistilGPT2"
 }
