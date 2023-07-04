@@ -1,5 +1,7 @@
 --extra-index-url https://download.pytorch.org/whl/cu117
 
 torch
-gradio
 transformers
+datasets
+accelerate
+pynvml

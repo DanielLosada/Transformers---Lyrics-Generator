@@ -1,0 +1,10 @@
+{
+    "base_dir":"./",
+    "dataset_path":"data",
+    "dataset_zip":
+    {
+        "genious-lyrics":"datasets/genious-lyrics.zip",
+        "79-musical-genres":"datasets/79-musical-genres.zip"
+    },
+    "model":"DistilGPT2"
+}
