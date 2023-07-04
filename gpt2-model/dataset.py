@@ -29,7 +29,7 @@ class LyricsDataset():
         if not os.path.exists(os.path.join(config["dataset_path"],self.dataset_dir)) or not os.listdir(os.path.join(config["dataset_path"],self.dataset_dir)):
             print(os.path.join(self.config["base_dir"], self.dataset_zip))
             with zipfile.ZipFile(os.path.join(self.config["base_dir"], self.dataset_zip), 'r') as zip_ref:
-                zip_ref.extractall(os.path.join(self.config["base_dir"], self.config["dataset_path"]))
+                zip_ref.extractall(os.path.join(self.config["base_dir"], self.config["dataset_path"], self.dataset_id))
                 print("Successfully extracted the contents of the zip file.")
         else:
             print("The", os.path.join(self.config["base_dir"], self.config["dataset_path"], self.dataset_dir), "folder is not empty. Skipping extraction.")
