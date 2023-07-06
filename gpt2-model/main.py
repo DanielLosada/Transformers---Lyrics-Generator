@@ -43,9 +43,9 @@ def train_model(dataset, tokenized_dataset, save_name):
     #print_summary(result)
     trainer.save_model("./models/" + save_name.replace(" ", "_"))
 
-if __name__ == "__main__":
-    os.chdir('/home/paurosci/gits/Transformers---Lyrics-Generator/gpt2-model')
-    print(os.getcwd())
+#if __name__ == "__main__":
+    #os.chdir('/home/paurosci/gits/Transformers---Lyrics-Generator/gpt2-model')
+    #print(os.getcwd())
 
     # Load the configuration file
     with open('config.json', 'r') as f:
