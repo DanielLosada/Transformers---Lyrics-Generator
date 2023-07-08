@@ -146,11 +146,11 @@ def text_generation(test_data):
 
 if __name__ == "__main__":
     ### Prepare data
-    lyrics = pd.read_csv('/Users/prosci/gits/Transformers---Lyrics-Generator/examples/pau/dataset/lyrics-data.csv')
+    lyrics = pd.read_csv('/home/paurosci/gits/Transformers---Lyrics-Generator/gpt2-model/data/79-musical-genres/lyrics-data.csv')
     lyrics = lyrics[lyrics['language']=='en']
 
     # Only keep popular artists, with genre Rock/Pop and popularity high enough
-    artists = pd.read_csv('/Users/prosci/gits/Transformers---Lyrics-Generator/examples/pau/dataset/artists-data.csv')
+    artists = pd.read_csv('/home/paurosci/gits/Transformers---Lyrics-Generator/gpt2-model/data/79-musical-genres/artists-data.csv')
     artists = artists[(artists['Genres'].isin(['Rock'])) & (artists['Popularity']>5)]
     df = lyrics.merge(artists[['Artist', 'Genres', 'Link']], left_on='ALink', right_on='Link', how='inner')
     df = df.drop(columns=['ALink','SLink','language','Link'])
