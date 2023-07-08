@@ -3,7 +3,7 @@ import torch
 import json
 import os
 from pynvml import *
-from transformers import AutoModelForCausalLM, DataCollatorForLanguageModeling, Trainer, TrainingArguments
+from transformers import AutoModelForCausalLM, DataCollatorForLanguageModeling, Trainer, TrainingArguments, T5ForConditionalGeneration
 from dataset import LyricsDataset
 from generator import *
 
@@ -24,7 +24,7 @@ def print_summary(result):
     # print_gpu_utilization()
 
 def train_model(dataset, tokenized_dataset, save_name):
-    model = AutoModelForCausalLM.from_pretrained(config["model"]).to(device)
+    model = T5ForConditionalGeneration.from_pretrained("t5-base").to(device)
     model_size = sum(t.numel() for t in model.parameters())
     print(f"{config['model']} size: {model_size/1000**2:.1f}M parameters")
     training_args = TrainingArguments("trainer", per_device_train_batch_size=4, evaluation_strategy="epoch", num_train_epochs=10, save_strategy="epoch", load_best_model_at_end=True)
