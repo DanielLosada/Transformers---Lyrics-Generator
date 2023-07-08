@@ -1,6 +1,6 @@
 from torch import device, cuda
 from dataclasses import dataclass
-from transformers import AutoTokenizer, AutoModelForCausalLM
+from transformers import AutoTokenizer, AutoModelForCausalLM, T5ForConditionalGeneration
 
 # Load device to use eith GPU or CPU
 device = device("cuda") if cuda.is_available() else device("cpu")
@@ -20,7 +20,7 @@ class LyricsGenerator():
     def __init__(self, config, artist, params=LyricsGeneratorParams):
         self.config = config
         self.artist = artist
-        self.tokenizer = AutoTokenizer.from_pretrained(self.config["model"])
+        self.tokenizer = AutoTokenizer.from_pretrained("t5-base")
         self.tokenizer.pad_token = self.tokenizer.eos_token
         self.params = params
         self.generated=""
@@ -31,7 +31,7 @@ class LyricsGenerator():
         encoded_prompt.to(device)
         print("encoded_prompt: ", encoded_prompt)
         print("Loading model")
-        model = AutoModelForCausalLM.from_pretrained("./models/" + self.artist.replace(" ", "_") + "/")
+        model = T5ForConditionalGeneration.from_pretrained("./models/" + self.artist.replace(" ", "_") + "/")
         output_sequences = model.generate(
                         input_ids=encoded_prompt,
                         max_length=self.params.max_length,
