@@ -1,7 +1,13 @@
 --extra-index-url https://download.pytorch.org/whl/cu117
 
 torch
+<<<<<<< HEAD
 transformers
 datasets
 accelerate
 pynvml
+=======
+gradio
+transformers
+pandas
+>>>>>>> pau/example
