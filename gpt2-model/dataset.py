@@ -11,7 +11,7 @@ class LyricsDataset():
         self.filter_field = filter_field
         self.dataset_id = dataset_id
         self.dataset_zip = self.config["dataset_zip"][self.dataset_id]
-        self.tokenizer = AutoTokenizer.from_pretrained(self.config["model"])
+        self.tokenizer = AutoTokenizer.from_pretrained("t5-base")
         self.tokenizer.pad_token = self.tokenizer.eos_token
         self.files_to_delete = ["(Scriptonite)", "BTS", "Damso", "Genius English Translations", "Genius Romanizations", "JuL", "Nekfeu", "Oxxxymiron"]
         self.files_to_multiartist = ["Eminem10", "Justin Bieber10"]
