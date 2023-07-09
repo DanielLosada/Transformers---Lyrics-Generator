@@ -14,9 +14,8 @@ class LyricsDataset():
         self.tokenizer = AutoTokenizer.from_pretrained(self.config["model"])
         self.tokenizer.pad_token = self.tokenizer.eos_token
         self.files_to_delete = ["(Scriptonite)", "BTS", "Damso", "Genius English Translations", "Genius Romanizations", "JuL", "Nekfeu", "Oxxxymiron"]
-        self.files_to_multiartist = ["Eminem10", "Justin Bieber10"]
-        # TODO: Remove this
-        #self.files_to_multiartist = ["50 Cent", "Imagine Dragons", "Justin Bieber", "Taylor Swift", "Queen", "Lil Peep", "Arctic Monkeys", "The Notorious B.I.G.", "Radiohead", "Mac Miller"]
+        #self.files_to_multiartist = ["Eminem10", "Justin Bieber10"]
+        self.files_to_multiartist = ["50 Cent", "Imagine Dragons", "Justin Bieber", "Taylor Swift", "Queen", "Lil Peep", "Arctic Monkeys", "The Notorious B.I.G.", "Radiohead", "Mac Miller"]
         self.dataset=""
 
         # Obtain selected dataset specific folder
@@ -93,7 +92,7 @@ class LyricsDataset():
 
     def tokenize(self, element):
         """Tokenizes a loaded dataset containing a lyrics section"""
-        context_length = 128
+        context_length = 1023
         input_batch = []
 
         if self.dataset_id == 'genious-lyrics':
@@ -101,6 +100,7 @@ class LyricsDataset():
                 element["lyrics"],
                 truncation=True,
                 max_length=context_length,
+                #padding="max_length",
                 return_overflowing_tokens=True,
                 return_length=True,
             )
@@ -109,13 +109,15 @@ class LyricsDataset():
                 element["Lyric"],
                 truncation=True,
                 max_length=context_length,
+                #padding="max_length",
                 return_overflowing_tokens=True,
                 return_length=True,
             )
 
         for length, input_ids in zip(outputs["length"], outputs["input_ids"]):
-            if length == context_length:
-                input_batch.append(input_ids)
+            input_batch.append(input_ids)
+            '''if length == context_length:
+                input_batch.append(input_ids)'''
         return {"input_ids": input_batch}
     
     def __preprocess_lyrics(self, data):
