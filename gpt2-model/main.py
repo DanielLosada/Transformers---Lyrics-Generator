@@ -52,6 +52,9 @@ def generate_performance_prompt(test_data, n_verses):
     prompt_texts=[]
     for i in range(len(test_data['test_trimmed_lyrics'])):
         split_dataset = test_data['test_trimmed_lyrics'][i].split('\n')
+        # remove empty words
+        while("" in split_dataset): split_dataset.remove("")
+        
         for j in range(len(split_dataset)-n_verses):
             split_dataset.pop(0)
         
@@ -72,7 +75,7 @@ def remove_last_words(data, n):
     '''removes the last n words from data'''
     split_data = [i.split() for i in data.split('\n')]
     word_count=0
-    for j in range(1,len(split_data)):
+    for j in range(0,len(split_data)):
         if split_data[-j] != '[]':
             for k in reversed(range(len(split_data[-j]))):
                 if word_count == n:
@@ -117,8 +120,7 @@ if __name__ == "__main__":
         args.dataset_selection="genious-lyrics"
 
     # TODO: remove this
-    # args.single_artist_performance=['Eminem10', False, 2]
-    # args.dataset_selection='79-musical-genres'
+    # args.single_artist_performance=['50 Cent', 'False', '1']
 
     # Training options
     if(args.train_single_artist):
@@ -171,17 +173,17 @@ if __name__ == "__main__":
     # Performance evaluation options
     if (args.single_artist_performance):
         print("Selected single artist performance evaluation")
-        artist = args.single_artist_performance[0]
+        artist = args.single_artist_performance[0]+'_performance'
         train = args.single_artist_performance[1]
-        n_verses = args.single_artist_performance[2]
+        n_verses = int(args.single_artist_performance[2])
 
-        if(train):
-            lyrics_dataset = LyricsDataset(config, artist, "genious-lyrics", performance_evaluation_nverses=n_verses)
+        if(train == 'True'):
+            lyrics_dataset = LyricsDataset(config, artist.replace(" ", "_"), "genious-lyrics", performance_evaluation_nverses=n_verses)
             lyrics_dataset.load_dataset_single_artist()
             tokenized_dataset = lyrics_dataset.dataset.map(
                 lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
             )
-            train_model(lyrics_dataset, tokenized_dataset, artist+'_performance')
+            train_model(lyrics_dataset, tokenized_dataset, artist)
 
             # Store test lyrics in json file in order to prevent training again
             test_lyrics = {}
@@ -190,11 +192,11 @@ if __name__ == "__main__":
                 test_trimmed_lyrics.extend([str(lyrics_dataset.dataset['test']['lyrics'][i])])
             test_lyrics['test_trimmed_lyrics'] = test_trimmed_lyrics
             test_lyrics['test_true_lyrics'] = lyrics_dataset.true_lyrics_dataset
-            with open("./models/" + artist+"_performance/lyrics_test.json","w") as f:
+            with open("./models/" + artist.replace(" ", "_")+"/lyrics_test.json","w") as f:
                 json.dump(test_lyrics, f)
 
         # load test lyrics information for performing text generation
-        f = open("./models/" + artist+"_performance/lyrics_test.json")
+        f = open("./models/" + artist.replace(" ", "_")+"/lyrics_test.json")
         test_data=json.load(f)
 
         # generate performance prompt
@@ -212,8 +214,9 @@ if __name__ == "__main__":
             true_lyrics_words = word_counter(test_data['test_true_lyrics'][i])
 
             # create sentence with latest n words
-            lyrics_generator.params.max_length = (initial_prompt_words + true_lyrics_words)
-            lyrics_generator.params.min_length = (initial_prompt_words + true_lyrics_words)
+            lyrics_generator.params.max_length = (initial_prompt_words + true_lyrics_words) + 10
+            lyrics_generator.params.min_length = (initial_prompt_words + true_lyrics_words) + 10
+            print("################################# iteration num = ", str(i))
             print("generator selected max_length =", lyrics_generator.params.max_length)
             print("generator selected min_length =", lyrics_generator.params.min_length)
             
@@ -229,7 +232,7 @@ if __name__ == "__main__":
             
             # remove prompt from generated output
             true_lyrics = test_data['test_true_lyrics'][i]
-            generated_lyrics = lyrics_generator.generated[0].replace(initial_prompt[i] + ' ', '')
+            generated_lyrics = lyrics_generator.generated[0].replace(initial_prompt[i], '')
             generated_words = word_counter(generated_lyrics)
             
             print("\n" + "&"*20)
@@ -238,50 +241,52 @@ if __name__ == "__main__":
             print("generated words   =", generated_words)
             print("\n" + "&"*20)
 
+            # TODO: timming commented for now
             # trim generated or true_lyrics if lengths are not compatible
-            if(generated_words < true_lyrics_words):
-                true_lyrics = remove_last_words(true_lyrics, abs(true_lyrics_words-generated_words))
-                true_lyrics_words = word_counter(true_lyrics)
-                print("\n" + "&"*20)
-                print("prompt words      =", initial_prompt_words)
-                print("true_lyrics words =", true_lyrics_words)
-                print("generated words   =", generated_words)
-                print("\n" + "&"*20)
-                print("\n"+"&"*20 + " Initial prompt " + "&"*20)
-                print(initial_prompt[i])
-                print("\n"+"&"*20 + " True text " + "&"*20)
-                print(test_data['test_true_lyrics'][i])
-                print("\n"+"&"*20 + " Generated text " + "&"*20)
-                print(generated_lyrics)
-                print("\n" + "&"*20)
+            # if(generated_words < true_lyrics_words):
+            #     true_lyrics = remove_last_words(true_lyrics, abs(true_lyrics_words-generated_words))
+            #     true_lyrics_words = word_counter(true_lyrics)
+            #     print("\n" + "&"*20)
+            #     print("prompt words      =", initial_prompt_words)
+            #     print("true_lyrics words =", true_lyrics_words)
+            #     print("generated words   =", generated_words)
+            #     print("\n" + "&"*20)
+            #     print("\n"+"&"*20 + " Initial prompt " + "&"*20)
+            #     print(initial_prompt[i])
+            #     print("\n"+"&"*20 + " True text " + "&"*20)
+            #     print(test_data['test_true_lyrics'][i])
+            #     print("\n"+"&"*20 + " Generated text " + "&"*20)
+            #     print(generated_lyrics)
+            #     print("\n" + "&"*20)
+            # elif(generated_words > true_lyrics_words):
+            #     generated_lyrics = remove_last_words(generated_lyrics, abs(true_lyrics_words-generated_words))
+            #     generated_words = word_counter(generated_lyrics)
+            #     print("\n" + "&"*20)
+            #     print("prompt words      =", initial_prompt_words)
+            #     print("true_lyrics words =", true_lyrics_words)
+            #     print("generated words   =", generated_words)
+            #     print("\n" + "&"*20)
+            #     print("\n"+"&"*20 + " Initial prompt " + "&"*20)
+            #     print(initial_prompt[i])
+            #     print("\n"+"&"*20 + " True text " + "&"*20)
+            #     print(test_data['test_true_lyrics'][i])
+            #     print("\n"+"&"*20 + " Generated text " + "&"*20)
+            #     print(generated_lyrics)
+            #     print("\n" + "&"*20)
 
-            elif(generated_words > true_lyrics_words):
-                generated_lyrics = remove_last_words(generated_lyrics, abs(true_lyrics_words-generated_words))
-                generated_words = word_counter(generated_lyrics)
-                print("\n" + "&"*20)
-                print("prompt words      =", initial_prompt_words)
-                print("true_lyrics words =", true_lyrics_words)
-                print("generated words   =", generated_words)
-                print("\n" + "&"*20)
-                print("\n"+"&"*20 + " Initial prompt " + "&"*20)
-                print(initial_prompt[i])
-                print("\n"+"&"*20 + " True text " + "&"*20)
-                print(test_data['test_true_lyrics'][i])
-                print("\n"+"&"*20 + " Generated text " + "&"*20)
-                print(generated_lyrics)
-                print("\n" + "&"*20)
-
+            # TODO: make a list of words instead of a string
             # Compute and display bleu metric
-            scores=[]
+            # scores=[]
             # for j in range(len(test_data['test_true_lyrics'])):
-            reference = true_lyrics
-            candidate = generated_lyrics
-            scores.append(sentence_bleu(reference, candidate))
+            # reference = [i.split() for i in true_lyrics.split('\n')]
+            # candidate = generated_lyrics
+            # candidate = reference
+            # scores.append(sentence_bleu('hello world!!', 'hello world!!'))
 
-            bleu_scores.append(statistics.mean(scores))
-            print("\n" + "&"*20)
-            print("bleu scores   =", bleu_scores[i])
-            print("\n" + "&"*20)
+            # bleu_scores.append(statistics.mean(scores))
+            # print("\n" + "&"*20)
+            # print("bleu scores   =", bleu_scores[i])
+            # print("\n" + "&"*20)
 
     elif(args.multiple_artists_performance):
         print("Selected multiple artists performance evaluation")

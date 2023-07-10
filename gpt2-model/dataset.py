@@ -129,8 +129,7 @@ class LyricsDataset():
             )
 
         for length, input_ids in zip(outputs["length"], outputs["input_ids"]):
-            if length == context_length:
-                input_batch.append(input_ids)
+            input_batch.append(input_ids)
         return {"input_ids": input_batch}
     
     def _preprocess_lyrics(self, data):
@@ -146,6 +145,8 @@ class LyricsDataset():
             for i in range(len(data['lyrics'])):
                 # Remove the first line
                 data['lyrics'][i] = data['lyrics'][i].split('\n', 1)[-1]
+                # TODO: Remove empty words 
+                #while("" in data['lyrics'][i]): data['lyrics'][i].remove("")
                 # Remove text between square brackets
                 data['lyrics'][i] = re.sub(r'\[.*?\]', '', data['lyrics'][i])
                 data['lyrics'][i] = data['lyrics'][i].strip()
@@ -177,7 +178,7 @@ class LyricsDataset():
             
             data = data.drop(columns=['ALink','SLink','Link','Popularity'])
             #TODO: Remove this
-            data = data.drop(data.index[2:-1])
+            #data = data.drop(data.index[2:-1])
         return data
 
     def _split_train_custom_eval(self, csvFile, test_size):
