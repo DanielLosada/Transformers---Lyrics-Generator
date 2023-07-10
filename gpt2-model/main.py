@@ -89,7 +89,7 @@ def remove_last_words(data, n):
 
 if __name__ == "__main__":
     # TODO: remove this
-    os.chdir('/home/paurosci/gits/Transformers---Lyrics-Generator/gpt2-model')
+    # os.chdir('/home/paurosci/gits/Transformers---Lyrics-Generator/gpt2-model')
     
     # Load the configuration file
     with open('config.json', 'r') as f:
@@ -117,8 +117,8 @@ if __name__ == "__main__":
         args.dataset_selection="genious-lyrics"
 
     # TODO: remove this
-    args.single_artist_performance=['Eminem10', False, 2]
-    args.dataset_selection='79-musical-genres'
+    # args.single_artist_performance=['Eminem10', False, 2]
+    # args.dataset_selection='79-musical-genres'
 
     # Training options
     if(args.train_single_artist):
