@@ -89,7 +89,7 @@ def remove_last_words(data, n):
 
 if __name__ == "__main__":
     # TODO: remove this
-    #os.chdir('/home/paurosci/gits/Transformers---Lyrics-Generator/gpt2-model')
+    os.chdir('/home/paurosci/gits/Transformers---Lyrics-Generator/gpt2-model')
     
     # Load the configuration file
     with open('config.json', 'r') as f:
@@ -117,8 +117,8 @@ if __name__ == "__main__":
         args.dataset_selection="genious-lyrics"
 
     # TODO: remove this
-    #args.single_artist_performance=['Eminem10', False, 2]
-    # args.dataset_selection='79-musical-genres'
+    args.single_artist_performance=['Eminem10', False, 2]
+    args.dataset_selection='79-musical-genres'
 
     # Training options
     if(args.train_single_artist):
@@ -181,7 +181,7 @@ if __name__ == "__main__":
             tokenized_dataset = lyrics_dataset.dataset.map(
                 lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
             )
-            train_model(lyrics_dataset, tokenized_dataset, artist)
+            train_model(lyrics_dataset, tokenized_dataset, artist+'_performance')
 
             # Store test lyrics in json file in order to prevent training again
             test_lyrics = {}
@@ -207,7 +207,7 @@ if __name__ == "__main__":
 
         # Perform generation and compute scores
         bleu_scores=[]
-        for i in range(len(test_data['test_trimmed_lyrics'])):
+        for i in range(0, len(test_data['test_trimmed_lyrics'])):
             initial_prompt_words = word_counter(initial_prompt[i])
             true_lyrics_words = word_counter(test_data['test_true_lyrics'][i])
 
@@ -229,7 +229,7 @@ if __name__ == "__main__":
             
             # remove prompt from generated output
             true_lyrics = test_data['test_true_lyrics'][i]
-            generated_lyrics = lyrics_generator.generated[i].replace(initial_prompt[i] + ' ', '')
+            generated_lyrics = lyrics_generator.generated[0].replace(initial_prompt[i] + ' ', '')
             generated_words = word_counter(generated_lyrics)
             
             print("\n" + "&"*20)
@@ -273,10 +273,10 @@ if __name__ == "__main__":
 
             # Compute and display bleu metric
             scores=[]
-            for i in range(len(test_data['test_true_lyrics'])):
-                reference = true_lyrics
-                candidate = generated_lyrics
-                scores.append(sentence_bleu(reference, candidate))
+            # for j in range(len(test_data['test_true_lyrics'])):
+            reference = true_lyrics
+            candidate = generated_lyrics
+            scores.append(sentence_bleu(reference, candidate))
 
             bleu_scores.append(statistics.mean(scores))
             print("\n" + "&"*20)
@@ -287,48 +287,10 @@ if __name__ == "__main__":
         print("Selected multiple artists performance evaluation")
         pass
         # TODO
-        # lyrics_dataset = LyricsDataset(config, args.genre_performance, "79-musical-genres", performance_evaluation=True)
-        # lyrics_dataset.load_dataset_multiple_artists()
-        # tokenized_dataset = lyrics_dataset.dataset.map(
-        #     lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
-        # )
-        # print("&"*50)
-        # print('dataset')
-        # print(lyrics_dataset.dataset['test']['Lyric'][0])
-        # print("&"*50)
-        # print('true end lyrics')    
-        # print(lyrics_dataset.true_end_lyric[0])
-        # print("&"*50)
-
-        # train_model(lyrics_dataset, tokenized_dataset, "multipleArtists_performance")
-        # lyrics_generator_params = LyricsGeneratorParams
-        # lyrics_generator_params.num_sequences = 1
-        # lyrics_generator_params.max_length = 20
-
-        # generated_lyrics = []
-        # lyrics_generator = LyricsGenerator(config, 'multipleArtists_performance', lyrics_generator_params)
-        # for i in range (len(lyrics_dataset.dataset['test'])):
-        #     if args.dataset_selection == '79-musical-genres':
-        #         lyrics_generator.params.max_length = 20
-        #         lyrics_generator.generate_lyrics(lyrics_dataset.dataset['test']['Lyric'][i])
-        #         generated_lyrics.append(lyrics_generator.generated)
-        # print('generated_lyrics')
-        # print(generated_lyrics)
-        # print("&"*50)
     elif(args.genre_performance):
         print("Selected genre performance evaluation")
         pass
         # TODO
-        # lyrics_dataset = LyricsDataset(config, args.genre_performance, "79-musical-genres", True)
-        # lyrics_dataset.load_dataset_multiple_artists()
-        # tokenized_dataset = lyrics_dataset.dataset.map(
-        #     lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
-        # )
-        # train_model(lyrics_dataset, tokenized_dataset)
-        # lyrics_generator_params = LyricsGeneratorParams
-        # lyrics_generator_params.num_sequences = 1
-        # lyrics_generator_params.max_length = 30
-        # lyrics_generator = LyricsGenerator(config, args.genre_performance+'_performance', lyrics_generator_params)
 
 
 
