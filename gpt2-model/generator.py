@@ -42,14 +42,10 @@ class LyricsGenerator():
                         do_sample=True,
                         repetition_penalty=self.params.repetition_penalty,
                         num_return_sequences=self.params.num_sequences)
-        print("output_sequences: ", output_sequences)
-        self.generated = self.__post_process(output_sequences)
-        print("&"*50)
-        for text in self.generated:
-            print(text)
-        print("&"*50)
+        self.generated = self._post_process(output_sequences)
+
         
-    def __post_process(self, output_sequences):
+    def _post_process(self, output_sequences):
         """Decodes lyrics text from tokenizer and cleansup text"""
         predictions = []
         generated_sequences = []
@@ -63,12 +59,12 @@ class LyricsGenerator():
             res = str(g).replace('\n\n\n', '\n').replace('\n\n', '\n')
             lines = res.split('\n')
             #print(lines)
-            lines = self.__remove_consecutive_duplicates(lines, self.params.max_repeat)
+            lines = self._remove_consecutive_duplicates(lines, self.params.max_repeat)
             predictions.append('\n'.join(lines))
 
         return predictions
     
-    def __remove_consecutive_duplicates(self, arr, max_repeat):
+    def _remove_consecutive_duplicates(self, arr, max_repeat):
         """Removes consecutive duplicated words"""
         results = []
         if len(arr) >= max_repeat:
