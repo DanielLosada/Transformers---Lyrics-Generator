@@ -1,6 +1,7 @@
 {
     "base_dir":"./",
     "dataset_path":"data",
+    "epochs":30,
     "dataset_zip":
     {
         "genious-lyrics":"datasets/genious-lyrics.zip",

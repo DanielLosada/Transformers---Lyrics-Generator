@@ -29,7 +29,7 @@ def train_model(dataset, tokenized_dataset, save_name=''):
     model = AutoModelForCausalLM.from_pretrained(config["model"]).to(device)
     model_size = sum(t.numel() for t in model.parameters())
     print(f"{config['model']} size: {model_size/1000**2:.1f}M parameters")
-    training_args = TrainingArguments("trainer", per_device_train_batch_size=4, evaluation_strategy="epoch", num_train_epochs=10, save_strategy="epoch", load_best_model_at_end=True)
+    training_args = TrainingArguments("trainer", per_device_train_batch_size=4, evaluation_strategy="epoch", num_train_epochs=config["epochs"], save_strategy="epoch", load_best_model_at_end=True)
     data_collator = DataCollatorForLanguageModeling(dataset.tokenizer, mlm=False)
     trainer = Trainer(
             model,
