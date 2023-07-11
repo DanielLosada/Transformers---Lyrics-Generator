@@ -125,7 +125,7 @@ if __name__ == "__main__":
     # Training options
     if(args.train_single_artist):
         print("Selected single-artist training: ", args.train_single_artist)
-        lyrics_dataset = LyricsDataset(config, args.train_single_artist, args.dataset_selection, args.performance_evaluation)
+        lyrics_dataset = LyricsDataset(config, args.train_single_artist, args.dataset_selection)
         lyrics_dataset.load_dataset_single_artist()
         tokenized_dataset = lyrics_dataset.dataset.map(
             lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
@@ -133,7 +133,7 @@ if __name__ == "__main__":
         train_model(lyrics_dataset, tokenized_dataset, args.train_single_artist)
     elif(args.train_multiple_artists):
         print("Selected multi-artist tranining")
-        lyrics_dataset = LyricsDataset(config, "multipleArtists", args.dataset_selection, args.performance_evaluation)
+        lyrics_dataset = LyricsDataset(config, "multipleArtists", args.dataset_selection)
         lyrics_dataset.load_dataset_multiple_artists()
         tokenized_dataset = lyrics_dataset.dataset.map(
             lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
