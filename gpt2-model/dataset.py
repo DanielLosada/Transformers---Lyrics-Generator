@@ -16,9 +16,9 @@ class LyricsDataset():
         self.tokenizer = AutoTokenizer.from_pretrained(self.config["model"])
         self.tokenizer.pad_token = self.tokenizer.eos_token
         self.files_to_delete = ["(Scriptonite)", "BTS", "Damso", "Genius English Translations", "Genius Romanizations", "JuL", "Nekfeu", "Oxxxymiron"]
-        self.files_to_multiartist = ["Eminem10", "Justin Bieber10"]
         # TODO: Remove this
-        #self.files_to_multiartist = ["50 Cent", "Imagine Dragons", "Justin Bieber", "Taylor Swift", "Queen", "Lil Peep", "Arctic Monkeys", "The Notorious B.I.G.", "Radiohead", "Mac Miller"]
+        #self.files_to_multiartist = ["Eminem10", "Justin Bieber10"]
+        self.files_to_multiartist = ["50 Cent", "Imagine Dragons", "Justin Bieber", "Taylor Swift", "Queen", "Lil Peep", "Arctic Monkeys", "The Notorious B.I.G.", "Radiohead", "Mac Miller"]
         self.dataset=""
         self.true_lyrics_dataset=[]
 
@@ -49,17 +49,16 @@ class LyricsDataset():
     def load_dataset_single_artist(self):
         """Loads a dataset from a specific artist and stores its cleaned version"""
         if self.dataset_id == 'genious-lyrics':
-            #TODO: preprocess data differently
-            #csvFile = load_dataset("csv", data_files=csv_path, split="train")
-            #csvFile = csvFile.map(self.__preprocess_lyrics)
             csv_path = os.path.join(self.config["base_dir"], self.config["dataset_path"], self.dataset_dir, self.filter_field + ".csv")
-            csvFile = pd.read_csv(csv_path)
-            csvFile = self.__preprocess_lyrics(csvFile)
-
+            
             # Check wether performance evaluation needs to be computed
             if(self.performance_evaluation_nverses):
+                csvFile = pd.read_csv(csv_path)
+                csvFile = self.__preprocess_lyrics(csvFile)
                 self.dataset = self.__split_train_custom_eval(csvFile, test_size=0.1)
             else:
+                csvFile = load_dataset("csv", data_files=csv_path, split="train")
+                csvFile = csvFile.map(self.__preprocess_lyrics_single_artist)
                 self.dataset = csvFile.select_columns("lyrics").train_test_split(test_size=0.1)
         elif self.dataset_id == '79-musical-genres':
             pass
@@ -132,16 +131,30 @@ class LyricsDataset():
             input_batch.append(input_ids)
         return {"input_ids": input_batch}
     
+    def __preprocess_lyrics_single_artist(self, data):
+        """Preprocesses lyrics by removing first line and text between square brakets"""
+        if self.dataset_id == 'genious-lyrics':
+            # Remove the first line
+            data['lyrics'] = data['lyrics'].split('\n', 1)[-1]
+            
+            # Remove text between square brackets
+            data['lyrics'] = re.sub(r'\[.*?\]', '', data['lyrics'])
+            data['lyrics'] = data['lyrics'].strip()
+            data['lyrics'] = re.sub(r'[-+]?(\d+).(\d+)KEmbed', '', data['lyrics'])
+            data['lyrics'] = re.sub(r'[-+]?(\d+)KEmbed', '', data['lyrics'])
+            data['lyrics'] = re.sub(r'KEmbed', '', data['lyrics'])
+            data['lyrics'] = re.sub(r'[-+]?(\d+).(\d+)Embed', '', data['lyrics'])
+            data['lyrics'] = re.sub(r'[-+]?(\d+)Embed', '', data['lyrics'])
+            data['lyrics'] = re.sub(r'Embed', '', data['lyrics'])
+
+        elif self.dataset_id == '79-musical-genres':
+            pass
+
+        return data
+    
     def __preprocess_lyrics(self, data):
         """Preprocesses lyrics by removing first line and text between square brakets"""
         if self.dataset_id == 'genious-lyrics':
-            # TODO: preprocess data differently to allow performance evaluation. Remove once confirmed
-            # # Remove the first line
-            # data['lyrics'] = data['lyrics'].split('\n', 1)[-1]
-            # # Remove text between square brackets
-            # data['lyrics'] = re.sub(r'\[.*?\]', '', data['lyrics'])
-            # data['lyrics'] = data['lyrics'].strip()
-            
             for i in range(len(data['lyrics'])):
                 # Remove the first line
                 data['lyrics'][i] = data['lyrics'][i].split('\n', 1)[-1]
@@ -171,7 +184,7 @@ class LyricsDataset():
     def __preprocess_lyrics_multiple_artists(self, data):
         """Preprocesses multiple artists lyrics by removing first line and text between square brakets"""
         if self.dataset_id == 'genious-lyrics':
-            data = self.__preprocess_lyrics(data)
+            data = self.__preprocess_lyrics_single_artist(data)
             data['lyrics'] =  data['artist'] + ": " + data['lyrics']
         elif self.dataset_id == '79-musical-genres':
             # Select only english songs

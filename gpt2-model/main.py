@@ -3,6 +3,9 @@ import torch
 import json
 import os
 import statistics
+import wandb
+
+from datetime import datetime
 from pynvml import *
 from transformers import AutoModelForCausalLM, DataCollatorForLanguageModeling, Trainer, TrainingArguments
 from nltk.translate.bleu_score import sentence_bleu
@@ -27,10 +30,14 @@ def print_summary(result):
     # print_gpu_utilization()
 
 def train_model(dataset, tokenized_dataset, save_name=''):
+    os.environ["WANDB_API_KEY"] = config["wandb"]["wandb_api_key"]
+    wandb.init(project="Lyrics-Generator")
+    #wandb.run.name = f'{save_name.replace(" ", "_")}-{datetime.now().strftime("%Y%m%d-%H%M%S")}'
+
     model = AutoModelForCausalLM.from_pretrained(config["model"]).to(device)
     model_size = sum(t.numel() for t in model.parameters())
     print(f"{config['model']} size: {model_size/1000**2:.1f}M parameters")
-    training_args = TrainingArguments("trainer", per_device_train_batch_size=4, evaluation_strategy="epoch", num_train_epochs=10, save_strategy="epoch", load_best_model_at_end=True)
+    training_args = TrainingArguments("trainer", report_to="wandb", run_name=f'{save_name.replace(" ", "_")}-{datetime.now().strftime("%Y%m%d-%H%M%S")}',per_device_train_batch_size=4, evaluation_strategy="epoch", num_train_epochs=config["epochs"], save_strategy="epoch", load_best_model_at_end=True)
     data_collator = DataCollatorForLanguageModeling(dataset.tokenizer, mlm=False)
     trainer = Trainer(
             model,
@@ -44,6 +51,7 @@ def train_model(dataset, tokenized_dataset, save_name=''):
     # print_gpu_utilization()
     trainer.train()
     #print_summary(result)
+    wandb.finish()
     if(save_name):
         trainer.save_model("./models/" + save_name.replace(" ", "_"))
 
@@ -124,12 +132,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # TODO: remove this
-    #args.single_artist_performance=['Eminem10', 'False', '1']
+    # args.single_artist_performance=['Eminem10', 'False', '1']
 
     # Training options
     if(args.train_single_artist):
         print("Selected single-artist training: ", args.train_single_artist)
-        lyrics_dataset = LyricsDataset(config, args.train_single_artist, "genious-lyrics", args.performance_evaluation)
+        lyrics_dataset = LyricsDataset(config, args.train_single_artist, args.dataset_selection)
         lyrics_dataset.load_dataset_single_artist()
         tokenized_dataset = lyrics_dataset.dataset.map(
             lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
@@ -137,7 +145,7 @@ if __name__ == "__main__":
         train_model(lyrics_dataset, tokenized_dataset, args.train_single_artist)
     elif(args.train_multiple_artists):
         print("Selected multi-artist tranining")
-        lyrics_dataset = LyricsDataset(config, "multipleArtists", args.dataset_selection, args.performance_evaluation)
+        lyrics_dataset = LyricsDataset(config, "multipleArtists", args.dataset_selection)
         lyrics_dataset.load_dataset_multiple_artists()
         tokenized_dataset = lyrics_dataset.dataset.map(
             lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
@@ -224,7 +232,7 @@ if __name__ == "__main__":
             # Generate sentence with trained model
             lyrics_generator.params.max_length = (initial_prompt_words + true_lyrics_words) + generation_offset
             lyrics_generator.params.min_length = (initial_prompt_words + true_lyrics_words) + generation_offset
-            print("\n" + "#"*50 + " Test set number = ", str(i))
+            print("\n" + "#"*50 + " Test set number = ", str(i+1))
             print("generator selected max_length =", lyrics_generator.params.max_length)
             print("generator selected min_length =", lyrics_generator.params.min_length)
             

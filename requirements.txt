@@ -6,3 +6,4 @@ datasets
 accelerate
 pynvml
 nltk
+wandb
