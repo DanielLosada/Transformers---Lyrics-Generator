@@ -122,6 +122,8 @@ The development of advanced language models has brought significant changes to t
 
 GPT-2 consists of a stack of transformer layers, including both an encoder and a decoder. The encoder processes the input text and extracts its contextual representation, while the decoder generates new text based on the learned representations. This architecture allows GPT-2 to effectively capture the relationships between words and generate coherent and contextually relevant text.
 
+The GPT-2 model was trained on a large corpus of text data that consisted of approximately 40 gigabytes of text (around 8 million tokens). The model has 1.5 billion parameters.
+
 <p align="left">
   <a href="https://drive.google.com/uc?export=view&id=1phbpF208uCZM_w4tmRwuD0BA9IdGb68G">
     <img src="https://drive.google.com/uc?export=view&id=1phbpF208uCZM_w4tmRwuD0BA9IdGb68G" alt="Image" style="width: 500px; height: 500px; display: inline-block;" title="Image" />
