@@ -120,7 +120,7 @@ We started out in [Google Colab](https://colab.research.google.com/) as it was f
 ## 4. General Architecture <a name="architecture"></a>
 The development of advanced language models has brought significant changes to tasks like lyrics generation in natural language processing. These models, based on transformer architectures, have shown impressive skills in understanding and creating meaningful text that makes sense in different contexts. GPT, one of these models, has received a lot of attention because of its outstanding performance and flexibility. We have chosen to utilize GPT-2, which is the most recent version of the GPT models accessible on the Hugging Face platform.
 
-GPT-2 consists of a stack of transformer layers, including both an encoder and a decoder. The encoder processes the input text and extracts its contextual representation, while the decoder generates new text based on the learned representations. This architecture allows GPT-2 to effectively capture the relationships between words and generate coherent and contextually relevant text.
+GPT-2 consists of solely stacked decoder blocks from the transformer architecture. This architecture allows GPT-2 to effectively capture the relationships between words and generate coherent and contextually relevant text.
 
 The GPT-2 model was trained on a large corpus of text data that consisted of approximately 40 gigabytes of text (around 8 million tokens). The model has 1.5 billion parameters.
 
@@ -149,4 +149,36 @@ The main tendency that we observed is that the limitation in the size of the dat
 The problems that we encountered in the generated lyrics were also mostly due to the small size of the dataset - predisposition to word repetition and to generating truncated lines or lines consisting of one word. We tried to address this issue in post processing by introducing a __post_process function that cleans up the generated sequences of lyrics by removing redundant line breaks, and removes consecutive duplicated words using the __remove_consecutive_duplicates helper function.
 
 TODO: links to report/charts/screenshots of obtained resuts???? (weights and biases or other)
+
+### 6.2 Experiment 2: Specific genre training <a name="experiment_2"></a>
+Now we are training on larger amounts of data - a set of lyrics of a certain genre (determined by an argument specified in argparse) containing of several thousands of songs.
+Results: we observed a decrease in overfitting issues, indicating a better generalization capability of the model. The generated lyrics showed reasonable quality and coherence, making more sense in the context of the chosen genre.
+At this stage is became more difficult to complete training with the computational resources we had (without GPUs). 
+
+TODO: links to report/charts/screenshots of obtained resuts???? (weights and biases or other)
+<p align="right"><a href="#toc">To top</a></p>
+
+### 6.3 Experiment 3: Conditional lyrics generation <a name="experiment_3"></a>
+Training with a full dataset to generate song lyrics similar to those of a specific artist. The dataset (one of the two available) and the artist are determined by arguments specified in argparse.
+Results: Lyrics of enhanced quality and coherence (though there is still quite a bit of room for improvement).
+The main issue was again the lack of computational resources.
+
+TODO: links to report/charts/screenshots of obtained resuts???? (weights and biases or other) 
+<p align="right"><a href="#toc">To top</a></p>
+
+### 6.4 Experiment 4: T5 model <a name="experiment_4"></a>
+T5 (Text-To-Text Transfer Transformer) is a transformer-based language model developed by Google Research. Unlike GPT-2, which is primarily designed for autoregressive language generation, T5 follows a "text-to-text" framework. Instead of generating lyrics word by word like GPT-2, T5 is trained to map an input text prompt to an output text sequence.
+T5 was trained on a large and diverse collection of publicly available text data from the internet. The specific details regarding the exact number of data, tokens, and parameters used for training T5 have not been disclosed publicly by Google Research. However, it is known to be a large-scale model with billions of parameters.
+
+In our experiment due to the lack of time and computing power we chose to train the T5 model only on single-artist data.
+The results observed were mainly similar to those we obtained with GPT-2 - overfitting and rather low quality of generated lyrics.
+
+<a href="https://drive.google.com/uc?export=view&id=1VdnrzFDsd-yFs99O8ujCDiWPRzJFdoow" align="left">
+  <img src="https://drive.google.com/uc?export=view&id=1VdnrzFDsd-yFs99O8ujCDiWPRzJFdoow" alt="Image" style="width: auto; max-width: 70%; height: auto; display: inline-block;" title="Image" />
+</a>
+
+
+TODO: links to report/charts/screenshots of obtained resuts???? (weights and biases or other) 
+<p align="right"><a href="#toc">To top</a></p>
+
     
