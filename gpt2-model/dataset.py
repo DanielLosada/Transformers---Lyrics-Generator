@@ -72,20 +72,35 @@ class LyricsDataset():
             print("csv_files: ", csv_files)
             print("csv_files_to_keep: ", csv_files_to_keep)
             datasets = []
-
             # Append preprocess selected multiple artists datasets
             for file in csv_files_to_keep:
                 print("FILE: ", file)
                 csv_path = os.path.join(self.config["base_dir"], self.config["dataset_path"], self.dataset_dir, file)
-                csvFile = load_dataset("csv", data_files=csv_path, split="train")
-                csvFile = csvFile.filter(lambda row: row['lyrics'] is not None and row['artist'] is not None)
-                csvFile = csvFile.map(self.__preprocess_lyrics_multiple_artists)
-                csvFile = csvFile.select_columns("lyrics")
-                datasets.append(csvFile)
-            
-            # Concatenate datasets and store it internally
-            self.dataset = concatenate_datasets(datasets)
-            self.dataset = self.dataset.train_test_split(test_size=0.1)
+                # Check wether performance evaluation needs to be computed
+                if(self.performance_evaluation_nverses):
+                    csvFile = pd.read_csv(csv_path)
+                    # csvFile = csvFile.filter(lambda row: row['lyrics'] is not None and row['artist'] is not None)
+                    csvFile = self.__preprocess_lyrics_multiple_artists(csvFile)
+                    csvFile = csvFile[csvFile.columns.intersection(['lyrics'])]
+                    datasets.append(csvFile)
+                else:
+                    csvFile = load_dataset("csv", data_files=csv_path, split="train")
+                    csvFile = csvFile.filter(lambda row: row['lyrics'] is not None and row['artist'] is not None)
+                    csvFile = csvFile.map(self.__preprocess_lyrics_multiple_artists)
+                    csvFile = csvFile.select_columns("lyrics")
+                    datasets.append(csvFile)
+
+            if(self.performance_evaluation_nverses):
+                # Concatenate datasets and store it internally
+                csvFile = pd.concat(datasets)
+                # shuffle concatenated datasets
+                csvFile = csvFile.sample(frac=1)
+                csvFile = csvFile.reset_index()
+                self.dataset = self.__split_train_custom_eval(csvFile, test_size=0.1)
+            else:
+                # Concatenate datasets and store it internally
+                self.dataset = concatenate_datasets(datasets)
+                self.dataset = self.dataset.train_test_split(test_size=0.1)
             print("combined_dataset: ", self.dataset)
         
         elif self.dataset_id == '79-musical-genres':
@@ -182,9 +197,12 @@ class LyricsDataset():
         return data
 
     def __preprocess_lyrics_multiple_artists(self, data):
-        """Preprocesses multiple artists lyrics by removing first line and text between square brakets"""
+        """Preprocesses multiple artists lyrics"""
         if self.dataset_id == 'genious-lyrics':
-            data = self.__preprocess_lyrics_single_artist(data)
+            if self.performance_evaluation_nverses:
+                data = self.__preprocess_lyrics(data)
+            else:
+                data = self.__preprocess_lyrics_single_artist(data)
             data['lyrics'] =  data['artist'] + ": " + data['lyrics']
         elif self.dataset_id == '79-musical-genres':
             # Select only english songs
@@ -206,12 +224,13 @@ class LyricsDataset():
             n_train, n_test = int(n_train), int(n_test)
             print("n_train: ", n_train, " n_test: ", n_test)
             test_set = csvFile.sample(n = n_test)
-            test_set = test_set.reset_index()
-
-            # remove last n verses from test set
-            test_set = self.__remove_last_verses_from_dataset(test_set, test_set, n=self.performance_evaluation_nverses)
             train_set = csvFile.loc[~csvFile.index.isin(test_set.index)]
             train_set = train_set.reset_index()
+
+            # remove last n verses from test set
+            test_set = test_set.reset_index()
+            test_set = self.__remove_last_verses_from_dataset(test_set, test_set, n=self.performance_evaluation_nverses)
+            train_set = csvFile.loc[~csvFile.index.isin(test_set.index)]
 
             # Create datasets
             if(self.dataset_id=='genious-lyrics'):
