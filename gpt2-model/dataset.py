@@ -236,7 +236,8 @@ class LyricsDataset():
 
             # Apply genre filter
             if(self.filter_field):
-                data = data[(data['Genres'].str.contains(self.filter_field, case=False, na=False)) & (data['Popularity'] > 5)]
+                #data = data[(data['Genres'].str.contains(self.filter_field, case=False, na=False)) & (data['Popularity'] > 5)]
+                data = data[(data['Genres'].isin([self.filter_field])) & (data['Popularity']>5)]
             data = data.reset_index()
 
             # Remove double break lines
