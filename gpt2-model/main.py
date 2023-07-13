@@ -262,7 +262,7 @@ if __name__ == "__main__":
         tokenized_dataset = lyrics_dataset.dataset.map(
             lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
         )
-        train_model(lyrics_dataset, tokenized_dataset, args.train_single_artist)
+        train_model(lyrics_dataset, tokenized_dataset, args.train_single_artist + '_' + args.dataset_selection)
     elif(args.train_multiple_artists):
         print("Selected multi-artist tranining")
         lyrics_dataset = LyricsDataset(config, "multipleArtists", args.dataset_selection)
