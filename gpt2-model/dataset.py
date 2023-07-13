@@ -72,9 +72,7 @@ class LyricsDataset():
             # Merge both databases
             csvFile = lyricsCsvFile.merge(artistsCsvFile[['Artist', 'Genres', 'Popularity', 'Link']], left_on='ALink', right_on='Link', how='inner')
             csvFile = self.__preprocess_lyrics_single_artist(csvFile)
-            print("csvFile: ", csvFile)
             self.dataset = Dataset.from_pandas(csvFile).select_columns("Lyric").train_test_split(test_size=self.config["val_size"])
-            print("dataset: ", self.dataset)
             
 
     def load_dataset_multiple_artists(self):
@@ -188,7 +186,6 @@ class LyricsDataset():
             data['Lyric'] = '\n'.join(' '.join(v) for v in split_data)'''
             data['Lyric'] = data['Lyric'].apply(lambda x: re.sub(r'\[.*?\]', '', x))
             data['Lyric'] = data['Lyric'].apply(lambda x: re.sub(r'\(.*?\)', '', x))
-            print("data['Lyric']: \n",data['Lyric'])
             
             data = data.drop(columns=['ALink','SLink','Link','Popularity'])
             #TODO: Remove this
