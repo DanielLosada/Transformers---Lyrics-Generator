@@ -193,4 +193,41 @@ Results and conclusions : The results observed were mainly similar to those we o
 TODO: links to report/charts/screenshots of obtained resuts???? (weights and biases or other) 
 <p align="right"><a href="#toc">To top</a></p>
 
+## 7. Conclusions <a name="conclusions"></a>
+Model Performance: The performance of the lyrics generator heavily depends on the size and quality of the dataset used for fine-tuning. When fine-tuning the model on a small dataset, the generated lyrics may lack coherence, structure, and meaningfulness. On the other hand, fine-tuning the model on a larger and more diverse dataset tends to produce more coherent and contextually relevant lyrics.
+
+Training time and hardware requirements: Fine-tuning the GPT-2 or T5 model on a large dataset can be a computationally intensive task. It is essential to have access to sufficient computational power to train the model effectively.
+
+Creativity: While the lyrics generator can produce very good outputs, it is important to note that the model will always lack true creativity and originality that a human songwriter could produce. However, it can serve as a valuable tool for generating initial ideas or providing inspiration to human songwriters.
+<p align="right"><a href="#toc">To top</a></p>
+
+## 8. Next Steps <a name="next_steps"></a>
+After completing the project, several potential further steps for research and exploration can be proposed:
+
+* Multilingual Lyrics Generation: Extend the project to support lyrics generation in multiple languages.
+* Generation of lyrics with a proper song structure, including a title, chorus, verses and other sections.
+* Multimodal lyrics generation: Extend the project to generate not only textual lyrics but also explore the generation of accompanying music or melodies.
+* Deploying an application for lyrics generation
+<p align="right"><a href="#toc">To top</a></p>
+
+## 9. References <a name="references"></a>
+https://towardsdatascience.com/how-to-fine-tune-gpt-2-for-text-generation-ae2ea53bc272
+
+https://www.youtube.com/watch?v=cHymMt1SQn8&ab_channel=NicholasRenotte
+
+https://snappishproductions.com/blog/2020/03/01/chapter-9.5-text-generation-with-gpt-2-and-only-pytorch.html.html
+
+https://huggingface.co
+
+https://towardsdatascience.com/how-i-created-a-lyrics-generator-b62bde13badb
+
+https://www.aiweirdness.com/the-ais-carol-19-12-24/
+
+https://blog.ml6.eu/gpt-2-artificial-intelligence-song-generator-lets-get-groovy-3e7c1f55030f
+
+https://github.com/adigoryl/Styled-Lyrics-Generator-GPT2
+
+https://medium.com/mlearning-ai/artist-based-lyrics-generator-using-machine-learning-eb70dc4fb993
+
+https://elischolar.library.yale.edu/cgi/viewcontent.cgi?article=1000&context=yurj
     
