@@ -5,6 +5,7 @@ import math
 import pandas as pd
 from datasets import load_dataset, concatenate_datasets, Dataset, DatasetDict
 from transformers import AutoTokenizer
+pd.options.mode.chained_assignment = None  # Remove chained assignment warning
 
 class LyricsDataset():
     def __init__(self, config, filter_field, dataset_id, performance_evaluation_nverses=None):
@@ -102,7 +103,6 @@ class LyricsDataset():
                 self.dataset = concatenate_datasets(datasets)
                 self.dataset = self.dataset.train_test_split(test_size=0.1)
             print("combined_dataset: ", self.dataset)
-        
         elif self.dataset_id == '79-musical-genres':
             artists_csv_path = os.path.join(self.config["base_dir"], self.config["dataset_path"], self.dataset_dir + "/artists-data.csv")
             lyrics_csv_path = os.path.join(self.config["base_dir"], self.config["dataset_path"], self.dataset_dir + "/lyrics-data.csv")
@@ -112,13 +112,11 @@ class LyricsDataset():
             # Merge both databases
             csvFile = lyricsCsvFile.merge(artistsCsvFile[['Artist', 'Genres', 'Popularity', 'Link']], left_on='ALink', right_on='Link', how='inner')
             csvFile = self.__preprocess_lyrics_multiple_artists(csvFile)
-
             # Modify test dataset in case we want to evaluate performance
             if self.performance_evaluation_nverses == None:
                 self.dataset = Dataset.from_pandas(csvFile).select_columns("Lyric").train_test_split(test_size=0.1)
             else:
-                # TODO
-                pass
+                self.dataset = self.__split_train_custom_eval(csvFile, test_size=0.1)
 
     def tokenize(self, element):
         """Tokenizes a loaded dataset containing a lyrics section"""
@@ -179,7 +177,7 @@ class LyricsDataset():
                 data['lyrics'][i] = data['lyrics'][i].strip()
 
                 # Remove double break lines
-                split_data = [i.split() for i in data['lyrics'][i].split('\n')]
+                split_data = [j.split() for j in data['lyrics'][i].split('\n')]
                 split_data =  list(filter(None, split_data))
                 data['lyrics'][i] = '\n'.join(' '.join(v) for v in split_data)
 
@@ -211,6 +209,13 @@ class LyricsDataset():
             # Apply genre filter
             if(self.filter_field):
                 data = data[(data['Genres'].str.contains(self.filter_field, case=False, na=False)) & (data['Popularity'] > 5)]
+            data = data.reset_index()
+
+            # Remove double break lines
+            for i in range(len(data['Lyric'])):
+                split_data = [j.split() for j in data['Lyric'][i].split('\n')]
+                split_data =  list(filter(None, split_data))
+                data['Lyric'][i] = '\n'.join(' '.join(v) for v in split_data)
             
             data = data.drop(columns=['ALink','SLink','Link','Popularity'])
             #TODO: Remove this
@@ -263,7 +268,17 @@ class LyricsDataset():
             return dataset
         
         elif self.dataset_id == '79-musical-genres':
-            # TODO
-            pass
+            split_true_lyrics_dataset = []
+            for i in range(len(dataset['Lyric'])):
+                 # Remove last n sentences
+                split_dataset = dataset['Lyric'][i].split('\n')
+                split_true_lyrics_dataset = dataset2['Lyric'][i].split('\n')
+                for j in range(0, n):
+                    split_dataset.pop()
+                for j in range(0, len(split_true_lyrics_dataset)-n):
+                    split_true_lyrics_dataset.pop(0)
+                # Join datasets
+                self.true_lyrics_dataset.append('\n'.join(split_true_lyrics_dataset))
+                dataset['Lyric'][i] = '\n'.join(split_dataset)
         return dataset
 

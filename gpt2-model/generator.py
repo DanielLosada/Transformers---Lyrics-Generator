@@ -29,8 +29,17 @@ class LyricsGenerator():
         """Generates lyrics text using trained model from /models/ and specified generator parameters"""
         encoded_prompt = self.tokenizer(initial_prompt, add_special_tokens=False, return_tensors="pt").input_ids
         encoded_prompt.to(device)
-        print("encoded_prompt: ", encoded_prompt)
-        print("Loading model")
+        # print("encoded_prompt: ", encoded_prompt)
+        # print("Loading generation model with params...")
+        # print("*"*50)
+        # print('max length:         ', self.params.max_length)
+        # print('min length:         ', self.params.min_length)
+        # print('num sequences:      ', self.params.num_sequences)
+        # print('repetition penalty: ', self.params.repetition_penalty)
+        # print('temperature:        ', self.params.temperature)
+        # print('top k:              ', self.params.top_k)
+        # print('top p:              ', self.params.top_p)
+        # print("*"*50)
         model = AutoModelForCausalLM.from_pretrained("./models/" + self.artist.replace(" ", "_") + "/")
         output_sequences = model.generate(
                         input_ids=encoded_prompt,
