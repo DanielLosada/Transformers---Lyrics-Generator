@@ -108,11 +108,11 @@ class LyricsDataset():
                 # shuffle concatenated datasets
                 csvFile = csvFile.sample(frac=1)
                 csvFile = csvFile.reset_index()
-                self.dataset = self.__split_train_custom_eval(csvFile, test_size=0.1)
+                self.dataset = self.__split_train_custom_eval(csvFile, test_size=self.config["val_size"])
             else:
                 # Concatenate datasets and store it internally
                 self.dataset = concatenate_datasets(datasets)
-                self.dataset = self.dataset.train_test_split(test_size=0.1)
+                self.dataset = self.dataset.train_test_split(test_size=self.config["val_size"])
             print("combined_dataset: ", self.dataset)
         elif self.dataset_id == '79-musical-genres':
             artists_csv_path = os.path.join(self.config["base_dir"], self.config["dataset_path"], self.dataset_dir + "/artists-data.csv")
@@ -125,9 +125,10 @@ class LyricsDataset():
             csvFile = self.__preprocess_lyrics_multiple_artists(csvFile)
             # Modify test dataset in case we want to evaluate performance
             if self.performance_evaluation_nverses == None:
-                self.dataset = Dataset.from_pandas(csvFile).select_columns("Lyric").train_test_split(test_size=0.1)
+                self.dataset = Dataset.from_pandas(csvFile).select_columns("Lyric").train_test_split(test_size=self.config["val_size"])
+                print(self.dataset)
             else:
-                self.dataset = self.__split_train_custom_eval(csvFile, test_size=0.1)
+                self.dataset = self.__split_train_custom_eval(csvFile, test_size=self.config["val_size"])
 
     def tokenize(self, element):
         """Tokenizes a loaded dataset containing a lyrics section"""
