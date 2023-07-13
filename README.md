@@ -143,25 +143,28 @@ Overall, the preprocessing steps involve:
 ## 6. Results <a name="results"></a>
     
 ### 6.1 Experiment 1: Single-artist training <a name="experiment_1"></a> 
-We trained on about 100 lyrics by a single artist (exact amount depending on the number of lyrics  available in the dataset).
-The main tendency that we observed is that the limitation in the size of the dataset led to overfitting. Experiments were conducted with different learning rate, all more or less leading to a similar result. 
+Experiment setup: We trained on about 100 lyrics by a single artist (exact amount depending on the number of lyrics  available in the dataset). We used Google Colab or local environment for training.
+Hypothesis: Training data size is very limited, we expect overfitting.
+Resuts and conclusions: The main tendency that we observed is that indeed the limitation in the size of the dataset led to overfitting. Experiments were conducted with different learning rate, all more or less leading to a similar result. 
 
 The problems that we encountered in the generated lyrics were also mostly due to the small size of the dataset - predisposition to word repetition and to generating truncated lines or lines consisting of one word. We tried to address this issue in post processing by introducing a __post_process function that cleans up the generated sequences of lyrics by removing redundant line breaks, and removes consecutive duplicated words using the __remove_consecutive_duplicates helper function.
 
 TODO: links to report/charts/screenshots of obtained resuts???? (weights and biases or other)
 
 ### 6.2 Experiment 2: Specific genre training <a name="experiment_2"></a>
-Now we are training on larger amounts of data - a set of lyrics of a certain genre (determined by an argument specified in argparse) containing of several thousands of songs.
-Results: we observed a decrease in overfitting issues, indicating a better generalization capability of the model. The generated lyrics showed reasonable quality and coherence, making more sense in the context of the chosen genre.
-At this stage is became more difficult to complete training with the computational resources we had (without GPUs). 
+Experiment setup: Now we are training on larger amounts of data - a set of lyrics of a certain genre (determined by an argument specified in argparse) containing of several thousands of songs. Training is done in a local environment or via a Google Cloud VM instance (CPU only, we didn't have GPUs available)
+Hypothesis: We expect the training to be more productive and a significant improvement in the quality of generated lyrics.
+Results and conclusions: We observed a decrease in overfitting issues, indicating a better generalization capability of the model. The generated lyrics showed reasonable quality and coherence, making more sense in the context of the chosen genre.
+At this stage is became more difficult to complete training with the computational resources we had (without GPUs). Training was taking a very long time.
 
 TODO: links to report/charts/screenshots of obtained resuts???? (weights and biases or other)
 <p align="right"><a href="#toc">To top</a></p>
 
 ### 6.3 Experiment 3: Conditional lyrics generation <a name="experiment_3"></a>
-Training with a full dataset to generate song lyrics similar to those of a specific artist. The dataset (one of the two available) and the artist are determined by arguments specified in argparse.
-Results: Lyrics of enhanced quality and coherence (though there is still quite a bit of room for improvement).
-The main issue was again the lack of computational resources.
+Experiment setup: Training with a full dataset to generate song lyrics similar to those of a specific artist. The dataset (one of the two available) and the artist are determined by arguments specified in argparse. Training locally or via a Google Cloud VM instance (CPU only)
+Hypothesis: The model should produce good results but it will be really time costly to train without GPUs, and we can not really afford to tune the hyperparameters.
+Results and conclusions : Lyrics of enhanced quality and coherence (though there is still quite a bit of room for improvement).
+The main issue was lack of computational resources.
 
 TODO: links to report/charts/screenshots of obtained resuts???? (weights and biases or other) 
 <p align="right"><a href="#toc">To top</a></p>
@@ -170,13 +173,14 @@ TODO: links to report/charts/screenshots of obtained resuts???? (weights and bia
 T5 (Text-To-Text Transfer Transformer) is a transformer-based language model developed by Google Research. Unlike GPT-2, which is primarily designed for autoregressive language generation, T5 follows a "text-to-text" framework. Instead of generating lyrics word by word like GPT-2, T5 is trained to map an input text prompt to an output text sequence.
 T5 was trained on a large and diverse collection of publicly available text data from the internet. The specific details regarding the exact number of data, tokens, and parameters used for training T5 have not been disclosed publicly by Google Research. However, it is known to be a large-scale model with billions of parameters.
 
-In our experiment due to the lack of time and computing power we chose to train the T5 model only on single-artist data.
-The results observed were mainly similar to those we obtained with GPT-2 - overfitting and rather low quality of generated lyrics.
-
 <a href="https://drive.google.com/uc?export=view&id=1VdnrzFDsd-yFs99O8ujCDiWPRzJFdoow" align="left">
   <img src="https://drive.google.com/uc?export=view&id=1VdnrzFDsd-yFs99O8ujCDiWPRzJFdoow" alt="Image" style="width: auto; max-width: 70%; height: auto; display: inline-block;" title="Image" />
 </a>
 
+
+Experiment setup: In our experiment due to the lack of time and computing power we chose to train the T5 model only on single-artist data.
+Hypothesis: The results will probably be close to the ones that we got on a single-artist GPT-2-based model , we want to check if we can note any difference.
+Results and conclusions : The results observed were mainly similar to those we obtained with GPT-2 - overfitting and rather low quality of generated lyrics. At this stage there can be no noticeable differences tracked compared to the GPT-2 model. We would need to train on a bigger dataset to really perceive the difference.
 
 TODO: links to report/charts/screenshots of obtained resuts???? (weights and biases or other) 
 <p align="right"><a href="#toc">To top</a></p>
