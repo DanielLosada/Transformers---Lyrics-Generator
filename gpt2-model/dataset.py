@@ -199,26 +199,28 @@ class LyricsDataset():
         """Preprocesses lyrics by removing first line and text between square brakets"""
         if self.dataset_id == 'genious-lyrics':
             for i in range(len(data['lyrics'])):
-                # Remove the first line
-                data['lyrics'][i] = data['lyrics'][i].split('\n', 1)[-1]
-                
-                # Remove text between square brackets
-                data['lyrics'][i] = re.sub(r'\[.*?\]', '', data['lyrics'][i])
-                data['lyrics'][i] = data['lyrics'][i].strip()
+                if isinstance(data['lyrics'][i], str):
+                    # Remove the first line
+                    data['lyrics'][i] = data['lyrics'][i].split('\n', 1)[-1]
+                    
+                    # Remove text between square brackets
+                    data['lyrics'][i] = re.sub(r'\[.*?\]', '', data['lyrics'][i])
+                    data['lyrics'][i] = data['lyrics'][i].strip()
 
-                # Remove double break lines
-                split_data = [j.split() for j in data['lyrics'][i].split('\n')]
-                split_data =  list(filter(None, split_data))
-                data['lyrics'][i] = '\n'.join(' '.join(v) for v in split_data)
+                    # Remove double break lines
+                    split_data = [j.split() for j in data['lyrics'][i].split('\n')]
+                    split_data =  list(filter(None, split_data))
+                    data['lyrics'][i] = '\n'.join(' '.join(v) for v in split_data)
 
-                # Remove last word from lyrics i.e. 1.6KEmbed?
-                data['lyrics'][i] = re.sub(r'[-+]?(\d+).(\d+)KEmbed', '', data['lyrics'][i])
-                data['lyrics'][i] = re.sub(r'[-+]?(\d+)KEmbed', '', data['lyrics'][i])
-                data['lyrics'][i] = re.sub(r'KEmbed', '', data['lyrics'][i])
-                data['lyrics'][i] = re.sub(r'[-+]?(\d+).(\d+)Embed', '', data['lyrics'][i])
-                data['lyrics'][i] = re.sub(r'[-+]?(\d+)Embed', '', data['lyrics'][i])
-                data['lyrics'][i] = re.sub(r'Embed', '', data['lyrics'][i])
-
+                    # Remove last word from lyrics i.e. 1.6KEmbed?
+                    data['lyrics'][i] = re.sub(r'[-+]?(\d+).(\d+)KEmbed', '', data['lyrics'][i])
+                    data['lyrics'][i] = re.sub(r'[-+]?(\d+)KEmbed', '', data['lyrics'][i])
+                    data['lyrics'][i] = re.sub(r'KEmbed', '', data['lyrics'][i])
+                    data['lyrics'][i] = re.sub(r'[-+]?(\d+).(\d+)Embed', '', data['lyrics'][i])
+                    data['lyrics'][i] = re.sub(r'[-+]?(\d+)Embed', '', data['lyrics'][i])
+                    data['lyrics'][i] = re.sub(r'Embed', '', data['lyrics'][i])
+                else:
+                    data['lyrics'][i] = ""
         elif self.dataset_id == '79-musical-genres':
             pass
 

@@ -310,7 +310,7 @@ if __name__ == "__main__":
             tokenized_dataset = lyrics_dataset.dataset.map(
                 lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
             )
-            #train_model(lyrics_dataset, tokenized_dataset, artist.replace(" ", "_") + "_performance")
+            train_model(lyrics_dataset, tokenized_dataset, artist.replace(" ", "_") + "_performance")
 
             # Store test lyrics in json file in order to prevent training again
             test_lyrics = {}
@@ -319,6 +319,11 @@ if __name__ == "__main__":
                 test_trimmed_lyrics.extend([str(lyrics_dataset.dataset['test']['lyrics'][i])])
             test_lyrics['test_trimmed_lyrics'] = test_trimmed_lyrics
             test_lyrics['test_true_lyrics'] = lyrics_dataset.true_lyrics_dataset
+
+            if not os.path.exists("models"):
+                os.makedirs("models")
+            if not os.path.exists("./models/" + artist.replace(" ", "_") + "_performance"):
+                os.makedirs("./models/" + artist.replace(" ", "_") + "_performance")
             with open("./models/" + artist.replace(" ", "_") + "_performance/lyrics_test.json","w") as f:
                 json.dump(test_lyrics, f)
 
@@ -347,6 +352,12 @@ if __name__ == "__main__":
                 test_trimmed_lyrics.extend([str(lyrics_dataset.dataset['test']['lyrics'][i])])
             test_lyrics['test_trimmed_lyrics'] = test_trimmed_lyrics
             test_lyrics['test_true_lyrics'] = lyrics_dataset.true_lyrics_dataset
+
+            if not os.path.exists("models"):
+                os.makedirs("models")
+            if not os.path.exists("./models/" + artist + "_performance"):
+                print("We dont have it")
+                os.makedirs("./models/" + artist + "_performance")
             with open("./models/" + artist + "_performance/lyrics_test.json","w") as f:
                 json.dump(test_lyrics, f)
 
