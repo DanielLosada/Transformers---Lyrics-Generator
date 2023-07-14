@@ -126,7 +126,6 @@ class LyricsDataset():
             # Modify test dataset in case we want to evaluate performance
             if self.performance_evaluation_nverses == None:
                 self.dataset = Dataset.from_pandas(csvFile).select_columns("Lyric").train_test_split(test_size=self.config["val_size"])
-                print(self.dataset)
             else:
                 self.dataset = self.__split_train_custom_eval(csvFile, test_size=self.config["val_size"])
 
