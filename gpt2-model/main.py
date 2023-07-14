@@ -32,12 +32,12 @@ def print_summary(result):
 def train_model(dataset, tokenized_dataset, save_name=''):
     os.environ["WANDB_API_KEY"] = config["wandb"]["wandb_api_key"]
     wandb.init(project="Lyrics-Generator")
-    #wandb.run.name = f'{save_name.replace(" ", "_")}-{datetime.now().strftime("%Y%m%d-%H%M%S")}'
+    wandb.run.name = f'{save_name.replace(" ", "_")}-{datetime.now().strftime("%Y%m%d-%H%M%S")}'
 
     model = AutoModelForCausalLM.from_pretrained(config["model"]).to(device)
     model_size = sum(t.numel() for t in model.parameters())
     print(f"{config['model']} size: {model_size/1000**2:.1f}M parameters")
-    training_args = TrainingArguments("trainer", report_to="wandb", run_name=f'{save_name.replace(" ", "_")}-{datetime.now().strftime("%Y%m%d-%H%M%S")}',per_device_train_batch_size=4, evaluation_strategy="epoch", num_train_epochs=config["epochs"], save_strategy="epoch", load_best_model_at_end=True)
+    training_args = TrainingArguments("trainer", report_to="wandb", learning_rate=5e-6, run_name=f'{save_name.replace(" ", "_")}-{datetime.now().strftime("%Y%m%d-%H%M%S")}',per_device_train_batch_size=4, evaluation_strategy="epoch", num_train_epochs=config["epochs"], save_strategy="epoch", load_best_model_at_end=True)
     data_collator = DataCollatorForLanguageModeling(dataset.tokenizer, mlm=False)
     trainer = Trainer(
             model,
@@ -256,7 +256,7 @@ if __name__ == "__main__":
         tokenized_dataset = lyrics_dataset.dataset.map(
             lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
         )
-        train_model(lyrics_dataset, tokenized_dataset, args.train_single_artist)
+        train_model(lyrics_dataset, tokenized_dataset, args.train_single_artist + '_' + args.dataset_selection)
     elif(args.train_multiple_artists):
         print("Selected multi-artist tranining")
         lyrics_dataset = LyricsDataset(config, "multipleArtists", args.dataset_selection)
@@ -264,7 +264,7 @@ if __name__ == "__main__":
         tokenized_dataset = lyrics_dataset.dataset.map(
             lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
         )
-        train_model(lyrics_dataset, tokenized_dataset, "multipleArtists")
+        train_model(lyrics_dataset, tokenized_dataset, "multipleArtists_" + args.dataset_selection)
     elif(args.train_genre):
         print("Selected genre tranining")
         lyrics_dataset = LyricsDataset(config, args.train_genre, "79-musical-genres")
@@ -272,7 +272,7 @@ if __name__ == "__main__":
         tokenized_dataset = lyrics_dataset.dataset.map(
             lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
         )
-        train_model(lyrics_dataset, tokenized_dataset, args.train_genre)
+        train_model(lyrics_dataset, tokenized_dataset, args.train_genre + "_79-musical-genres")
    
     # Generation options
     if(args.generate_single_artist):

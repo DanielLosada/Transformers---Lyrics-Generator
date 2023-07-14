@@ -38,14 +38,15 @@ class LyricsDataset():
         else:
             print("The", os.path.join(self.config["base_dir"], self.config["dataset_path"], self.dataset_dir), "folder is not empty. Skipping extraction.")
         
-        # Remove non english authors from dataset 
-        for file_name in self.files_to_delete:
-            file_path = os.path.join(self.config["dataset_path"], self.dataset_dir,f"{file_name}.csv")
-            if os.path.exists(file_path):
-                os.remove(file_path)
-                print(f"Deleted file: {file_path}")
-            else:
-                print(f"File not found: {file_path}")
+        if self.dataset_id == 'genious-lyrics':
+            # Remove non english authors from dataset 
+            for file_name in self.files_to_delete:
+                file_path = os.path.join(self.config["dataset_path"], self.dataset_dir,f"{file_name}.csv")
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                    print(f"Deleted file: {file_path}")
+                else:
+                    print(f"File not found: {file_path}")
 
     def load_dataset_single_artist(self):
         """Loads a dataset from a specific artist and stores its cleaned version"""
@@ -56,13 +57,23 @@ class LyricsDataset():
             if(self.performance_evaluation_nremovals):
                 csvFile = pd.read_csv(csv_path)
                 csvFile = self.__preprocess_lyrics(csvFile)
-                self.dataset = self.__split_train_custom_eval(csvFile, test_size=0.1)
+                self.dataset = self.__split_train_custom_eval(csvFile, test_size=self.config["val_size"])
             else:
                 csvFile = load_dataset("csv", data_files=csv_path, split="train")
                 csvFile = csvFile.map(self.__preprocess_lyrics_single_artist)
-                self.dataset = csvFile.select_columns("lyrics").train_test_split(test_size=0.1)
+                self.dataset = csvFile.select_columns("lyrics").train_test_split(test_size=self.config["val_size"])
+
         elif self.dataset_id == '79-musical-genres':
-            pass
+            artists_csv_path = os.path.join(self.config["base_dir"], self.config["dataset_path"], self.dataset_dir + "/artists-data.csv")
+            lyrics_csv_path = os.path.join(self.config["base_dir"], self.config["dataset_path"], self.dataset_dir + "/lyrics-data.csv")
+            artistsCsvFile = pd.read_csv(artists_csv_path)
+            lyricsCsvFile = pd.read_csv(lyrics_csv_path)
+
+            # Merge both databases
+            csvFile = lyricsCsvFile.merge(artistsCsvFile[['Artist', 'Genres', 'Popularity', 'Link']], left_on='ALink', right_on='Link', how='inner')
+            csvFile = self.__preprocess_lyrics_single_artist(csvFile)
+            self.dataset = Dataset.from_pandas(csvFile).select_columns("Lyric").train_test_split(test_size=self.config["val_size"])
+            
 
     def load_dataset_multiple_artists(self):
         """Loads several datasets from different artists and stores its cleaned version"""
@@ -97,11 +108,11 @@ class LyricsDataset():
                 # shuffle concatenated datasets
                 csvFile = csvFile.sample(frac=1)
                 csvFile = csvFile.reset_index()
-                self.dataset = self.__split_train_custom_eval(csvFile, test_size=0.1)
+                self.dataset = self.__split_train_custom_eval(csvFile, test_size=self.config["val_size"])
             else:
                 # Concatenate datasets and store it internally
                 self.dataset = concatenate_datasets(datasets)
-                self.dataset = self.dataset.train_test_split(test_size=0.1)
+                self.dataset = self.dataset.train_test_split(test_size=self.config["val_size"])
             print("combined_dataset: ", self.dataset)
         elif self.dataset_id == '79-musical-genres':
             artists_csv_path = os.path.join(self.config["base_dir"], self.config["dataset_path"], self.dataset_dir + "/artists-data.csv")
@@ -114,9 +125,9 @@ class LyricsDataset():
             csvFile = self.__preprocess_lyrics_multiple_artists(csvFile)
             # Modify test dataset in case we want to evaluate performance
             if self.performance_evaluation_nremovals == None:
-                self.dataset = Dataset.from_pandas(csvFile).select_columns("Lyric").train_test_split(test_size=0.1)
+                self.dataset = Dataset.from_pandas(csvFile).select_columns("Lyric").train_test_split(test_size=self.config["val_size"])
             else:
-                self.dataset = self.__split_train_custom_eval(csvFile, test_size=0.1)
+                self.dataset = self.__split_train_custom_eval(csvFile, test_size=self.config["val_size"])
 
     def tokenize(self, element):
         """Tokenizes a loaded dataset containing a lyrics section"""
@@ -148,21 +159,40 @@ class LyricsDataset():
         """Preprocesses lyrics by removing first line and text between square brakets"""
         if self.dataset_id == 'genious-lyrics':
             # Remove the first line
-            data['lyrics'] = data['lyrics'].split('\n', 1)[-1]
-            
-            # Remove text between square brackets
-            data['lyrics'] = re.sub(r'\[.*?\]', '', data['lyrics'])
-            data['lyrics'] = data['lyrics'].strip()
-            data['lyrics'] = re.sub(r'[-+]?(\d+).(\d+)KEmbed', '', data['lyrics'])
-            data['lyrics'] = re.sub(r'[-+]?(\d+)KEmbed', '', data['lyrics'])
-            data['lyrics'] = re.sub(r'KEmbed', '', data['lyrics'])
-            data['lyrics'] = re.sub(r'[-+]?(\d+).(\d+)Embed', '', data['lyrics'])
-            data['lyrics'] = re.sub(r'[-+]?(\d+)Embed', '', data['lyrics'])
-            data['lyrics'] = re.sub(r'Embed', '', data['lyrics'])
+            if data['lyrics'] is not None:
+                data['lyrics'] = data['lyrics'].split('\n', 1)[-1]
+                
+                # Remove text between square brackets
+                data['lyrics'] = re.sub(r'\[.*?\]', '', data['lyrics'])
+                data['lyrics'] = data['lyrics'].strip()
+                data['lyrics'] = re.sub(r'[-+]?(\d+).(\d+)KEmbed', '', data['lyrics'])
+                data['lyrics'] = re.sub(r'[-+]?(\d+)KEmbed', '', data['lyrics'])
+                data['lyrics'] = re.sub(r'KEmbed', '', data['lyrics'])
+                data['lyrics'] = re.sub(r'[-+]?(\d+).(\d+)Embed', '', data['lyrics'])
+                data['lyrics'] = re.sub(r'[-+]?(\d+)Embed', '', data['lyrics'])
+                data['lyrics'] = re.sub(r'Embed', '', data['lyrics'])
+            else:
+                data['lyrics'] = ""
 
         elif self.dataset_id == '79-musical-genres':
-            pass
+            # Select only english songs
+            data = data[data['language']=='en']
 
+            # Apply genre filter
+            if(self.filter_field):
+                data = data[data['Artist'].str.contains(self.filter_field, case=False, na=False)]
+            data = data.reset_index()
+
+            
+            '''split_data = [j.split() for j in data['Lyric'].split('\n')]
+            split_data =  list(filter(None, split_data))
+            data['Lyric'] = '\n'.join(' '.join(v) for v in split_data)'''
+            data['Lyric'] = data['Lyric'].apply(lambda x: re.sub(r'\[.*?\]', '', x))
+            data['Lyric'] = data['Lyric'].apply(lambda x: re.sub(r'\(.*?\)', '', x))
+            
+            data = data.drop(columns=['ALink','SLink','Link','Popularity'])
+            #TODO: Remove this
+            #data = data.drop(data.index[2:-1])
         return data
     
     def __preprocess_lyrics(self, data):
@@ -208,7 +238,8 @@ class LyricsDataset():
 
             # Apply genre filter
             if(self.filter_field):
-                data = data[(data['Genres'].str.contains(self.filter_field, case=False, na=False)) & (data['Popularity'] > 5)]
+                #data = data[(data['Genres'].str.contains(self.filter_field, case=False, na=False)) & (data['Popularity'] > 5)]
+                data = data[(data['Genres'].isin([self.filter_field])) & (data['Popularity']>5)]
             data = data.reset_index()
 
             # Remove double break lines
