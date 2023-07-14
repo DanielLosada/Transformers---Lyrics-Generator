@@ -63,19 +63,13 @@ class BleuPerformanceParams:
     generated_words = []
     bleu_scores = []
 
-def generate_performance_prompt(test_data, n_verses=None):
+def generate_performance_prompt(test_data):
     '''Selects last n sentences as prompt'''
     prompt_texts=[]
     for i in range(len(test_data['test_trimmed_lyrics'])):
         split_dataset = test_data['test_trimmed_lyrics'][i].split('\n')
         # Remove empty words
         while("" in split_dataset): split_dataset.remove("")
-        
-        if(n_verses):
-            # Remove verses
-            for j in range(len(split_dataset)-n_verses):
-                split_dataset.pop(0)
-    
         # Join dataset
         prompt_texts.append('\n'.join(split_dataset))
     return prompt_texts
@@ -110,7 +104,7 @@ def remove_last_words(data, n):
     return data
 
 def compute_bleu_metric(artist, artist_generation=None):
-     # Load stored test lyrics information to avoid training again
+    # Load stored test lyrics information to avoid training again
     f = open("./models/" + artist.replace(" ", "_") + "_performance/lyrics_test.json")
     test_data=json.load(f)
 
@@ -225,7 +219,7 @@ def compute_bleu_metric(artist, artist_generation=None):
 
 if __name__ == "__main__":
     # TODO: remove this
-    # os.chdir('/home/paurosci/gits/Transformers---Lyrics-Generator/gpt2-model')
+    #os.chdir('/Users/prosci/gits/Transformers---Lyrics-Generator/gpt2-model')
 
     # Load the configuration file
     with open('config.json', 'r') as f:
@@ -249,10 +243,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # TODO: remove this
-    # args.single_artist_performance=['50 Cent', 'False', '2']
+    #args.single_artist_performance=['50 Cent', 'True', '20']
     # args.multiple_artists_performance=['Eminem10', 'False', '1']
     # args.train_multiple_artists = True
-    # args.genre_performance = ['Rock', 'True', '1']
+    # args.genre_performance = ['Rock', 'True', '31']
     
     # Training options
     if(args.train_single_artist):
@@ -307,16 +301,16 @@ if __name__ == "__main__":
         print("Selected single artist performance evaluation")
         artist = args.single_artist_performance[0]
         train = args.single_artist_performance[1]
-        n_verses = int(args.single_artist_performance[2])
+        n_words = int(args.single_artist_performance[2])
 
         # Train model
         if(train == 'True'):
-            lyrics_dataset = LyricsDataset(config, artist, "genious-lyrics", performance_evaluation_nverses=n_verses)
+            lyrics_dataset = LyricsDataset(config, artist, "genious-lyrics", performance_evaluation_nremovals=n_words)
             lyrics_dataset.load_dataset_single_artist()
             tokenized_dataset = lyrics_dataset.dataset.map(
                 lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
             )
-            train_model(lyrics_dataset, tokenized_dataset, artist.replace(" ", "_") + "_performance")
+            #train_model(lyrics_dataset, tokenized_dataset, artist.replace(" ", "_") + "_performance")
 
             # Store test lyrics in json file in order to prevent training again
             test_lyrics = {}
@@ -334,12 +328,12 @@ if __name__ == "__main__":
         print("Selected multiple artists performance evaluation")
         artist_generation = args.multiple_artists_performance[0]
         train = args.multiple_artists_performance[1]
-        n_verses = int(args.multiple_artists_performance[2])
+        n_words = int(args.multiple_artists_performance[2])
         artist = 'multipleArtists'
 
         # Train model
         if(train == 'True'):
-            lyrics_dataset = LyricsDataset(config, 'multipleArtists', "genious-lyrics", performance_evaluation_nverses=n_verses)
+            lyrics_dataset = LyricsDataset(config, 'multipleArtists', "genious-lyrics", performance_evaluation_nremovals=n_words)
             lyrics_dataset.load_dataset_multiple_artists()
             tokenized_dataset = lyrics_dataset.dataset.map(
                 lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
@@ -362,19 +356,27 @@ if __name__ == "__main__":
         print("Selected genre performance evaluation")
         genre = args.genre_performance[0]
         train = args.genre_performance[1]
-        n_verses = int(args.genre_performance[2])
+        n_words = int(args.genre_performance[2])
 
         # Train model
         if(train == 'True'):
-            lyrics_dataset = LyricsDataset(config, genre.replace(" ", "_"), "79-musical-genres", performance_evaluation_nverses=n_verses)
+            lyrics_dataset = LyricsDataset(config, genre, "79-musical-genres", performance_evaluation_nremovals=n_words)
             lyrics_dataset.load_dataset_multiple_artists()
-            # tokenized_dataset = lyrics_dataset.dataset.map(
-            #     lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
-            # )
-            # train_model(lyrics_dataset, tokenized_dataset, genre.replace(" ", "_") + "_performance")
+            tokenized_dataset = lyrics_dataset.dataset.map(
+                lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
+            )
+            train_model(lyrics_dataset, tokenized_dataset, genre + "_performance")
+            
+            # Store test lyrics in json file in order to prevent training again
+            test_lyrics = {}
+            test_trimmed_lyrics = []
+            for i in range(len(lyrics_dataset.dataset['test']['Lyric'])):
+                test_trimmed_lyrics.extend([str(lyrics_dataset.dataset['test']['Lyric'][i])])
+            test_lyrics['test_trimmed_lyrics'] = test_trimmed_lyrics
+            test_lyrics['test_true_lyrics'] = lyrics_dataset.true_lyrics_dataset
+            with open("./models/" + genre + "_performance/lyrics_test.json","w") as f:
+                json.dump(test_lyrics, f)
 
-        pass
-        # TODO
-
+        performance_data = compute_bleu_metric(genre)
 
 

@@ -8,11 +8,11 @@ from transformers import AutoTokenizer
 pd.options.mode.chained_assignment = None  # Remove chained assignment warning
 
 class LyricsDataset():
-    def __init__(self, config, filter_field, dataset_id, performance_evaluation_nverses=None):
+    def __init__(self, config, filter_field, dataset_id, performance_evaluation_nremovals=None):
         self.config = config
         self.filter_field = filter_field
         self.dataset_id = dataset_id
-        self.performance_evaluation_nverses = performance_evaluation_nverses
+        self.performance_evaluation_nremovals = performance_evaluation_nremovals
         self.dataset_zip = self.config["dataset_zip"][self.dataset_id]
         self.tokenizer = AutoTokenizer.from_pretrained(self.config["model"])
         self.tokenizer.pad_token = self.tokenizer.eos_token
@@ -53,7 +53,7 @@ class LyricsDataset():
             csv_path = os.path.join(self.config["base_dir"], self.config["dataset_path"], self.dataset_dir, self.filter_field + ".csv")
             
             # Check wether performance evaluation needs to be computed
-            if(self.performance_evaluation_nverses):
+            if(self.performance_evaluation_nremovals):
                 csvFile = pd.read_csv(csv_path)
                 csvFile = self.__preprocess_lyrics(csvFile)
                 self.dataset = self.__split_train_custom_eval(csvFile, test_size=0.1)
@@ -78,7 +78,7 @@ class LyricsDataset():
                 print("FILE: ", file)
                 csv_path = os.path.join(self.config["base_dir"], self.config["dataset_path"], self.dataset_dir, file)
                 # Check wether performance evaluation needs to be computed
-                if(self.performance_evaluation_nverses):
+                if(self.performance_evaluation_nremovals):
                     csvFile = pd.read_csv(csv_path)
                     # csvFile = csvFile.filter(lambda row: row['lyrics'] is not None and row['artist'] is not None)
                     csvFile = self.__preprocess_lyrics_multiple_artists(csvFile)
@@ -91,7 +91,7 @@ class LyricsDataset():
                     csvFile = csvFile.select_columns("lyrics")
                     datasets.append(csvFile)
 
-            if(self.performance_evaluation_nverses):
+            if(self.performance_evaluation_nremovals):
                 # Concatenate datasets and store it internally
                 csvFile = pd.concat(datasets)
                 # shuffle concatenated datasets
@@ -113,7 +113,7 @@ class LyricsDataset():
             csvFile = lyricsCsvFile.merge(artistsCsvFile[['Artist', 'Genres', 'Popularity', 'Link']], left_on='ALink', right_on='Link', how='inner')
             csvFile = self.__preprocess_lyrics_multiple_artists(csvFile)
             # Modify test dataset in case we want to evaluate performance
-            if self.performance_evaluation_nverses == None:
+            if self.performance_evaluation_nremovals == None:
                 self.dataset = Dataset.from_pandas(csvFile).select_columns("Lyric").train_test_split(test_size=0.1)
             else:
                 self.dataset = self.__split_train_custom_eval(csvFile, test_size=0.1)
@@ -197,7 +197,7 @@ class LyricsDataset():
     def __preprocess_lyrics_multiple_artists(self, data):
         """Preprocesses multiple artists lyrics"""
         if self.dataset_id == 'genious-lyrics':
-            if self.performance_evaluation_nverses:
+            if self.performance_evaluation_nremovals:
                 data = self.__preprocess_lyrics(data)
             else:
                 data = self.__preprocess_lyrics_single_artist(data)
@@ -219,7 +219,7 @@ class LyricsDataset():
             
             data = data.drop(columns=['ALink','SLink','Link','Popularity'])
             #TODO: Remove this
-            #data = data.drop(data.index[2:-1])
+            #data = data.drop(data.index[9:-1])
         return data
 
     def __split_train_custom_eval(self, csvFile, test_size):
@@ -234,14 +234,17 @@ class LyricsDataset():
 
             # remove last n verses from test set
             test_set = test_set.reset_index()
-            test_set = self.__remove_last_verses_from_dataset(test_set, test_set, n=self.performance_evaluation_nverses)
-            train_set = csvFile.loc[~csvFile.index.isin(test_set.index)]
-
-            # Create datasets
             if(self.dataset_id=='genious-lyrics'):
+                #test_set['lyrics'] = self.__remove_last_verses_from_dataset(test_set['lyrics'], test_set['lyrics'], n=self.performance_evaluation_nremovals)
+                test_set['lyrics'] = self.__remove_last_words_from_dataset(test_set['lyrics'], test_set['lyrics'], n=self.performance_evaluation_nremovals)
+                train_set = csvFile.loc[~csvFile.index.isin(test_set.index)]
+                # Create datasets
                 train_dataset = Dataset.from_pandas(train_set).select_columns("lyrics")
                 test_dataset = Dataset.from_pandas(test_set).select_columns("lyrics")
             elif(self.dataset_id=='79-musical-genres'):
+                #test_set['Lyric'] = self.__remove_last_verses_from_dataset(test_set['Lyric'], test_set['Lyric'], n=self.performance_evaluation_nremovals)
+                test_set['Lyric'] = self.__remove_last_words_from_dataset(test_set['Lyric'], test_set['Lyric'], n=self.performance_evaluation_nremovals)
+                train_set = csvFile.loc[~csvFile.index.isin(test_set.index)]
                 train_dataset = Dataset.from_pandas(train_set).select_columns("Lyric")
                 test_dataset = Dataset.from_pandas(test_set).select_columns("Lyric")
                 
@@ -250,35 +253,47 @@ class LyricsDataset():
 
             return dataset
     
-    def __remove_last_verses_from_dataset(self, dataset, dataset2, n):
-        """Deletes last n words from specified lyrics dataset"""
-        if self.dataset_id == 'genious-lyrics':
-            split_true_lyrics_dataset = []
-            for i in range(len(dataset['lyrics'])):
-                # Remove last n sentences
-                split_dataset = dataset['lyrics'][i].split('\n')
-                split_true_lyrics_dataset = dataset2['lyrics'][i].split('\n')
-                for j in range(0, n):
-                    split_dataset.pop()
-                for j in range(0, len(split_true_lyrics_dataset)-n):
-                    split_true_lyrics_dataset.pop(0)
-                # Join datasets
-                self.true_lyrics_dataset.append('\n'.join(split_true_lyrics_dataset))
-                dataset['lyrics'][i] = '\n'.join(split_dataset)
-            return dataset
-        
-        elif self.dataset_id == '79-musical-genres':
-            split_true_lyrics_dataset = []
-            for i in range(len(dataset['Lyric'])):
-                 # Remove last n sentences
-                split_dataset = dataset['Lyric'][i].split('\n')
-                split_true_lyrics_dataset = dataset2['Lyric'][i].split('\n')
-                for j in range(0, n):
-                    split_dataset.pop()
-                for j in range(0, len(split_true_lyrics_dataset)-n):
-                    split_true_lyrics_dataset.pop(0)
-                # Join datasets
-                self.true_lyrics_dataset.append('\n'.join(split_true_lyrics_dataset))
-                dataset['Lyric'][i] = '\n'.join(split_dataset)
-        return dataset
+    def __remove_last_verses_from_dataset(self, dataset_candidate, dataset_reference, n):
+        """Deletes last n verses from specified dataset"""
+        split_true_lyrics_dataset = []
+        for i in range(len(dataset_candidate)):
+            # Remove last n sentences
+            split_dataset = dataset_candidate[i].split('\n')
+            split_true_lyrics_dataset = dataset_reference[i].split('\n')
+            for j in range(0, n):
+                split_dataset.pop()
+            for j in range(0, len(split_true_lyrics_dataset)-n):
+                split_true_lyrics_dataset.pop(0)
+            # Join datasets
+            self.true_lyrics_dataset.append('\n'.join(split_true_lyrics_dataset))
+            dataset_candidate[i] = '\n'.join(split_dataset)
+        return dataset_candidate
 
+    def __remove_last_words_from_dataset(self, dataset_candidate, dataset_reference, n):
+        """Deletes last n words from specified dataset"""
+        split_true_lyrics_dataset = []
+        for i in range(len(dataset_candidate)):
+            # Remove last n words
+            split_dataset = [j.split() for j in dataset_candidate[i].split('\n')]
+            split_true_lyrics_dataset = [j.split() for j in dataset_reference[i].split('\n')]
+            word_count=0
+            for j in reversed(range(0,len(split_dataset))):
+                if split_dataset[j] != '[]':
+                    for k in reversed(range(len(split_dataset[j]))):
+                        if word_count >= n:
+                            split_true_lyrics_dataset[j].pop(k)
+                        else:
+                            #print("removed word count: ", word_count, " removed word: ", split_dataset[j][k])
+                            split_dataset[j].pop(k)
+                            word_count+=1
+                    else:
+                        continue
+            if(word_count != n):
+                print('Only removed '  + str(word_count) + ' words from data')
+                print('test set reference ' + i + ' length was: '  + str(dataset_reference[i]) + '...')
+            # Join datasets
+            split_dataset =  list(filter(None, split_dataset))
+            split_true_lyrics_dataset =  list(filter(None, split_true_lyrics_dataset))
+            self.true_lyrics_dataset.append('\n'.join(' '.join(v) for v in split_true_lyrics_dataset))
+            dataset_candidate[i] = '\n'.join(' '.join(v) for v in split_dataset)
+        return dataset_candidate
