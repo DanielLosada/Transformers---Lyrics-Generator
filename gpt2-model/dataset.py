@@ -160,17 +160,20 @@ class LyricsDataset():
         """Preprocesses lyrics by removing first line and text between square brakets"""
         if self.dataset_id == 'genious-lyrics':
             # Remove the first line
-            data['lyrics'] = data['lyrics'].split('\n', 1)[-1]
-            
-            # Remove text between square brackets
-            data['lyrics'] = re.sub(r'\[.*?\]', '', data['lyrics'])
-            data['lyrics'] = data['lyrics'].strip()
-            data['lyrics'] = re.sub(r'[-+]?(\d+).(\d+)KEmbed', '', data['lyrics'])
-            data['lyrics'] = re.sub(r'[-+]?(\d+)KEmbed', '', data['lyrics'])
-            data['lyrics'] = re.sub(r'KEmbed', '', data['lyrics'])
-            data['lyrics'] = re.sub(r'[-+]?(\d+).(\d+)Embed', '', data['lyrics'])
-            data['lyrics'] = re.sub(r'[-+]?(\d+)Embed', '', data['lyrics'])
-            data['lyrics'] = re.sub(r'Embed', '', data['lyrics'])
+            if data['lyrics'] is not None:
+                data['lyrics'] = data['lyrics'].split('\n', 1)[-1]
+                
+                # Remove text between square brackets
+                data['lyrics'] = re.sub(r'\[.*?\]', '', data['lyrics'])
+                data['lyrics'] = data['lyrics'].strip()
+                data['lyrics'] = re.sub(r'[-+]?(\d+).(\d+)KEmbed', '', data['lyrics'])
+                data['lyrics'] = re.sub(r'[-+]?(\d+)KEmbed', '', data['lyrics'])
+                data['lyrics'] = re.sub(r'KEmbed', '', data['lyrics'])
+                data['lyrics'] = re.sub(r'[-+]?(\d+).(\d+)Embed', '', data['lyrics'])
+                data['lyrics'] = re.sub(r'[-+]?(\d+)Embed', '', data['lyrics'])
+                data['lyrics'] = re.sub(r'Embed', '', data['lyrics'])
+            else:
+                data['lyrics'] = ""
 
         elif self.dataset_id == '79-musical-genres':
             # Select only english songs
