@@ -145,6 +145,7 @@ Overall, the preprocessing steps involve:
 ### 6.1 Experiment 1: Single-artist training <a name="experiment_1"></a> 
 
 **A. Training on Genius Lyrics dataset** https://www.kaggle.com/datasets/mervedin/genius-lyrics
+
 Experiment setup: We trained on 100 lyrics by a single artist. We used Google Colab or local environment for training.
 
 Hypothesis: Training data size is very limited, we expect overfitting.
@@ -156,6 +157,7 @@ The problems that we encountered in the generated lyrics were also mostly due to
 Link to W&B report: https://api.wandb.ai/links/upcproject/uxoj59gw
 
 **B. Training on Lyrics from 79 musical genres dataset** https://www.kaggle.com/datasets/neisse/scrapped-lyrics-from-6-genres
+
 Experiment setup: The number of lyrics for one artist in this dataset is higher - 300-500 songs (depending on the artist we choose)
 
 Hypothesis: We expect better performance.
