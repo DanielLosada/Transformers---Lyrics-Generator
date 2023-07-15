@@ -72,7 +72,10 @@ class LyricsDataset():
             # Merge both databases
             csvFile = lyricsCsvFile.merge(artistsCsvFile[['Artist', 'Genres', 'Popularity', 'Link']], left_on='ALink', right_on='Link', how='inner')
             csvFile = self.__preprocess_lyrics_single_artist(csvFile)
-            self.dataset = Dataset.from_pandas(csvFile).select_columns("Lyric").train_test_split(test_size=self.config["val_size"])
+            if self.performance_evaluation_nremovals == None:
+                self.dataset = Dataset.from_pandas(csvFile).select_columns("Lyric").train_test_split(test_size=self.config["val_size"])
+            else:
+                self.dataset = self.__split_train_custom_eval(csvFile, test_size=self.config["val_size"])
             
 
     def load_dataset_multiple_artists(self):
@@ -192,7 +195,7 @@ class LyricsDataset():
             
             data = data.drop(columns=['ALink','SLink','Link','Popularity'])
             #TODO: Remove this
-            #data = data.drop(data.index[2:-1])
+            #data = data.drop(data.index[9:-1])
         return data
     
     def __preprocess_lyrics(self, data):
@@ -239,8 +242,9 @@ class LyricsDataset():
             data = data[data['language']=='en']
 
             # Apply genre filter
-            if(self.filter_field):
-                #data = data[(data['Genres'].str.contains(self.filter_field, case=False, na=False)) & (data['Popularity'] > 5)]
+            if(self.filter_field == 'multipleArtists'):
+                data = data[data['Artist'].str.contains(self.filter_field, case=False, na=False)]
+            elif(self.filter_field):
                 data = data[(data['Genres'].isin([self.filter_field])) & (data['Popularity']>5)]
             data = data.reset_index()
 
