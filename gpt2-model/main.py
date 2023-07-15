@@ -56,7 +56,7 @@ def train_model(dataset, tokenized_dataset, save_name=''):
 
 if __name__ == "__main__":
     # TODO: remove this
-    #os.chdir('/Users/prosci/gits/Transformers---Lyrics-Generator/gpt2-model')
+    # os.chdir('/Users/prosci/gits/Transformers---Lyrics-Generator/gpt2-model')
 
     # Load the configuration file
     with open('config.json', 'r') as f:
@@ -80,7 +80,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # TODO: remove this
-    #args.single_artist_performance=['Bob Dylan', 'True', '20']
+    # args.single_artist_performance=['Bob Dylan', 'True', '20']
     # args.dataset_selection = '79-musical-genres'
     # args.multiple_artists_performance=['Eminem10', 'True', '20']
     # args.train_multiple_artists = True
@@ -148,7 +148,7 @@ if __name__ == "__main__":
             tokenized_dataset = lyrics_dataset.dataset.map(
                 lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
             )
-            #train_model(lyrics_dataset, tokenized_dataset, artist.replace(" ", "_") + "_performance")
+            train_model(lyrics_dataset, tokenized_dataset, artist.replace(" ", "_") + "_performance")
 
             # Store test lyrics in json file in order to prevent training again
             test_lyrics = {}
