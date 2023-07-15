@@ -81,8 +81,8 @@ if __name__ == "__main__":
 
     # TODO: remove this
     #args.single_artist_performance=['Bob Dylan', 'True', '20']
-    #args.dataset_selection = '79-musical-genres'
-    # args.multiple_artists_performance=['Eminem10', 'False', '1']
+    # args.dataset_selection = '79-musical-genres'
+    # args.multiple_artists_performance=['Eminem10', 'True', '20']
     # args.train_multiple_artists = True
     # args.genre_performance = ['Rock', 'True', '31']
     
