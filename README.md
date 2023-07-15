@@ -137,29 +137,39 @@ Overall, the preprocessing steps involve:
 * extracting the dataset
 * removing non-English authors to ensure language consistency
 * cleaning and formatting the lyrics data to eliminate unwanted artifacts
-* tokenizing the datasets for further processing, setting a maximum context length 
+* tokenizing the datasets for further processing, setting a maximum context length (maximum context length for GPT-2 model is 1024 tokens but we use 512 due to limitations in computational resources)
 <p align="right"><a href="#toc">To top</a></p>
 
 ## 6. Results <a name="results"></a>
     
 ### 6.1 Experiment 1: Single-artist training <a name="experiment_1"></a> 
-Experiment setup: We trained on about 100 lyrics by a single artist (exact amount depending on the number of lyrics  available in the dataset). We used Google Colab or local environment for training.
+
+**A. Training on Genius Lyrics dataset** https://www.kaggle.com/datasets/mervedin/genius-lyrics
+Experiment setup: We trained on 100 lyrics by a single artist. We used Google Colab or local environment for training.
 
 Hypothesis: Training data size is very limited, we expect overfitting.
 
-Resuts and conclusions: The main tendency that we observed is that indeed the limitation in the size of the dataset led to overfitting. Experiments were conducted with different learning rate, all more or less leading to a similar result. 
+Resuts and conclusions: We are not even sure if the model is training properly, in 4 out of 5 runs the training loss is not even shown (We used the Trainer class from Hugging face and the Linear learning rate scheduler with the initial lr=5e-6) 
 
 The problems that we encountered in the generated lyrics were also mostly due to the small size of the dataset - predisposition to word repetition and to generating truncated lines or lines consisting of one word. We tried to address this issue in post processing by introducing a __post_process function that cleans up the generated sequences of lyrics by removing redundant line breaks, and removes consecutive duplicated words using the __remove_consecutive_duplicates helper function.
 
-TODO: links to report/charts/screenshots of obtained resuts???? (weights and biases or other)
+Link to W&B report: https://api.wandb.ai/links/upcproject/uxoj59gw
 
+**B. Training on Lyrics from 79 musical genres dataset** https://www.kaggle.com/datasets/neisse/scrapped-lyrics-from-6-genres
+Experiment setup: The number of lyrics for one artist in this dataset is higher - 300-500 songs (depending on the artist we choose)
+
+Hypothesis: We expect better performance.
+
+Resuts and conclusions: Now we see progress in training and a certain decrease in training and evaluation loss. The highest evaluation loss we get is for the model trained on 50 Cent, which we believe might be due to unique vocabulary and language style.
+
+Link to W&B report: https://api.wandb.ai/links/upcproject/5ao7yfw0
 ### 6.2 Experiment 2: Specific genre training <a name="experiment_2"></a>
-Experiment setup: Now we are training on larger amounts of data - a set of lyrics of a certain genre (determined by an argument specified in argparse) containing of several thousands of songs. Training is done in a local environment or via a Google Cloud VM instance (CPU only, we didn't have GPUs available)
+Experiment setup: Now we are training on even bigger amounts of data - a set of lyrics of a certain genre (determined by an argument specified in argparse) containing of several thousands of songs. Training is done in a local environment or via a Google Cloud VM instance (CPU only, we didn't have GPUs available).
 
 Hypothesis: We expect the training to be more productive and a significant improvement in the quality of generated lyrics.
 
 Results and conclusions: We observed a decrease in overfitting issues, indicating a better generalization capability of the model. The generated lyrics showed reasonable quality and coherence, making more sense in the context of the chosen genre.
-At this stage is became more difficult to complete training with the computational resources we had (without GPUs). Training was taking a very long time.
+At this stage is became more difficult to complete training with the computational resources we had. Training was taking a longer time.
 
 TODO: links to report/charts/screenshots of obtained resuts???? (weights and biases or other)
 <p align="right"><a href="#toc">To top</a></p>
