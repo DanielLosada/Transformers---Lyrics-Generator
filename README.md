@@ -166,7 +166,8 @@ Resuts and conclusions: Now we see progress in training and a certain decrease i
 
 Link to W&B report: https://api.wandb.ai/links/upcproject/5ao7yfw0
 ### 6.2 Experiment 2: Specific genre training <a name="experiment_2"></a>
-Experiment setup: Now we are training on even bigger amounts of data - a set of lyrics of a certain genre (determined by an argument specified in argparse) containing of several thousands of songs. Training is done in a local environment or via a Google Cloud VM instance (CPU only, we didn't have GPUs available).
+Experiment setup: Now we are training on even bigger amounts of data - a set of lyrics of a certain genre (determined by an argument specified in argparse) containing of several thousands of songs (Lyrics from 79 musical genres dataset) . Training is done in a local environment or via a Google Cloud VM instance (CPU only, we didn't have GPUs available). 
+We only choose artists with popularity >5 since we believe that with more popular artists the chances of getting better quality lyrics are higher since their lyrics have been checked and validated by many users. Some artists´songs also belong to several genres, we only take into account those that have songs of only one genre to avoid genre mixup in our generated lyrics.
 
 Hypothesis: We expect the training to be more productive and a significant improvement in the quality of generated lyrics.
 
