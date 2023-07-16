@@ -17,7 +17,7 @@ device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cp
 #### MODEL TRAINING FUNCTIONS #### 
 def initialise_wandb_project(config, model_name):
     os.environ["WANDB_API_KEY"] = config["wandb"]["wandb_api_key"]
-    wandb.init(project="Lyrics Generator")
+    wandb.init(entity="upcproject", project="Lyrics Generator")
     wandb.run.name = f'{model_name}-{datetime.now().strftime("%Y%m%d-%H%M%S")}'
 
 def print_gpu_utilization():
@@ -119,8 +119,10 @@ if __name__ == "__main__":
     if(args.generate_single_artist):
         print("Selected single-artist generation: ", args.generate_single_artist)
         lyrics_generator_params = LyricsGeneratorParams
+        initial_prompt="I'm going to"
         lyrics_generator = LyricsGenerator(config, args.generate_single_artist + '_' + args.dataset_selection, lyrics_generator_params)
-        lyrics_generator.generate_lyrics(initial_prompt="My name is")
+        initialise_wandb_project(config, "generate_" + args.generate_single_artist.replace(" ", "_") + '_' + args.dataset_selection)
+        lyrics_generator.generate_lyrics(initial_prompt=initial_prompt, table_name="generate_" + args.generate_single_artist.replace(" ", "_") + '_' + args.dataset_selection)
     elif(args.generate_multiple_artists):
         print("Selected multiple-artist generation")
         lyrics_generator_params = LyricsGeneratorParams

@@ -1,3 +1,4 @@
+import wandb
 from torch import device, cuda
 from dataclasses import dataclass
 from transformers import AutoTokenizer, AutoModelForCausalLM
@@ -8,11 +9,11 @@ device = device("cuda") if cuda.is_available() else device("cpu")
 @dataclass
 class LyricsGeneratorParams:
     num_sequences: int = 3
-    min_length: int = 1
-    max_length: int = 5
-    temperature: float = 1.5
-    top_p: float = 0.9
-    top_k: int = 30
+    min_length: int = 100
+    max_length: int = 1000
+    temperature: float = 1
+    top_p: float = 1
+    top_k: int = 50
     repetition_penalty: float = 1.0
     max_repeat: int = 2
 
@@ -26,21 +27,26 @@ class LyricsGenerator():
         self.pretrained = pretrained
         self.generated=""
     
-    def generate_lyrics(self, initial_prompt):
+    def generate_lyrics(self, initial_prompt, table_name = "default table name"):
         """Generates lyrics text using trained model from /models/ and specified generator parameters"""
         encoded_prompt = self.tokenizer(initial_prompt, add_special_tokens=False, return_tensors="pt").input_ids
         encoded_prompt.to(device)
-        # print("encoded_prompt: ", encoded_prompt)
-        # print("Loading generation model with params...")
-        # print("*"*50)
-        # print('max length:         ', self.params.max_length)
-        # print('min length:         ', self.params.min_length)
-        # print('num sequences:      ', self.params.num_sequences)
-        # print('repetition penalty: ', self.params.repetition_penalty)
-        # print('temperature:        ', self.params.temperature)
-        # print('top k:              ', self.params.top_k)
-        # print('top p:              ', self.params.top_p)
-        # print("*"*50)
+        print("encoded_prompt: ", encoded_prompt)
+        print("table_name: ", table_name)
+        print("Loading generation model with params...")
+        print("*"*50)
+        print('max length:         ', self.params.max_length)
+        print('min length:         ', self.params.min_length)
+        print('num sequences:      ', self.params.num_sequences)
+        print('repetition penalty: ', self.params.repetition_penalty)
+        print('temperature:        ', self.params.temperature)
+        print('top k:              ', self.params.top_k)
+        print('top p:              ', self.params.top_p)
+        print("*"*50)
+
+        # Create table to store results
+        table = wandb.Table(columns=["prompt", "generation"])
+
         if(self.pretrained):
             print("Selected gpt2 pre-trained model")
             model = AutoModelForCausalLM.from_pretrained("./models/" + self.artist.replace(" ", "_") + "/")
@@ -59,6 +65,12 @@ class LyricsGenerator():
                         num_return_sequences=self.params.num_sequences)
         self.generated = self.__post_process(output_sequences)
 
+        for generation in self.generated:
+            # Log performance data
+            table.add_data(initial_prompt, generation)
+
+        wandb.log({table_name: table})
+        wandb.finish()
         
     def __post_process(self, output_sequences):
         """Decodes lyrics text from tokenizer and cleansup text"""
