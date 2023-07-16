@@ -15,6 +15,11 @@ from performance import *
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 #### MODEL TRAINING FUNCTIONS #### 
+def initialise_wandb_project(config, model_name):
+    os.environ["WANDB_API_KEY"] = config["wandb"]["wandb_api_key"]
+    wandb.init(project="Lyrics Generator")
+    wandb.run.name = f'{model_name}-{datetime.now().strftime("%Y%m%d-%H%M%S")}'
+
 def print_gpu_utilization():
     """Prints GPU usage while training"""
     nvmlInit()
@@ -29,9 +34,7 @@ def print_summary(result):
     # print_gpu_utilization()
 
 def train_model(dataset, tokenized_dataset, save_name=''):
-    os.environ["WANDB_API_KEY"] = config["wandb"]["wandb_api_key"]
-    wandb.init(entity="upcproject", project="Lyrics Generator")
-    wandb.run.name = f'{save_name.replace(" ", "_")}-{datetime.now().strftime("%Y%m%d-%H%M%S")}'
+    initialise_wandb_project(config, save_name.replace(" ", "_"))
 
     model = AutoModelForCausalLM.from_pretrained(config["model"]).to(device)
     model_size = sum(t.numel() for t in model.parameters())
@@ -167,6 +170,9 @@ if __name__ == "__main__":
             with open("./models/" + artist.replace(" ", "_") + "_performance/lyrics_test.json","w") as f:
                 json.dump(test_lyrics, f)
 
+        # Initialise wandb logging
+        initialise_wandb_project(config, artist.replace(" ", "_")+'_performance')
+
         # Evaluate the model
         performance_data = compute_bleu_metric(config, n_words, artist)
 
@@ -206,9 +212,13 @@ if __name__ == "__main__":
                 os.makedirs("./models/" + artist + "_performance")
             with open("./models/" + artist + "_performance/lyrics_test.json","w") as f:
                 json.dump(test_lyrics, f)
-        
+       
+        # Initialise wandb logging
+        initialise_wandb_project(config, artist.replace(" ", "_")+'_performance')
+
         # Evaluate the model
         performance_data = compute_bleu_metric(config, n_words, artist, artist_generation)
+
 
     elif(args.genre_performance):
         print("Selected genre performance evaluation")
@@ -235,6 +245,9 @@ if __name__ == "__main__":
             with open("./models/" + genre + "_performance/lyrics_test.json","w") as f:
                 json.dump(test_lyrics, f)
         
+        # Initialise wandb logging
+        initialise_wandb_project(config, genre.replace(" ", "_")+'_performance')
+
         # Evaluate the model
         performance_data = compute_bleu_metric(config, n_words, genre)
 
