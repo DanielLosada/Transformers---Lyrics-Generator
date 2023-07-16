@@ -17,12 +17,13 @@ class LyricsGeneratorParams:
     max_repeat: int = 2
 
 class LyricsGenerator():
-    def __init__(self, config, artist, params=LyricsGeneratorParams):
+    def __init__(self, config, artist, params=LyricsGeneratorParams, pretrained=True):
         self.config = config
         self.artist = artist
         self.tokenizer = AutoTokenizer.from_pretrained(self.config["model"])
         self.tokenizer.pad_token = self.tokenizer.eos_token
         self.params = params
+        self.pretrained = pretrained
         self.generated=""
     
     def generate_lyrics(self, initial_prompt):
@@ -40,7 +41,12 @@ class LyricsGenerator():
         # print('top k:              ', self.params.top_k)
         # print('top p:              ', self.params.top_p)
         # print("*"*50)
-        model = AutoModelForCausalLM.from_pretrained("./models/" + self.artist.replace(" ", "_") + "/")
+        if(self.pretrained):
+            print("Selected gpt2 pre-trained model")
+            model = AutoModelForCausalLM.from_pretrained("./models/" + self.artist.replace(" ", "_") + "/")
+        else:
+            print("Selected gpt2 raw model")
+            model = AutoModelForCausalLM.from_pretrained(self.config["model"])
         output_sequences = model.generate(
                         input_ids=encoded_prompt,
                         max_length=self.params.max_length,

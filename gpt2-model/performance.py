@@ -1,4 +1,5 @@
 import json
+import wandb
 import statistics
 from generator import LyricsGeneratorParams, LyricsGenerator
 from nltk.translate.bleu_score import sentence_bleu
@@ -99,6 +100,9 @@ def compute_bleu_metric(config, n_words, filter, filter_generation=None):
     f = open("./models/" + filter.replace(" ", "_") + "_performance/lyrics_test.json")
     test_data=json.load(f)
 
+    # Create table to store results
+    table = wandb.Table(columns=["prompt", "reference", "generation", "bleu score"])
+
     # generate performance prompt
     initial_prompt = generate_performance_prompt(test_data)
 
@@ -109,12 +113,11 @@ def compute_bleu_metric(config, n_words, filter, filter_generation=None):
     lyrics_generator_params.min_length = 1024
     # lyrics_generator_params.temperature = 1
     # lyrics_generator_params.top_p = 0.8
-    lyrics_generator = LyricsGenerator(config, filter + "_performance", lyrics_generator_params)
+    lyrics_generator = LyricsGenerator(config, filter + "_performance", lyrics_generator_params, True)
 
     # Perform text generation and compute bleu scores
     performance_data = BleuPerformanceParams
     performance_data.total_eval_datasets = 0
-    # generation_offset = 400
     for i in range(0,len(test_data['test_trimmed_lyrics'])):
         if(filter_generation):
             # modify prompt for multiArtists generation
@@ -158,7 +161,7 @@ def compute_bleu_metric(config, n_words, filter, filter_generation=None):
         print("\n"+"&"*20 + " Generated text " + "&"*20)
         print(lyrics_generator.generated[0])
         print("\n" + "&"*25)
-        
+
         # Postprocess generated data
         true_lyrics = test_data['test_true_lyrics'][i]
         # Remove prompt from generated data
@@ -181,7 +184,6 @@ def compute_bleu_metric(config, n_words, filter, filter_generation=None):
         performance_data.prompt_words.append(initial_prompt_words)
         performance_data.reference_words.append(true_lyrics_words)
         performance_data.generated_words.append(generated_words)
-
         print("\n"+"&"*20 + "  Reference  " + "&"*20)
         print(true_lyrics)
         print("\n"+"&"*20 + "  Candidate  " + "&"*20)
@@ -195,6 +197,14 @@ def compute_bleu_metric(config, n_words, filter, filter_generation=None):
         performance_data.total_eval_datasets+=1
         print("bleu score   =", performance_data.bleu_scores[-1])
 
+        # Log performance data
+        table.add_data(initial_prompt[i], true_lyrics, generated_lyrics,
+            "Number of prompt words    = {:.2f}".format(performance_data.prompt_words[-1]) + "\n" + 
+            "Number of reference words = {:.2f}".format(performance_data.reference_words[-1]) + "\n" + 
+            "Number of generated words = {:.2f}".format(performance_data.generated_words[-1]) + "\n" +
+            "Computed bleu score       = {:.2f}".format(performance_data.bleu_scores[-1])
+            )
+
     # Display final results
     print("\n" + "&"*20 + " General statistics " + "&"*20 + "\n")
     if(performance_data.total_eval_datasets > 0):
@@ -204,5 +214,8 @@ def compute_bleu_metric(config, n_words, filter, filter_generation=None):
         print("Average number of generated words  = {:.2f}".format(statistics.mean(performance_data.generated_words)))
         print("Average bleu score                 = {:.2f}".format(statistics.mean(performance_data.bleu_scores)))
         print("\n" + "&"*60 + "\n")
+
+    wandb.log({filter.replace(" ", "_") + "_performance": table})
+    wandb.finish()
 
     return performance_data
