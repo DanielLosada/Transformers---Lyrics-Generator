@@ -30,7 +30,7 @@ def print_summary(result):
 
 def train_model(dataset, tokenized_dataset, save_name=''):
     os.environ["WANDB_API_KEY"] = config["wandb"]["wandb_api_key"]
-    wandb.init(project="Lyrics-Generator")
+    wandb.init(entity="upcproject", project="Lyrics Generator")
     wandb.run.name = f'{save_name.replace(" ", "_")}-{datetime.now().strftime("%Y%m%d-%H%M%S")}'
 
     model = AutoModelForCausalLM.from_pretrained(config["model"]).to(device)
@@ -116,20 +116,17 @@ if __name__ == "__main__":
     if(args.generate_single_artist):
         print("Selected single-artist generation: ", args.generate_single_artist)
         lyrics_generator_params = LyricsGeneratorParams
-        lyrics_generator_params.max_length = 10
-        lyrics_generator = LyricsGenerator(config, args.generate_single_artist, lyrics_generator_params)
+        lyrics_generator = LyricsGenerator(config, args.generate_single_artist + '_' + args.dataset_selection, lyrics_generator_params)
         lyrics_generator.generate_lyrics(initial_prompt="My name is")
     elif(args.generate_multiple_artists):
         print("Selected multiple-artist generation")
         lyrics_generator_params = LyricsGeneratorParams
-        lyrics_generator_params.max_length = 10
         initial_prompt="You are"
         lyrics_generator = LyricsGenerator(config, "multipleArtists", lyrics_generator_params)
         lyrics_generator.generate_lyrics(args.generate_multiple_artists + ': ' + initial_prompt)
     elif(args.generate_genre):
         print("Selected multiple-artist genre generation")
         lyrics_generator_params = LyricsGeneratorParams
-        lyrics_generator_params.max_length = 30
         initial_prompt="You are"
         lyrics_generator = LyricsGenerator(config, "multipleArtistsGenre", lyrics_generator_params)
         lyrics_generator.generate_lyrics(args.generate_genre + ': ' + initial_prompt)
