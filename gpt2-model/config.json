@@ -10,6 +10,6 @@
     },
     "model":"gpt2",
     "wandb":{
-        "wandb_api_key": "9f248a1e46162ed3f7e654e0cf6fe0437f879df8"
+        "wandb_api_key": "d551294c26514ba2747e6891b296311eb4aba314"
     }
 }
