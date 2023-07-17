@@ -14,7 +14,6 @@ class LyricsGeneratorParams:
     temperature: float = 1
     top_p: float = 1
     top_k: int = 50
-    repetition_penalty: float = 1.0
     max_repeat: int = 2
 
 class LyricsGenerator():
@@ -27,7 +26,7 @@ class LyricsGenerator():
         self.pretrained = pretrained
         self.generated=""
     
-    def generate_lyrics(self, initial_prompt, table_name = "default table name"):
+    def generate_lyrics(self, initial_prompt, table_name = "default table name", condition = ""):
         """Generates lyrics text using trained model from /models/ and specified generator parameters"""
         encoded_prompt = self.tokenizer(initial_prompt, add_special_tokens=False, return_tensors="pt").input_ids
         encoded_prompt.to(device)
@@ -38,7 +37,6 @@ class LyricsGenerator():
         print('max length:         ', self.params.max_length)
         print('min length:         ', self.params.min_length)
         print('num sequences:      ', self.params.num_sequences)
-        print('repetition penalty: ', self.params.repetition_penalty)
         print('temperature:        ', self.params.temperature)
         print('top k:              ', self.params.top_k)
         print('top p:              ', self.params.top_p)
@@ -61,10 +59,8 @@ class LyricsGenerator():
                         top_p=self.params.top_p,
                         top_k=self.params.top_k,
                         do_sample=True,
-                        repetition_penalty=self.params.repetition_penalty,
                         num_return_sequences=self.params.num_sequences)
-        self.generated = self.__post_process(output_sequences)
-
+        self.generated = self.__post_process(output_sequences, condition)
         for generation in self.generated:
             # Log performance data
             table.add_data(initial_prompt, generation)
@@ -72,7 +68,7 @@ class LyricsGenerator():
         wandb.log({table_name: table})
         wandb.finish()
         
-    def __post_process(self, output_sequences):
+    def __post_process(self, output_sequences, condition):
         """Decodes lyrics text from tokenizer and cleansup text"""
         predictions = []
         generated_sequences = []
@@ -81,14 +77,13 @@ class LyricsGenerator():
         for generated_sequence_idx, generated_sequence in enumerate(output_sequences):
             generated_sequence = generated_sequence.tolist()
             text = self.tokenizer.decode(generated_sequence, clean_up_tokenization_spaces=True, skip_special_tokens=True)
-            generated_sequences.append(text.strip())
+            generated_sequences.append(text.replace(condition + ':', "").strip())
         for i, g in enumerate(generated_sequences):
             res = str(g).replace('\n\n\n', '\n').replace('\n\n', '\n')
             lines = res.split('\n')
             #print(lines)
             lines = self.__remove_consecutive_duplicates(lines, self.params.max_repeat)
             predictions.append('\n'.join(lines))
-
         return predictions
     
     def __remove_consecutive_duplicates(self, arr, max_repeat):

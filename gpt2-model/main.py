@@ -130,7 +130,7 @@ if __name__ == "__main__":
         lyrics_generator_params = LyricsGeneratorParams
         initial_prompt="You are"
         lyrics_generator = LyricsGenerator(config, "multipleArtists", lyrics_generator_params)
-        lyrics_generator.generate_lyrics(args.generate_multiple_artists + ': ' + initial_prompt, table_name="generate_multipleArtists_" + args.generate_multiple_artists.replace(" ", "_"))
+        lyrics_generator.generate_lyrics(args.generate_multiple_artists + ': ' + initial_prompt, table_name="generate_multipleArtists_" + args.generate_multiple_artists.replace(" ", "_"), condition=args.generate_multiple_artists)
     elif(args.generate_genre):
         print("Selected multiple-artist genre generation")
         lyrics_generator_params = LyricsGeneratorParams
