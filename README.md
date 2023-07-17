@@ -175,7 +175,7 @@ Hypothesis: We expect the training to be more productive and a significant impro
 Results and conclusions: We observe a decrease in overfitting issues, indicating a better generalization capability of the model. The generated lyrics showed reasonable quality and coherence, making more sense in the context of the chosen genre.
 At this stage is became more difficult to complete training with the computational resources we had. Training was taking a longer time.
 
-TODO: links to report/charts/screenshots of obtained resuts???? (weights and biases or other)
+Link to W&B training report: https://api.wandb.ai/links/upcproject/icp5ie11
 <p align="right"><a href="#toc">To top</a></p>
 
 ### 6.3 Experiment 3: Conditional lyrics generation <a name="experiment_3"></a>
