@@ -155,7 +155,6 @@ def compute_bleu_metric(config, n_words, filter, filter_generation=None):
         # Generate sentence with trained model
         #lyrics_generator.params.max_length = (initial_prompt_words + true_lyrics_words) + generation_offset
         #lyrics_generator.params.min_length = (initial_prompt_words + true_lyrics_words) + generation_offset
-
         print("\n" + "#"*50 + " Test set number = ", str(i+1))
         print("generator selected max_length =", lyrics_generator.params.max_length)
         print("generator selected min_length =", lyrics_generator.params.min_length)
@@ -232,65 +231,69 @@ def compute_bleu_metric(config, n_words, filter, filter_generation=None):
 
     return performance_data
 
-def compute_perplexity_metric(config, filter, dataset):
-    # Load stored test lyrics information to avoid training again
-    perplexity = load("perplexity", module_type="metric")
+def compute_perplexity_metric(config, filter, dataset, pretrained=True):
+    # Create table to store results
+    table = wandb.Table(columns=["sequence length", "perplexity score"])
 
-    f = open("./models/" + filter.replace(" ", "_") + "_performance/lyrics_test.json")
-    test_data=json.load(f)
+    # load tokenizer
+    tokenizer = AutoTokenizer.from_pretrained(config["model"])
 
-    results = perplexity.compute(model_id="./models/" + filter.replace(" ", "_") + "_performance/",
-                    add_start_token=False,
-                    predictions=dataset.dataset['test']['lyrics'])
-    print(round(results["mean_perplexity"], 2))
-    print(round(results["perplexities"][0], 2))
-
-    # # load tokenizer
-    # tokenizer = AutoTokenizer.from_pretrained(config["model"])
-
-    # # load model
-    # model = AutoModelForCausalLM.from_pretrained("./models/" + filter.replace(" ", "_") + "_performance/")
+    # load model
+    if(pretrained):
+        model = AutoModelForCausalLM.from_pretrained("./models/" + filter.replace(" ", "_"))
+    else:
+        model = AutoModelForCausalLM.from_pretrained("gpt2")
    
-    # max_length = model.config.n_positions
-    # stride = 128
-    # performance_data = PerplexityPerformanceParams
-    # for i in range(0,len(test_data['test_trimmed_lyrics'])):
-    #     encodings = tokenizer(test_data['test_trimmed_lyrics'][i], return_tensors="pt")
-    #     seq_len = encodings.input_ids.size(1)
+    max_length = model.config.n_positions
+    stride = 128
+    performance_data = PerplexityPerformanceParams
+    for i in range(0,len(dataset.dataset['test']['lyrics'])):
+        encodings = tokenizer(dataset.dataset['test']['lyrics'][i], return_tensors="pt")
+        seq_len = encodings.input_ids.size(1)
 
-    #     nlls = []
-    #     prev_end_loc = 0
-    #     for begin_loc in tqdm(range(0, seq_len, stride)):
-    #         end_loc = min(begin_loc + max_length, seq_len)
-    #         trg_len = end_loc - prev_end_loc  # may be different from stride on last loop
-    #         input_ids = encodings.input_ids[:, begin_loc:end_loc].to(device)
-    #         target_ids = input_ids.clone()
-    #         target_ids[:, :-trg_len] = -100
+        nlls = []
+        prev_end_loc = 0
+        for begin_loc in tqdm(range(0, seq_len, stride)):
+            end_loc = min(begin_loc + max_length, seq_len)
+            trg_len = end_loc - prev_end_loc  # may be different from stride on last loop
+            input_ids = encodings.input_ids[:, begin_loc:end_loc].to(device)
+            target_ids = input_ids.clone()
+            target_ids[:, :-trg_len] = -100
 
-    #         with torch.no_grad():
-    #             outputs = model(input_ids, labels=target_ids)
+            with torch.no_grad():
+                outputs = model(input_ids, labels=target_ids)
 
-    #             # loss is calculated using CrossEntropyLoss which averages over valid labels
-    #             # N.B. the model only calculates loss over trg_len - 1 labels, because it internally shifts the labels
-    #             # to the left by 1.
-    #             neg_log_likelihood = outputs.loss
+                # loss is calculated using CrossEntropyLoss which averages over valid labels
+                # N.B. the model only calculates loss over trg_len - 1 labels, because it internally shifts the labels
+                # to the left by 1.
+                neg_log_likelihood = outputs.loss
 
-    #         nlls.append(neg_log_likelihood)
+            nlls.append(neg_log_likelihood)
 
-    #         prev_end_loc = end_loc
-    #         if end_loc == seq_len:
-    #             break
+            prev_end_loc = end_loc
+            if end_loc == seq_len:
+                break
 
-    #     performance_data.total_eval_datasets += 1
-    #     performance_data.seq_len.append(seq_len)
-    #     performance_data.perplexity_scores.append(torch.exp(torch.stack(nlls).mean()))
-    #     print("\n" + "&"*25)
-    #     print("sequence length    =", performance_data.seq_len[-1])
-    #     print("perplexity score   =", performance_data.perplexity_scores[-1])
-    #     print("&"*25)
+        performance_data.total_eval_datasets += 1
+        performance_data.seq_len.append(seq_len)
+        performance_data.perplexity_scores.append((torch.exp(torch.stack(nlls).mean())).item())
+        print("\n" + "&"*25)
+        print("sequence length    =", performance_data.seq_len[-1])
+        print("perplexity score   =", performance_data.perplexity_scores[-1])
+        print("&"*25)
 
-    # # Display final results
-    # print("\n" + "&"*20 + " General statistics " + "&"*20 + "\n")
-    # print("Total number of evaluated datasets = ", performance_data.total_eval_datasets)
-    # print("Average perplexity score           = {:.2f}".format(statistics.mean(performance_data.perplexity_scores)))
-    # print("\n" + "&"*60 + "\n")
+         # Log performance data
+        table.add_data(performance_data.seq_len[-1], performance_data.perplexity_scores[-1])
+
+    # Display final results
+    if(performance_data.total_eval_datasets > 1):
+        print("\n" + "&"*20 + " General statistics " + "&"*20 + "\n")
+        print("Total number of evaluated datasets = ", performance_data.total_eval_datasets)
+        print("Average sequence length            = {:.2f}".format(statistics.mean(performance_data.seq_len)))
+        print("Average perplexity score           = {:.2f}".format(statistics.mean(performance_data.perplexity_scores)))
+        print("\n" + "&"*60 + "\n")
+    
+    wandb.log({filter.replace(" ", "_"): table})
+    wandb.finish()
+
+    return performance_data

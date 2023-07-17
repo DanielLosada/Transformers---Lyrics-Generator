@@ -59,7 +59,7 @@ def train_model(dataset, tokenized_dataset, save_name=''):
 
 if __name__ == "__main__":
     # TODO: remove this
-    #os.chdir('/Users/prosci/gits/Transformers---Lyrics-Generator/gpt2-model')
+    # os.chdir('/home/paurosci/gits/Transformers---Lyrics-Generator/gpt2-model')
 
     # Load the configuration file
     with open('config.json', 'r') as f:
@@ -179,7 +179,6 @@ if __name__ == "__main__":
                 os.makedirs("./models/" + artist.replace(" ", "_") + "_performance")
             with open("./models/" + artist.replace(" ", "_") + "_performance/lyrics_test.json","w") as f:
                 json.dump(test_lyrics, f)
-        
         elif(perplexity == 'True'):
             lyrics_dataset = LyricsDataset(config, artist, args.dataset_selection)
             lyrics_dataset.load_dataset_single_artist()
@@ -187,13 +186,14 @@ if __name__ == "__main__":
             lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
             )
 
-        # Initialise wandb logging
-        initialise_wandb_project(config, artist.replace(" ", "_")+'_performance')
-
         # Evaluate the model
         if perplexity == 'True':
-            perplexity_data = compute_perplexity_metric(config, artist, lyrics_dataset)
+            # Initialise wandb logging
+            initialise_wandb_project(config, artist.replace(" ", "_"))
+            perplexity_data = compute_perplexity_metric(config, artist, lyrics_dataset, True)
         else:
+            # Initialise wandb logging
+            initialise_wandb_project(config, artist.replace(" ", "_")+'_performance')
             performance_data = compute_bleu_metric(config, n_words, artist)
 
     elif(args.multiple_artists_performance):
@@ -239,16 +239,22 @@ if __name__ == "__main__":
                 os.makedirs("./models/" + artist + "_performance")
             with open("./models/" + artist + "_performance/lyrics_test.json","w") as f:
                 json.dump(test_lyrics, f)
-       
-        # Initialise wandb logging
-        initialise_wandb_project(config, artist.replace(" ", "_")+'_performance')
+        elif(perplexity == 'True'):
+            lyrics_dataset = LyricsDataset(config, artist, args.dataset_selection)
+            lyrics_dataset.load_dataset_multiple_artists()
+            tokenized_dataset = lyrics_dataset.dataset.map(
+            lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
+            )
 
         # Evaluate the model
         if perplexity == 'True':
-            perplexity_data = compute_perplexity_metric(config, artist)
+            # Initialise wandb logging
+            initialise_wandb_project(config, artist)
+            perplexity_data = compute_perplexity_metric(config, artist, lyrics_dataset, True)
         else:
+            # Initialise wandb logging
+            initialise_wandb_project(config, artist + '_performance')
             performance_data = compute_bleu_metric(config, n_words, artist)
-
 
     elif(args.genre_performance):
         print("Selected genre performance evaluation")
@@ -281,12 +287,22 @@ if __name__ == "__main__":
             test_lyrics['test_true_lyrics'] = lyrics_dataset.true_lyrics_dataset
             with open("./models/" + genre + "_performance/lyrics_test.json","w") as f:
                 json.dump(test_lyrics, f)
-        
+        elif(perplexity == 'True'):
+            lyrics_dataset = LyricsDataset(config, genre, "79-musical-genres")
+            lyrics_dataset.load_dataset_multiple_artists()
+            tokenized_dataset = lyrics_dataset.dataset.map(
+            lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
+            )
         # Initialise wandb logging
         initialise_wandb_project(config, genre.replace(" ", "_")+'_performance')
 
         # Evaluate the model
         if perplexity == 'True':
-            perplexity_data = compute_perplexity_metric(config, genre)
+            # Initialise wandb logging
+            initialise_wandb_project(config, genre)
+            perplexity_data = compute_perplexity_metric(config, genre, lyrics_dataset, True)
         else:
+            # Initialise wandb logging
+            initialise_wandb_project(config, genre + '_performance')
             performance_data = compute_bleu_metric(config, n_words, genre)
+
