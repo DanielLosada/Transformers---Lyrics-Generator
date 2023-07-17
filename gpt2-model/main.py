@@ -59,7 +59,7 @@ def train_model(dataset, tokenized_dataset, save_name=''):
 
 if __name__ == "__main__":
     # TODO: remove this
-    # os.chdir('/Users/prosci/gits/Transformers---Lyrics-Generator/gpt2-model')
+    os.chdir('/Users/prosci/gits/Transformers---Lyrics-Generator/gpt2-model')
 
     # Load the configuration file
     with open('config.json', 'r') as f:
@@ -83,7 +83,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # TODO: remove this
-    # args.single_artist_performance=['Bob Dylan', 'True', '20']
+    args.single_artist_performance=['Queen', 'True', '-1']
     # args.dataset_selection = '79-musical-genres'
     # args.multiple_artists_performance=['Eminem10', 'True', '20']
     # args.train_multiple_artists = True
@@ -144,6 +144,13 @@ if __name__ == "__main__":
         train = args.single_artist_performance[1]
         n_words = int(args.single_artist_performance[2])
 
+        # Select metric to compute
+        if n_words < 0:
+            perplexity = 'True'
+            train = 'False'
+        else:
+            perplexity = 'False'
+
         # Train the model
         if(train == 'True'):
             lyrics_dataset = LyricsDataset(config, artist, args.dataset_selection, performance_evaluation_nremovals=n_words)
@@ -174,10 +181,13 @@ if __name__ == "__main__":
                 json.dump(test_lyrics, f)
 
         # Initialise wandb logging
-        initialise_wandb_project(config, artist.replace(" ", "_")+'_performance')
+        #initialise_wandb_project(config, artist.replace(" ", "_")+'_performance')
 
         # Evaluate the model
-        performance_data = compute_bleu_metric(config, n_words, artist)
+        if perplexity == 'True':
+            perplexity_data = compute_perplexity_metric(config, artist)
+        else:
+            performance_data = compute_bleu_metric(config, n_words, artist)
 
     elif(args.multiple_artists_performance):
         print("Selected multiple artists performance evaluation")
@@ -228,6 +238,7 @@ if __name__ == "__main__":
         genre = args.genre_performance[0]
         train = args.genre_performance[1]
         n_words = int(args.genre_performance[2])
+        perplexity = 'True'
 
         # Train the model
         if(train == 'True'):
@@ -253,5 +264,44 @@ if __name__ == "__main__":
 
         # Evaluate the model
         performance_data = compute_bleu_metric(config, n_words, genre)
+        
 
+    #compute_perplexity_metric()
+    from datasets import load_dataset
+    from transformers import AutoTokenizer
+    from tqdm import tqdm
+
+    model = AutoModelForCausalLM.from_pretrained('gpt2').to(device)
+    tokenizer = AutoTokenizer.from_pretrained('gpt2')
+    test = load_dataset("wikitext", "wikitext-2-raw-v1", split="test")
+    joined_test = "\n\n".join(test["text"])
+    encodings = tokenizer("\n\n".join(test["text"]), return_tensors="pt")
+    max_length = model.config.n_positions
+    stride = 512
+    seq_len = encodings.input_ids.size(1)
+
+    nlls = []
+    prev_end_loc = 0    
+    for begin_loc in tqdm(range(0, seq_len, stride)):
+        end_loc = min(begin_loc + max_length, seq_len)
+        trg_len = end_loc - prev_end_loc  # may be different from stride on last loop
+        input_ids = encodings.input_ids[:, begin_loc:end_loc].to(device)
+        target_ids = input_ids.clone()
+        target_ids[:, :-trg_len] = -100
+
+        with torch.no_grad():
+            outputs = model(input_ids, labels=target_ids)
+
+            # loss is calculated using CrossEntropyLoss which averages over valid labels
+            # N.B. the model only calculates loss over trg_len - 1 labels, because it internally shifts the labels
+            # to the left by 1.
+            neg_log_likelihood = outputs.loss
+
+        nlls.append(neg_log_likelihood)
+
+        prev_end_loc = end_loc
+        if end_loc == seq_len:
+            break
+
+    ppl = torch.exp(torch.stack(nlls).mean())
 
