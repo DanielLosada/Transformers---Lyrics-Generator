@@ -186,7 +186,7 @@ Hypothesis: The model should produce good results but it will be really time cos
 Results and conclusions : Lyrics of enhanced quality and coherence (though there is still quite a bit of room for improvement).
 The main issue was lack of computational resources.
 
-TODO: links to report/charts/screenshots of obtained resuts???? (weights and biases or other) 
+Link to W&B training report: https://api.wandb.ai/links/upcproject/zzppte9f 
 <p align="right"><a href="#toc">To top</a></p>
 
 ### 6.4 Experiment 4: BLEU score performance evaluation <a name="experiment_4"></a>
