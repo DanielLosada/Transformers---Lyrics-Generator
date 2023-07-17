@@ -155,7 +155,7 @@ Resuts and conclusions: We are not even sure if the model is training properly, 
 
 The problems that we encountered in the generated lyrics were also mostly due to the small size of the dataset - predisposition to word repetition and to generating truncated lines or lines consisting of one word. We tried to address this issue in post processing by introducing a __post_process function that cleans up the generated sequences of lyrics by removing redundant line breaks, and removes consecutive duplicated words using the __remove_consecutive_duplicates helper function.
 
-Link to W&B report: https://api.wandb.ai/links/upcproject/uxoj59gw
+Link to W&B training report: https://api.wandb.ai/links/upcproject/uxoj59gw
 
 **B. Training on Lyrics from 79 musical genres dataset** https://www.kaggle.com/datasets/neisse/scrapped-lyrics-from-6-genres
 
@@ -165,7 +165,7 @@ Hypothesis: We expect better performance.
 
 Resuts and conclusions: Now we see progress in training and a certain decrease in training and evaluation loss. The highest evaluation loss we get is for the model trained on 50 Cent, which we believe might be due to unique vocabulary and language style.
 
-Link to W&B report: https://api.wandb.ai/links/upcproject/5ao7yfw0
+Link to W&B training report: https://api.wandb.ai/links/upcproject/5ao7yfw0
 ### 6.2 Experiment 2: Specific genre training <a name="experiment_2"></a>
 Experiment setup: Now we are training on even bigger amounts of data - a set of lyrics of a certain genre (determined by an argument specified in argparse) containing of several thousands of songs (Lyrics from 79 musical genres dataset) . Training is done in a local environment or via a Google Cloud VM instance (CPU only, we didn't have GPUs available). 
 We only choose artists with popularity >5 since we believe that with more popular artists the chances of getting better quality lyrics are higher since their lyrics have been checked and validated by many users. Some artists´songs also belong to several genres, we only take into account those that have songs of only one genre to avoid genre mixup in our generated lyrics.
