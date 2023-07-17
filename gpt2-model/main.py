@@ -3,6 +3,7 @@ import torch
 import json
 import os
 import wandb
+import shutil
 
 from datetime import datetime
 from pynvml import *
@@ -56,6 +57,7 @@ def train_model(dataset, tokenized_dataset, save_name=''):
     wandb.finish()
     if(save_name):
         trainer.save_model("./models/" + save_name.replace(" ", "_"))
+    shutil.rmtree('./trainer')
 
 if __name__ == "__main__":
     # TODO: remove this
