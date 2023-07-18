@@ -303,6 +303,50 @@ Here we are going to show some examples of the results obtained.
 
 <p align="right"><a href="#toc">To top</a></p>
 
+### 6.4 Experiment 4: Conditional lyrics generation based on the prompt <a name="experiment_4"></a>
+
+Experiment setup:
+For this experiment, we trained GPT-2 with lyrics from the first dataset with lyrics of 50 Cent and Justin Bieber. Both of them have 100 songs. The difference with the previous experiment is, that instead of conditioning the generation specifying the artist. We use an initial prompt that will lead the model to follow one style or the other.
+
+Hypothesis: The model will be able to understand, based on the topic or style of the initial prompt, which style should follow. Sometimes might get confused and mix both styles even though they are really different.
+
+Results:
+The full results can be seen in the W&B report. 
+# TODO add report of runs 
+generate_multiple_2_artists_genius-lyrics_I'm_hustling-20230718-194558
+generate_multiple_2_artists_genius-lyrics_I_miss_you-20230718-194748
+generate_multiple_2_artists_genius-lyrics_I'm_sad-20230718-201241
+generate_multiple_2_artists_genius-lyrics_The_street_is_tough-20230718-201202
+
+* Input prompt: I'm hustling
+
+  ```
+  Oh, man, I'm hustling
+  I'm hustling, hustling, hustling my way through this shit
+  Feels like you get up, right?
+  Come on, yeah, yeahomp, come on yo, come on yo
+  ```
+
+* Input prompt: I miss you
+  ```
+  I miss you
+  Lost your little girl
+  Lost her heart, she miss me, no, no, no
+  Don't know her name
+  Lost everything
+  I'm stuck, oh-oh
+  Oh my niggas on the block and the cops
+  Don't wanna talk, I'm stuck
+  Oh my niggas on the block and the cops
+  Don't wanna talk, I'm stuck
+  I miss ya
+  ```
+
+  As we can see, depending on the input prompt the model will use the style that it's more apropiate for it. But as we can see on the second example, the lyrics start with a Justin Bieber style, and at some point switch to a 50 Cent style. That should not happen as its not coherent with itself.
+
+  Conclusion:
+  The model is able to fit both styles, even though they are rally different, and in general, know when to use the more appropiate one.
+
 ### 6.4 Experiment 4: Performance evaluation single-artist GPT-2 vs fine tuned GPT-2 <a name="experiment_4"></a>
 
 **A. BLEU SCORE**
