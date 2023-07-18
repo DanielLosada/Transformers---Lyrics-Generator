@@ -108,10 +108,16 @@ class LyricsGenerator():
     def __remove_consecutive_duplicates_using_cosine_similarity(self, arr, threshold):
         """Removes consecutive duplicated words"""
         results = []
-        previous_line = arr[0]
-        results.append(arr[0])
+        #print("%"*50)
+        #print("previous_line before deleting duplicates: ", arr[0])
+        previous_line = ' '.join(self.__remove_consecutive_duplicates(arr[0].split(' '),self.params.max_repeat, True))
+        #print("previous_line AFTER deleting duplicates: ", previous_line)
+        results.append(previous_line)
         for x in range(1, len(arr)):
-            current_line = arr[x]
+            #print("current_line before deleting duplicates: ", arr[x])
+            current_line = ' '.join(self.__remove_consecutive_duplicates(arr[x].split(' '),self.params.max_repeat, True))
+            #print("current_line AFTER deleting duplicates: ", current_line)
+            #print("%"*50)
             #if(self.compute_cosine_similarity(previous_line, current_line) > threshold):
             #    print("&"*50)
             #    print("previous_line: ", previous_line)
@@ -119,8 +125,9 @@ class LyricsGenerator():
             #    print("self.compute_cosine_similarity(previous_line, current_line): ", self.compute_cosine_similarity(previous_line, current_line))
             #    print("&"*50)
             if self.compute_cosine_similarity(previous_line, current_line) < threshold:
-                results.append(arr[x])
+                results.append(current_line)
                 previous_line = current_line
+        #print("results: ", results)
         return results
 
     def __post_process(self, output_sequences, condition):
@@ -143,6 +150,8 @@ class LyricsGenerator():
     
     def __remove_consecutive_duplicates(self, arr, max_repeat, words = False):
         """Removes consecutive duplicated words"""
+        #print("&"*50)
+        #print("initial_arr: ", arr)
         results = []
         if len(arr) >= max_repeat:
             current_word = arr[0]
@@ -160,6 +169,10 @@ class LyricsGenerator():
                         results.append(duplicated_words_removed)
                     else:
                         results.append(arr[x])
+                #else:
+                    #print("word removed: ", arr[x], "on line ", arr)
+            #print("results: ", results)
+            #print("&"*50)
             return results
         else:
             return arr
