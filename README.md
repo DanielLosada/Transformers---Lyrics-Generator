@@ -24,6 +24,81 @@ The first line of the file
 ```
 it's used to install the torch version compatible with cuda in windows.
 
+## Configuration
+
+General configurations can be found within the ```gpt2-model/config.json``` file. This file indicates where the zipped dataset files are located and where to uncompress them among other tranining hyperparameters. Please make sure that your compressed datasets are located and called as the configuration file indicates.
+
+## Run
+Train single-artist model genius-lyrics dataset (default):
+```
+python main.py --trainSingleArtist "50 Cent"
+```
+
+Train single-artist model 79-musical-genres dataset:
+```
+python main.py --trainSingleArtist "50 Cent" --datasetSelection "79-musical-genres"
+```
+
+Train multiple-artist conditional model (only genius-dataset supported):
+```
+python main.py --trainMultipleArtists
+```
+
+Train genre model (only 79-musical-genres dataset supported):
+```
+python main.py --trainGenre "Rock"
+```
+
+Generate single-artist model lyrics:
+```
+python main.py --generateSingleArtist "50 Cent" "You are"
+```
+
+Generate multiple-artist conditional model lyrics:
+```
+python main.py --generateMultipleArtists "Taylor Swift" "You are"
+```
+
+Generate genre model lyrics:
+```
+python main.py --generateGenre "Rock" "You are"
+```
+
+Compute single-artist preformance BLEU score (with training enabled and 20 last words from test dataset removal)
+```
+python main.py --performanceSingleArtist "Taylor Swift" "True" 20
+```
+
+Compute single-artist preformance BLEU score (without training and 20 last words from test dataset removal)
+```
+python main.py --performanceSingleArtist "Taylor Swift" "False" 20
+```
+
+Compute single-artist preformance PPL score
+```
+python main.py --performanceSingleArtist "Taylor Swift" "True" -1
+```
+
+Compute multiple-artist preformance BLEU score (with training enabled and 20 last words from test dataset removal)
+```
+python main.py --performanceMultipleArtists "Eminem" "True" 20
+```
+
+Compute multiple-artist preformance PPL score
+```
+python main.py --performanceMultipleArtists "Eminem" "True" -1
+```
+
+Compute genre preformance BLEU score (with training enabled and 20 last words from test dataset removal)
+```
+python main.py --performanceMultipleArtists "Reggae" "True" 20
+```
+
+Compute genre preformance PPL score
+```
+python main.py --performanceMultipleArtists "Reggae" "True" -1
+```
+
 
 # Lyrics Generator
 
