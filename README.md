@@ -227,13 +227,58 @@ At this stage is became more difficult to complete training with the computation
 Link to W&B training report: https://api.wandb.ai/links/upcproject/icp5ie11
 <p align="right"><a href="#toc">To top</a></p>
 
-### 6.3 Experiment 3: Conditional lyrics generation <a name="experiment_3"></a>
-Experiment setup: Training with a full dataset to generate song lyrics similar to those of a specific artist. The dataset (one of the two available) and the artist are determined by arguments specified in argparse. Training locally or via a Google Cloud VM instance (CPU only)
+### 6.3 Experiment 3: Conditional lyrics generation with the same prompt <a name="experiment_3"></a>
 
-Hypothesis: The model should produce good results but it will be really time costly to train without GPUs, and we can not really afford to tune the hyperparameters.
+Experiment setup: Training with a full dataset to generate song lyrics similar to those of a specific artist. The dataset is Genius lyrics, and the artist and the prompt are determined by the arguments specified in argparse. Similarly to experiment 1, we use the same prompt for all the artists. Here we trained and tested on 5 artists: 50 Cent, Taylor Swift, Queen, Justin Bieber, and The Notorious B.I.G.. 
 
-Results and conclusions : Lyrics of enhanced quality and coherence (though there is still quite a bit of room for improvement).
-The main issue was lack of computational resources.
+Hypothesis: Since we use the complete dataset, on more data the model should be even better fitted for lyrics generation in general. As for lyrics specific to a particular artist, though the model is fed with lyrics of a lot of different artists, we expect it to keep to the style and vocabulary of the chosen artist.
+
+Results: Here you can find some extracts of results that prove the hypothesis. 
+W&B link: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Multiple-artists-generated-lyrics-prompt-I-will---Vmlldzo0OTEyNjgw?accessToken=lnb3rb377mkatl0g5xk76ral4a4w7wk03wclk4dsvcvmxnmdg718hlqknmohwrs1
+
+* Input prompt: "I will"
+  
+    * Artist: Taylor Swift
+     ```
+    On top of the world
+    And then you'll get used to it
+    When my light shines on the stars
+    You'll still smell them the same burning from day to day
+    I'll send you in
+    On top of the world
+    And then you'll get used to it
+    When it's time to shine
+     ```
+    * Artist: Justin Bieber
+     ```
+    Come on D'you know all that I hold dear
+    I'll take a trip with you, baby girl, I will see you in the mirror
+    You know you are a big part of who I am
+     ```
+     ```
+     Let's go, D'you know all that I hold dear
+     I'll take it
+     Marry you babe, please, you know I'ma hold onto you all your life
+     (Oh-Oh!)
+     We'll make love, girl(Yeah)
+     It's been a long time since we last met
+     Still on the edge of love, we're sure it's real
+     ```
+    * Artist: The Notorious B.I.G.
+     ```
+     I'm not looking for drama anymore
+     There's a good reason I'm here
+     But then you find your way
+     And I try, but I don't show 'em
+     She don't wanna hear it
+     So it's gotta be slow
+     I mean, I am the slowest motherfucker I knew
+
+We can see that our results are similar to those of experiment 1, the lyrics stick to the style and the language of the chosen artist.
+However, we note that there is still quite a bit of room for improvement in terms of coherence of the lyrics.
+The main issue is the lack of computational resources to increase the dataset and/or further fine-tune the parameters.
+
+Here you can find mode examples with a different prompt: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Multiple-artists-generated-lyrics-prompt-You-are---Vmlldzo0OTEyNzQ3?accessToken=g3lev2vf26vg7jsg20q6a2qgmmq8faqczopt89e99f2gp1xprrjaznx87e3llqxk
 
 Link to W&B training report: https://api.wandb.ai/links/upcproject/zzppte9f 
 <p align="right"><a href="#toc">To top</a></p>
