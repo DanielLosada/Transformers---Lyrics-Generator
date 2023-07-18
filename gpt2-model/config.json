@@ -5,7 +5,7 @@
     "val_size":0.2,
     "dataset_zip":
     {
-        "genious-lyrics":"datasets/genious-lyrics.zip",
+        "genius-lyrics":"datasets/genius-lyrics.zip",
         "79-musical-genres":"datasets/79-musical-genres.zip"
     },
     "model":"gpt2",

@@ -17,8 +17,6 @@ class LyricsDataset():
         self.tokenizer = AutoTokenizer.from_pretrained(self.config["model"])
         self.tokenizer.pad_token = self.tokenizer.eos_token
         self.files_to_delete = ["(Scriptonite)", "BTS", "Damso", "Genius English Translations", "Genius Romanizations", "JuL", "Nekfeu", "Oxxxymiron"]
-        # TODO: Remove this
-        #self.files_to_multiartist = ["Eminem10", "Justin Bieber10"]
         self.files_to_multiartist = ["50 Cent", "Imagine Dragons", "Justin Bieber", "Taylor Swift", "Queen", "Lil Peep", "Arctic Monkeys", "The Notorious B.I.G.", "Radiohead", "Mac Miller"]
         self.dataset=""
         self.true_lyrics_dataset=[]
@@ -38,7 +36,7 @@ class LyricsDataset():
         else:
             print("The", os.path.join(self.config["base_dir"], self.config["dataset_path"], self.dataset_dir), "folder is not empty. Skipping extraction.")
         
-        if self.dataset_id == 'genious-lyrics':
+        if self.dataset_id == 'genius-lyrics':
             # Remove non english authors from dataset 
             for file_name in self.files_to_delete:
                 file_path = os.path.join(self.config["dataset_path"], self.dataset_dir,f"{file_name}.csv")
@@ -50,7 +48,7 @@ class LyricsDataset():
 
     def load_dataset_single_artist(self):
         """Loads a dataset from a specific artist and stores its cleaned version"""
-        if self.dataset_id == 'genious-lyrics':
+        if self.dataset_id == 'genius-lyrics':
             csv_path = os.path.join(self.config["base_dir"], self.config["dataset_path"], self.dataset_dir, self.filter_field + ".csv")
             
             # Check wether performance evaluation needs to be computed
@@ -80,7 +78,7 @@ class LyricsDataset():
 
     def load_dataset_multiple_artists(self):
         """Loads several datasets from different artists and stores its cleaned version"""
-        if self.dataset_id == 'genious-lyrics':
+        if self.dataset_id == 'genius-lyrics':
             folder_path = os.path.join(self.config["base_dir"], self.config["dataset_path"], self.dataset_dir)
             csv_files = [filename for filename in os.listdir(folder_path) if filename.endswith(".csv")]
             csv_files_to_keep = [filename for filename in csv_files if any(artist in filename for artist in self.files_to_multiartist)]
@@ -137,7 +135,7 @@ class LyricsDataset():
         context_length = 128
         input_batch = []
 
-        if self.dataset_id == 'genious-lyrics':
+        if self.dataset_id == 'genius-lyrics':
             outputs = self.tokenizer(
                 element["lyrics"],
                 truncation=True,
@@ -160,7 +158,7 @@ class LyricsDataset():
     
     def __preprocess_lyrics_single_artist(self, data):
         """Preprocesses lyrics by removing first line and text between square brakets"""
-        if self.dataset_id == 'genious-lyrics':
+        if self.dataset_id == 'genius-lyrics':
             # Remove the first line
             if data['lyrics'] is not None:
                 data['lyrics'] = data['lyrics'].split('\n', 1)[-1]
@@ -194,13 +192,12 @@ class LyricsDataset():
             data['Lyric'] = data['Lyric'].apply(lambda x: re.sub(r'\(.*?\)', '', x))
             
             data = data.drop(columns=['ALink','SLink','Link','Popularity'])
-            #TODO: Remove this
-            #data = data.drop(data.index[9:-1])
+
         return data
     
     def __preprocess_lyrics(self, data):
         """Preprocesses lyrics by removing first line and text between square brakets"""
-        if self.dataset_id == 'genious-lyrics':
+        if self.dataset_id == 'genius-lyrics':
             for i in range(len(data['lyrics'])):
                 if isinstance(data['lyrics'][i], str):
                     # Remove the first line
@@ -231,7 +228,7 @@ class LyricsDataset():
 
     def __preprocess_lyrics_multiple_artists(self, data):
         """Preprocesses multiple artists lyrics"""
-        if self.dataset_id == 'genious-lyrics':
+        if self.dataset_id == 'genius-lyrics':
             if self.performance_evaluation_nremovals:
                 data = self.__preprocess_lyrics(data)
             else:
@@ -255,8 +252,7 @@ class LyricsDataset():
                 data['Lyric'][i] = '\n'.join(' '.join(v) for v in split_data)
             
             data = data.drop(columns=['ALink','SLink','Link','Popularity'])
-            #TODO: Remove this
-            #data = data.drop(data.index[9:-1])
+
         return data
 
     def __split_train_custom_eval(self, csvFile, test_size):
@@ -271,7 +267,7 @@ class LyricsDataset():
 
             # remove last n verses from test set
             test_set = test_set.reset_index()
-            if(self.dataset_id=='genious-lyrics'):
+            if(self.dataset_id=='genius-lyrics'):
                 #test_set['lyrics'] = self.__remove_last_verses_from_dataset(test_set['lyrics'], test_set['lyrics'], n=self.performance_evaluation_nremovals)
                 test_set['lyrics'] = self.__remove_last_words_from_dataset(test_set['lyrics'], test_set['lyrics'], n=self.performance_evaluation_nremovals)
                 train_set = csvFile.loc[~csvFile.index.isin(test_set.index)]
