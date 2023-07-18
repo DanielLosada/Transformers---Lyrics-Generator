@@ -373,7 +373,7 @@ Here we are going to show some examples of the results obtained.
   And put a new face on the story
   ```
 
-  As we can see, the model performs similar to the fist experiment. We can easyly see the change of style and topics depending on the artist requested even though the input prompt it's the same. The model went from the 'egotrip' and tough vocabulary from The Notorious B.I.G., to a heartbroken Justin Beaver.However, we note that there is still quite a bit of room for improvement in terms of coherence of the lyrics. We expected the results to be better in that sense. The main issue is the lack of computational resources to increase the dataset and/or further fine-tune the parameters.
+  As we can see, the model performs similar to the fist experiment. We can easily see the change of style and topics depending on the artist requested even though the input prompt it's the same. The model went from the 'egotrip' and tough vocabulary from The Notorious B.I.G., to a heartbroken Justin Bieber. However, we note that there is still quite a bit of room for improvement in terms of coherence of the lyrics. We expected the results to be better in that sense. The main issue is the lack of computational resources to increase the dataset and/or further fine-tune the parameters.
 
   Conclusions:
   
@@ -394,12 +394,8 @@ For this experiment, we trained GPT-2 with lyrics from the first dataset with ly
 Hypothesis: The model will be able to understand, based on the topic or style of the initial prompt, which style should follow. Sometimes might get confused and mix both styles even though they are really different.
 
 Results:
-The full results can be seen in the W&B report. 
-# TODO add report of runs 
-generate_multiple_2_artists_genius-lyrics_I'm_hustling-20230718-194558
-generate_multiple_2_artists_genius-lyrics_I_miss_you-20230718-194748
-generate_multiple_2_artists_genius-lyrics_I'm_sad-20230718-201241
-generate_multiple_2_artists_genius-lyrics_The_street_is_tough-20230718-201202
+The full results can be seen in the W&B report: 
+https://wandb.ai//upcproject/Lyrics%20Generator/reports/Conditional-lyrics-generation-based-on-prompt---Vmlldzo0OTEzNTIw?accessToken=92bum66dzakw9sk353xizq7tqy5el21xwxfq1onvgpzz97cxd0n7f782x5885y33
 
 * Input prompt: I'm hustling
 
@@ -428,7 +424,7 @@ generate_multiple_2_artists_genius-lyrics_The_street_is_tough-20230718-201202
   As we can see, depending on the input prompt the model will use the style that it's more apropiate for it. But as we can see on the second example, the lyrics start with a Justin Bieber style, and at some point switch to a 50 Cent style. That should not happen as its not coherent with itself.
 
   Conclusion:
-  The model is able to fit both styles, even though they are rally different, and in general, know when to use the more appropiate one.
+  The model is able to fit both styles, even though they are really different, and in general, know when to use the more appropiate one.
 
 ### 6.4 Experiment 4: Performance evaluation single-artist GPT-2 vs fine tuned GPT-2 <a name="experiment_4"></a>
 
