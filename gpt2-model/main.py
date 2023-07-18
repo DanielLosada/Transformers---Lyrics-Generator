@@ -73,8 +73,8 @@ if __name__ == "__main__":
     parser.add_argument("-tm", "--trainMultipleArtists", dest='train_multiple_artists', action="store_true", help="Prepare the dataset of all the artists and train the model")
     parser.add_argument("-tg", "--trainGenre", dest='train_genre', type=str, help="Pass the genre to train the model with songs of that genre")
     
-    parser.add_argument("-gs", "--generateSingleArtist", dest='generate_single_artist', type=str, help="Pass the artist name to generate lyrics. Use the same name you used to train it.")
-    parser.add_argument("-gm", "--generateMultipleArtists", dest='generate_multiple_artists',type=str, help="Pass the artist name to generate lyrics with the model trained with multiple artists. Use the same name you used to train it.")
+    parser.add_argument("-gs", "--generateSingleArtist", nargs=2, dest='generate_single_artist', type=str, help="Pass the artist name to generate lyrics. Use the same name you used to train it. Also pass the initial prompt")
+    parser.add_argument("-gm", "--generateMultipleArtists", nargs=2, dest='generate_multiple_artists',type=str, help="Pass the artist name to generate lyrics with the model trained with multiple artists. Use the same name you used to train it. Also pass the initial prompt")
     parser.add_argument("-gg", "--generateGenre", dest='generate_genre',type=str, help="Pass the artist name to generate lyrics with the model trained with multiple artists genre. Use the same name you used to train it.")
     parser.add_argument("-ds", "--datasetSelection", dest='dataset_selection', choices=["genious-lyrics","79-musical-genres"], default = "genious-lyrics", help="Offers dataset selection between two choices")
     
@@ -119,18 +119,24 @@ if __name__ == "__main__":
    
     # Generation options
     if(args.generate_single_artist):
-        print("Selected single-artist generation: ", args.generate_single_artist)
+        artist = args.generate_single_artist[0]
+        initial_prompt = args.generate_single_artist[1]
+        print("Selected single-artist generation: ", artist)
+        print("Initial prompt selected: ", initial_prompt)
+        
         lyrics_generator_params = LyricsGeneratorParams
-        initial_prompt="I'm going to"
-        lyrics_generator = LyricsGenerator(config, args.generate_single_artist + '_' + args.dataset_selection, lyrics_generator_params)
-        initialise_wandb_project(config, "generate_" + args.generate_single_artist.replace(" ", "_") + '_' + args.dataset_selection)
-        lyrics_generator.generate_lyrics(initial_prompt=initial_prompt, table_name="generate_" + args.generate_single_artist.replace(" ", "_") + '_' + args.dataset_selection)
+        lyrics_generator = LyricsGenerator(config, artist + '_' + args.dataset_selection, lyrics_generator_params)
+        initialise_wandb_project(config, "generate_" + artist.replace(" ", "_") + '_' + args.dataset_selection + '_' + initial_prompt.replace(" ", "_"))
+        lyrics_generator.generate_lyrics(initial_prompt=initial_prompt, table_name="generate_" + artist.replace(" ", "_") + '_' + args.dataset_selection)
     elif(args.generate_multiple_artists):
-        print("Selected multiple-artist generation")
+        artist = args.generate_multiple_artists[0]
+        initial_prompt = args.generate_multiple_artists[1]
+        print("Selected multiple-artist generation for: ", artist)
+        print("Initial prompt selected: ", initial_prompt)
         lyrics_generator_params = LyricsGeneratorParams
-        initial_prompt="You are"
         lyrics_generator = LyricsGenerator(config, "multipleArtists", lyrics_generator_params)
-        lyrics_generator.generate_lyrics(args.generate_multiple_artists + ': ' + initial_prompt, table_name="generate_multipleArtists_" + args.generate_multiple_artists.replace(" ", "_"), condition=args.generate_multiple_artists)
+        #initialise_wandb_project(config, "generate_multiple_" + artist.replace(" ", "_"))
+        lyrics_generator.generate_lyrics(artist + ': ' + initial_prompt, table_name="generate_multipleArtists_" + artist.replace(" ", "_"), condition=artist)
     elif(args.generate_genre):
         print("Selected multiple-artist genre generation")
         lyrics_generator_params = LyricsGeneratorParams

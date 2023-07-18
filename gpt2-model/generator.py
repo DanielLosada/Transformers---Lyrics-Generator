@@ -10,7 +10,7 @@ device = device("cuda") if cuda.is_available() else device("cpu")
 class LyricsGeneratorParams:
     num_sequences: int = 3
     min_length: int = 100
-    max_length: int = 1000
+    max_length: int = 500
     temperature: float = 1
     top_p: float = 1
     top_k: int = 50
@@ -30,10 +30,15 @@ class LyricsGenerator():
         """Generates lyrics text using trained model from /models/ and specified generator parameters"""
         encoded_prompt = self.tokenizer(initial_prompt, add_special_tokens=False, return_tensors="pt").input_ids
         encoded_prompt.to(device)
+
+        attention_mask = encoded_prompt.clone().fill_(1)
+
         print("encoded_prompt: ", encoded_prompt)
+        print("attention_mask: ", attention_mask)
         print("table_name: ", table_name)
         print("Loading generation model with params...")
         print("*"*50)
+        print('initial_prompt:     ', initial_prompt)
         print('max length:         ', self.params.max_length)
         print('min length:         ', self.params.min_length)
         print('num sequences:      ', self.params.num_sequences)
@@ -53,6 +58,7 @@ class LyricsGenerator():
             model = AutoModelForCausalLM.from_pretrained(self.config["model"])
         output_sequences = model.generate(
                         input_ids=encoded_prompt,
+                        attention_mask=attention_mask,
                         max_length=self.params.max_length,
                         min_length=self.params.min_length,
                         temperature=self.params.temperature,
@@ -61,6 +67,7 @@ class LyricsGenerator():
                         do_sample=True,
                         num_return_sequences=self.params.num_sequences)
         self.generated = self.__post_process(output_sequences, condition)
+        print("generated: ", self.generated)
         for generation in self.generated:
             # Log performance data
             table.add_data(initial_prompt, generation)
@@ -86,7 +93,7 @@ class LyricsGenerator():
             predictions.append('\n'.join(lines))
         return predictions
     
-    def __remove_consecutive_duplicates(self, arr, max_repeat):
+    def __remove_consecutive_duplicates(self, arr, max_repeat, words = False):
         """Removes consecutive duplicated words"""
         results = []
         if len(arr) >= max_repeat:
@@ -100,7 +107,11 @@ class LyricsGenerator():
                 if current_word == arr[x]:
                     count += 1
                 if max_repeat >= count:
-                    results.append(arr[x])
+                    if not words:
+                        duplicated_words_removed = ' '.join(self.__remove_consecutive_duplicates(arr[x].split(' '),self.params.max_repeat, True))
+                        results.append(duplicated_words_removed)
+                    else:
+                        results.append(arr[x])
             return results
         else:
             return arr
