@@ -248,7 +248,7 @@ The full results can be seen in the W&B report: https://wandb.ai//upcproject/Lyr
 
     Conclusion:
 
-    As we observed in the prvious experiment, the model was also able to fit the genre and learn the style and tone of it, even though it looks like it's harder for it to use specific vocabulary. We can see the same behaviour with other inputs. To see more generations with another input go to the W&B report. #TODO: add link to the "I will" report.
+    As we observed in the prvious experiment, the model was also able to fit the genre and learn the style and tone of it, even though it looks like it's harder for it to use specific vocabulary. We can see the same behaviour with other inputs. To see more generations with another input go to the W&B report: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Specific-genre-generated-lyrics-prompt-I-will---Vmlldzo0OTEyNTYx?accessToken=9leuj9h6e51qzjqvomv3xgp4tf9tnrf1hsbb06r9mi623kqbavlf29k0bx6gwbxm
 
 
 
