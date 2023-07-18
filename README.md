@@ -159,7 +159,8 @@ Experiment setup: We fine-tuned GPT-2 on 100 lyrics by a single artist. We used 
 Hypothesis: Even though we only use 100 songs, the model should be able to fit the vocabulary and style of each one of them, and continue the input prompt with the artist style. In terms of training we might expect overfitting.
 
 Resuts: 
-The full results can be seen in the W&B report. #TODO: add link to the "You are" report. Here we are going to show some examples of the results obtained.
+The full performance results can be seen in the W&B report: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Single-artist-generated-lyrics-prompt-You-are---Vmlldzo0OTEyNTA2?accessToken=afvobacengbowa8wyvxxhnqvju9x60r0egsa52n7qvjpcnvtveo1597f3ncpp1pu.
+ Here we are going to show some examples of the results obtained.
 * Input prompt: "You are"
     * Artist: 50 Cent
      ```
