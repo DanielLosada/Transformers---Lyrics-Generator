@@ -200,7 +200,11 @@ The full performance results can be seen in the W&B report: https://wandb.ai//up
     On this examples of the results obtained, we can see how on 50 Cent, the model understood that his lyrics have more agressive tone, talks about drugs, sex, crime, etc. When going to Taylor Swift, the style changes completely. Now talks way more about feelings and love, and it's really delicate with the words used. When generating The Beatles, we can see some claim pro peace.
 
     Conclusions:
-    We can conclude, that the Hypothesis was correct, not only changes the tone and vocabulary used to one that the artist would use, also change the topic of the lyrics. We can see that the model is able to fit the vocabulary and style of each artist, and continue the input prompt with the artist style. We can see the same behaviour with the other artists tested and with other inputs. To see more generations with another input go to the W&B report. #TODO: add link to the "I will" report.
+    We can conclude, that the Hypothesis was correct, not only changes the tone and vocabulary used to one that the artist would use, also change the topic of the lyrics. We can see that the model is able to fit the vocabulary and style of each artist, and continue the input prompt with the artist style. We can see the same behaviour with the other artists tested and with other inputs. To see more generations with another input go to the W&B report: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Single-artist-generated-lyrics-prompt-I-will---Vmlldzo0OTEyMjg5?accessToken=sxxzyfrnouae43t9ilfl0rzxuf41n0ryvdykyukfa3lre40oifpxq9x6pnf261ay
+
+   As far as it goes for the training, we see that the loss goes down but not very fast. It could be explained by the fact that the pre-trained GPT-2 model is already trained on a big amount of data and is capable of generating a good text in English.
+  
+Link to W&B training report: https://api.wandb.ai/links/upcproject/uxoj59gw
 
 ### 6.2 Experiment 2: Specific genre training and generation with same prompt <a name="experiment_2"></a>
 
