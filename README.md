@@ -323,7 +323,7 @@ Unfortunately due to the lack of time we could not conduct the T5 experiment.
 ## 7. Conclusions <a name="conclusions"></a>
 Model Performance: The performance of the lyrics generator heavily depends on the size and quality of the dataset used for fine-tuning. When fine-tuning the model on a small dataset, the generated lyrics may lack coherence, structure, and meaningfulness. On the other hand, fine-tuning the model on a larger and more diverse dataset tends to produce more coherent and contextually relevant lyrics.
 
-Training time and hardware requirements: Fine-tuning the GPT-2 or T5 model on a large dataset can be a computationally intensive task. It is essential to have access to sufficient computational power to train the model effectively.
+Training time and hardware requirements: Fine-tuning the GPT-2 model on a large dataset can be a computationally intensive task. It is essential to have access to sufficient computational power to train the model effectively.
 
 Creativity: While the lyrics generator can produce very good outputs, it is important to note that the model will always lack true creativity and originality that a human songwriter could produce. However, it can serve as a valuable tool for generating initial ideas or providing inspiration to human songwriters.
 <p align="right"><a href="#toc">To top</a></p>
