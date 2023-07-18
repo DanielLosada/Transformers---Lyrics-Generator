@@ -1,9 +1,13 @@
 import wandb
+import nltk
+nltk.download('stopwords')
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
 from torch import device, cuda
 from dataclasses import dataclass
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
-# Load device to use eith GPU or CPU
+# Load device to use eith GPU or CPU 
 device = device("cuda") if cuda.is_available() else device("cpu")
 
 @dataclass
@@ -13,7 +17,7 @@ class LyricsGeneratorParams:
     max_length: int = 500
     temperature: float = 1
     top_p: float = 1
-    top_k: int = 50
+    top_k: int = 70
     max_repeat: int = 2
 
 class LyricsGenerator():
@@ -51,7 +55,7 @@ class LyricsGenerator():
         table = wandb.Table(columns=["prompt", "generation"])
 
         if(self.pretrained):
-            print("Selected gpt2 pre-trained model")
+            print("Selected gpt2 pre-trained model: ", "./models/" + self.artist.replace(" ", "_") + "/")
             model = AutoModelForCausalLM.from_pretrained("./models/" + self.artist.replace(" ", "_") + "/")
         else:
             print("Selected gpt2 raw model")
@@ -74,7 +78,51 @@ class LyricsGenerator():
 
         wandb.log({table_name: table})
         wandb.finish()
+
+    def compute_cosine_similarity(self, X, Y):
+        # tokenization
+        X_list = word_tokenize(X) 
+        Y_list = word_tokenize(Y)
+        # sw contains the list of stopwords
+        sw = stopwords.words('english') 
+        l1 =[];l2 =[]
+        # remove stop words from the string
+        X_set = {w for w in X_list if not w in sw} 
+        Y_set = {w for w in Y_list if not w in sw}
+        # form a set containing keywords of both strings 
+        rvector = X_set.union(Y_set) 
+        for w in rvector:
+            if w in X_set: l1.append(1) # create a vector
+            else: l1.append(0)
+            if w in Y_set: l2.append(1)
+            else: l2.append(0)
+        c = 0
+        # cosine formula 
+        for i in range(len(rvector)):
+                c+= l1[i]*l2[i]
+        cosine = c / float((sum(l1)*sum(l2))**0.5)
+        return cosine
+  
         
+        
+    def __remove_consecutive_duplicates_using_cosine_similarity(self, arr, threshold):
+        """Removes consecutive duplicated words"""
+        results = []
+        previous_line = arr[0]
+        results.append(arr[0])
+        for x in range(1, len(arr)):
+            current_line = arr[x]
+            #if(self.compute_cosine_similarity(previous_line, current_line) > threshold):
+            #    print("&"*50)
+            #    print("previous_line: ", previous_line)
+            #    print("current_line: ", current_line)
+            #    print("self.compute_cosine_similarity(previous_line, current_line): ", self.compute_cosine_similarity(previous_line, current_line))
+            #    print("&"*50)
+            if self.compute_cosine_similarity(previous_line, current_line) < threshold:
+                results.append(arr[x])
+                previous_line = current_line
+        return results
+
     def __post_process(self, output_sequences, condition):
         """Decodes lyrics text from tokenizer and cleansup text"""
         predictions = []
@@ -89,7 +137,7 @@ class LyricsGenerator():
             res = str(g).replace('\n\n\n', '\n').replace('\n\n', '\n')
             lines = res.split('\n')
             #print(lines)
-            lines = self.__remove_consecutive_duplicates(lines, self.params.max_repeat)
+            lines = self.__remove_consecutive_duplicates_using_cosine_similarity(lines, 0.80)
             predictions.append('\n'.join(lines))
         return predictions
     
