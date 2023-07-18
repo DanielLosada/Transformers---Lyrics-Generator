@@ -305,10 +305,11 @@ Here we are going to show some examples of the results obtained.
   The model is big enough to fit multiple artist at the same time and is able to understand the conditioned prompt. To see more generations with another input go to the W&B report. 
   W&B link: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Multiple-artists-generated-lyrics-prompt-I-will---Vmlldzo0OTEyNjgw?accessToken=lnb3rb377mkatl0g5xk76ral4a4w7wk03wclk4dsvcvmxnmdg718hlqknmohwrs1
    
-  Link to W&B training report: https://api.wandb.ai/links/upcproject/zzppte9f 
+  Link to W&B training report: https://api.wandb.ai/links/upcproject/zzppte9f
+  
   The training is quite stable with gradually decresing training loss and evaluation loss.
 
-<p align="right"><a href="#toc">To top</a></p>
+  <p align="right"><a href="#toc">To top</a></p>
 
 ### 6.4 Experiment 4: Conditional lyrics generation based on the prompt <a name="experiment_4"></a>
 
