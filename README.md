@@ -282,6 +282,7 @@ The main issue is the lack of computational resources to increase the dataset an
 Here you can find mode examples with a different prompt: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Multiple-artists-generated-lyrics-prompt-You-are---Vmlldzo0OTEyNzQ3?accessToken=g3lev2vf26vg7jsg20q6a2qgmmq8faqczopt89e99f2gp1xprrjaznx87e3llqxk
 
 Link to W&B training report: https://api.wandb.ai/links/upcproject/zzppte9f 
+
 The training is quite stable with gradually decresing training loss and evaluation loss.
 <p align="right"><a href="#toc">To top</a></p>
 
@@ -315,14 +316,8 @@ T5 was trained on a large and diverse collection of publicly available text data
   <img src="https://drive.google.com/uc?export=view&id=1VdnrzFDsd-yFs99O8ujCDiWPRzJFdoow" alt="Image" style="width: auto; max-width: 70%; height: auto; display: inline-block;" title="Image" />
 </a>
 
+Unfortunately due to the lack of time we could not conduct the T5 experiment.
 
-Experiment setup: In our experiment due to the lack of time and computing power we chose to train the T5 model only on single-artist data.
-
-Hypothesis: The results will probably be close to the ones that we got on a single-artist GPT-2-based model , we want to check if we can note any difference.
-
-Results and conclusions : The results observed were mainly similar to those we obtained with GPT-2 - overfitting and rather low quality of generated lyrics. At this stage there can be no noticeable differences tracked compared to the GPT-2 model. We would need to train on a bigger dataset to really perceive the difference.
-
-TODO: links to report/charts/screenshots of obtained resuts???? (weights and biases or other) 
 <p align="right"><a href="#toc">To top</a></p>
 
 ## 7. Conclusions <a name="conclusions"></a>
@@ -336,6 +331,7 @@ Creativity: While the lyrics generator can produce very good outputs, it is impo
 ## 8. Next Steps <a name="next_steps"></a>
 After completing the project, several potential further steps for research and exploration can be proposed:
 
+* Trying a model with different architecture (e.g. T5)
 * Multilingual Lyrics Generation: Extend the project to support lyrics generation in multiple languages.
 * Generation of lyrics with a proper song structure, including a title, chorus, verses and other sections.
 * Multimodal lyrics generation: Extend the project to generate not only textual lyrics but also explore the generation of accompanying music or melodies.
