@@ -152,11 +152,11 @@ Overall, the preprocessing steps involve:
 ### 6.1 Experiment 1: Single-artist training and generation with same prompt <a name="experiment_1"></a>
 
 
-**A. Training on Genius Lyrics dataset** https://www.kaggle.com/datasets/mervedin/genius-lyrics
+**Training on Genius Lyrics dataset** https://www.kaggle.com/datasets/mervedin/genius-lyrics
 
 Experiment setup: We fine-tuned GPT-2 on 100 lyrics by a single artist. We used local environment for training. For generatiion we use the same input prompt for all the artist tested. We use a small input prompt to not condition the model too much with it. We want to see how it behaves with a small input prompt for each artist tested. We trained and tested on 6 artists: 50 Cent, Taylor Swift, The Beatles, Queen, Justin Bieber, and Imagine Dragons. 
 
-Hypothesis: Even though we only use 100 songs, the model should be able to fit the vocabulary and style of each one of them, and continue the input prompt with the artist style.
+Hypothesis: Even though we only use 100 songs, the model should be able to fit the vocabulary and style of each one of them, and continue the input prompt with the artist style. In terms of training we might expect overfitting.
 
 Resuts: 
 The full results can be seen in the W&B report. #TODO: add link to the "You are" report. Here we are going to show some examples of the results obtained.
