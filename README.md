@@ -143,29 +143,58 @@ Overall, the preprocessing steps involve:
 
 ## 6. Results <a name="results"></a>
     
-### 6.1 Experiment 1: Single-artist training <a name="experiment_1"></a> 
+### 6.1 Experiment 1: Single-artist training and generation with same prompt <a name="experiment_1"></a>
+
 
 **A. Training on Genius Lyrics dataset** https://www.kaggle.com/datasets/mervedin/genius-lyrics
 
-Experiment setup: We trained on 100 lyrics by a single artist. We used Google Colab or local environment for training.
+Experiment setup: We fine-tuned GPT-2 on 100 lyrics by a single artist. We used local environment for training. For generatiion we use the same input prompt for all the artist tested. We use a small input prompt to not condition the model too much with it. We want to see how it behaves with a small input prompt for each artist tested. We trained and tested on 6 artists: 50 Cent, Taylor Swift, The Beatles, Queen, Justin Bieber, and Imagine Dragons. 
 
-Hypothesis: Training data size is very limited, we expect overfitting.
+Hypothesis: Even though we only use 100 songs, the model should be able to fit the vocabulary and style of each one of them, and continue the input prompt with the artist style.
 
-Resuts and conclusions: We are not even sure if the model is training properly, in 4 out of 5 runs the training loss is not even shown (We used the Trainer class from Hugging face and the Linear learning rate scheduler with the initial lr=5e-6). With bigger learning rates we observe overfitting. 
+Resuts: 
+The full results can be seen in the W&B report. #TODO: add link to the "You are" report. Here we are going to show some examples of the results obtained.
+* Input prompt: "You are"
+    * Artist: 50 Cent
+     ```
+    I'm not a person with money, I don't care if you gave me stuff, I don't care if you went out and stolen
+    I'm not a person with feelings, I'm a person that likes to drink
+    There's no way you were gonna give me crap
+     ```
 
-The problems that we encountered in the generated lyrics were also mostly due to the small size of the dataset - predisposition to word repetition and to generating truncated lines or lines consisting of one word. We tried to address this issue in post processing by introducing a __post_process function that cleans up the generated sequences of lyrics by removing redundant line breaks, and removes consecutive duplicated words using the __remove_consecutive_duplicates helper function.
+     ```
+    I'm not giving a fuckin' man a fuck, I ain't get no respect
+    But I did make my girl want sex, boy
+     
+     ```
+    * Artist: Taylor Swift
+    ```
+    And I'm still crying now, when I see you in that restaurant
+    There's a new tattoo in my yard
+    And all of a sudden I'm feeling so bad about the way you look
+    Now I think we are at peace
+    ```
 
-Link to W&B training report: https://api.wandb.ai/links/upcproject/uxoj59gw
+    ```
+    Never think you're alone
+    Never feel like you're alone
+    You know I love you
+    You know I've loved you
+    ```
+    * Artist: The Beatles
 
-**B. Training on Lyrics from 79 musical genres dataset** https://www.kaggle.com/datasets/neisse/scrapped-lyrics-from-6-genres
+    ```
+    Happy Independence Day
+    Sing and dance to peace
+    Love and happiness are your only hope
+    Hear your friend sing, "The World Won't Stop Talking"
+    ```
 
-Experiment setup: The number of lyrics for one artist in this dataset is higher - 300-500 songs (depending on the artist we choose)
+    On this examples of the results obtained, we can see how on 50 Cent, the model understood that his lyrics have more agressive tone, talks about drugs, sex, crime, etc. When going to Taylor Swift, the style changes completely. Now talks way more about feelings and love, and it's really delicate with the words used. When generating The Beatles, we can see some claim pro peace.
 
-Hypothesis: We expect better performance.
+    Conclusions:
+    We can conclude, that the Hypothesis was correct, not only changes the tone and vocabulary used to one that the artist would use, also change the topic of the lyrics. We can see that the model is able to fit the vocabulary and style of each artist, and continue the input prompt with the artist style. We can see the same behaviour with the other artists tested and with other inputs. To see another input go to the W&B report. #TODO: add link to the "I will" report.
 
-Resuts and conclusions: Now we see progress in training and a certain decrease in training and evaluation loss. The highest evaluation loss we get is for the model trained on 50 Cent, which we believe might be due to unique vocabulary and language style.
-
-Link to W&B training report: https://api.wandb.ai/links/upcproject/5ao7yfw0
 ### 6.2 Experiment 2: Specific genre training <a name="experiment_2"></a>
 Experiment setup: Now we are training on even bigger amounts of data - a set of lyrics of a certain genre (determined by an argument specified in argparse) containing of up to a 1000 of songs (Lyrics from 79 musical genres dataset) . Training is done in a local environment or via a Google Cloud VM instance (CPU only, we didn't have GPUs available). 
 We only choose artists with popularity >5 since we believe that with more popular artists the chances of getting better quality lyrics are higher since their lyrics have been checked and validated by many users. Some artists´songs also belong to several genres, we only take into account those that have songs of only one genre to avoid genre mixup in our generated lyrics.
