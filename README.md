@@ -195,7 +195,21 @@ The full results can be seen in the W&B report. #TODO: add link to the "You are"
     Conclusions:
     We can conclude, that the Hypothesis was correct, not only changes the tone and vocabulary used to one that the artist would use, also change the topic of the lyrics. We can see that the model is able to fit the vocabulary and style of each artist, and continue the input prompt with the artist style. We can see the same behaviour with the other artists tested and with other inputs. To see another input go to the W&B report. #TODO: add link to the "I will" report.
 
-### 6.2 Experiment 2: Specific genre training <a name="experiment_2"></a>
+### 6.2 Experiment 2: Specific genre training and generation with same prompt <a name="experiment_2"></a>
+
+Results:
+* Input prompt: "You are"
+    * Genre: Reggae
+    ```
+    Oh will your mercy please, lord!
+    But as God forgive us,
+    We will be free, and free will be good Come take a walk and take your shoes off.
+    ```
+
+    ```
+    Oh will your mercy please, lord!
+
+
 Experiment setup: Now we are training on even bigger amounts of data - a set of lyrics of a certain genre (determined by an argument specified in argparse) containing of up to a 1000 of songs (Lyrics from 79 musical genres dataset) . Training is done in a local environment or via a Google Cloud VM instance (CPU only, we didn't have GPUs available). 
 We only choose artists with popularity >5 since we believe that with more popular artists the chances of getting better quality lyrics are higher since their lyrics have been checked and validated by many users. Some artists´songs also belong to several genres, we only take into account those that have songs of only one genre to avoid genre mixup in our generated lyrics.
 
