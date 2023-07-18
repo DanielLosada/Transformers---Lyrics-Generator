@@ -275,13 +275,14 @@ W&B link: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Multiple-artis
      So it's gotta be slow
      I mean, I am the slowest motherfucker I knew
 
-We can see that our results are similar to those of experiment 1, the lyrics stick to the style and the language of the chosen artist.
+Conclusions: We can see that our results are similar to those of experiment 1, the lyrics stick to the style and the language of the chosen artist.
 However, we note that there is still quite a bit of room for improvement in terms of coherence of the lyrics. We expected the results to be better in that sense.
 The main issue is the lack of computational resources to increase the dataset and/or further fine-tune the parameters.
 
 Here you can find mode examples with a different prompt: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Multiple-artists-generated-lyrics-prompt-You-are---Vmlldzo0OTEyNzQ3?accessToken=g3lev2vf26vg7jsg20q6a2qgmmq8faqczopt89e99f2gp1xprrjaznx87e3llqxk
 
 Link to W&B training report: https://api.wandb.ai/links/upcproject/zzppte9f 
+The training is quite stable with gradually decresing training loss and evaluation loss.
 <p align="right"><a href="#toc">To top</a></p>
 
 ### 6.4 Experiment 4: Performance evaluation <a name="experiment_4"></a>
