@@ -71,9 +71,9 @@ if __name__ == "__main__":
     parser.add_argument("-tm", "--trainMultipleArtists", dest='train_multiple_artists', action="store_true", help="Prepare the dataset of all the artists and train the model")
     parser.add_argument("-tg", "--trainGenre", dest='train_genre', type=str, help="Pass the genre to train the model with songs of that genre")
     
-    parser.add_argument("-gs", "--generateSingleArtist", nargs=2, dest='generate_single_artist', type=str, help="Pass the artist name to generate lyrics. Use the same name you used to train it. Also pass the initial prompt")
-    parser.add_argument("-gm", "--generateMultipleArtists", nargs=2, dest='generate_multiple_artists',type=str, help="Pass the artist name to generate lyrics with the model trained with multiple artists. Use the same name you used to train it. Also pass the initial prompt")
-    parser.add_argument("-gg", "--generateGenre", dest='generate_genre',type=str, help="Pass the artist name to generate lyrics with the model trained with multiple artists genre. Use the same name you used to train it.")
+    parser.add_argument("-gs", "--generateSingleArtist", nargs=2, dest='generate_single_artist', type=str, help="Pass the artist name to generate lyrics. Use the same name you used to train it. Also pass the initial prompt.")
+    parser.add_argument("-gm", "--generateMultipleArtists", nargs=2, dest='generate_multiple_artists',type=str, help="Pass the artist name to generate lyrics with the model trained with multiple artists. Use the same name you used to train it. Also pass the initial prompt.")
+    parser.add_argument("-gg", "--generateGenre", nargs=2, dest='generate_genre',type=str, help="Pass the genre name to generate lyrics with the model trained with a genre. Use the same name you used to train it. Also pass the initial prompt.")
     parser.add_argument("-ds", "--datasetSelection", dest='dataset_selection', choices=["genius-lyrics","79-musical-genres"], default = "genius-lyrics", help="Offers dataset selection between two choices")
     
     parser.add_argument("-sp", "--singleArtistPerformance", nargs=3, dest='single_artist_performance', help="Computes the metric to evaluate the single-artist model. Expects three arguments: Artist name (`str`), Train (`bool`) and n_words (`int`). If n_words < 0 computes ppl instead of bleu metric.")
@@ -130,10 +130,11 @@ if __name__ == "__main__":
         lyrics_generator.generate_lyrics(artist + ': ' + initial_prompt, table_name="generate_multipleArtists_" + artist.replace(" ", "_"), condition=artist)
     elif(args.generate_genre):
         print("Selected multiple-artist genre generation")
+        genre = args.generate_genre[0]
+        initial_prompt = args.generate_genre[1]
         lyrics_generator_params = LyricsGeneratorParams
-        initial_prompt="You are"
-        lyrics_generator = LyricsGenerator(config, "multipleArtistsGenre", lyrics_generator_params)
-        lyrics_generator.generate_lyrics(args.generate_genre + ': ' + initial_prompt)
+        lyrics_generator = LyricsGenerator(config, genre + '_79-musical-genres', lyrics_generator_params)
+        lyrics_generator.generate_lyrics(initial_prompt=initial_prompt, table_name="generate_genre_" + genre.replace(" ", "_"))
 
     # Performance evaluation options
     if (args.single_artist_performance):

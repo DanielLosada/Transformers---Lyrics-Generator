@@ -100,7 +100,10 @@ class LyricsGenerator():
         # cosine formula 
         for i in range(len(rvector)):
                 c+= l1[i]*l2[i]
-        cosine = c / float((sum(l1)*sum(l2))**0.5)
+
+        cosine = 0
+        if float((sum(l1)*sum(l2))**0.5) > 0:
+            cosine = c / float((sum(l1)*sum(l2))**0.5)
         return cosine
   
         
