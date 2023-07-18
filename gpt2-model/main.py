@@ -74,9 +74,9 @@ if __name__ == "__main__":
     parser.add_argument("-gg", "--generateGenre", dest='generate_genre',type=str, help="Pass the artist name to generate lyrics with the model trained with multiple artists genre. Use the same name you used to train it.")
     parser.add_argument("-ds", "--datasetSelection", dest='dataset_selection', choices=["genius-lyrics","79-musical-genres"], default = "genius-lyrics", help="Offers dataset selection between two choices")
     
-    parser.add_argument("-sp", "--singleArtistPerformance", nargs=3, dest='single_artist_performance', help="Computes the metric to evaluate the single-artist model")
-    parser.add_argument("-mp", "--multipleArtistsPerformance", nargs=3, dest='multiple_artists_performance', help="Computes the metric to evaluate the multiple-artist model")
-    parser.add_argument("-gp", "--genrePerformance", nargs=3, dest='genre_performance', help="Computes the metric to evaluate the genre model")
+    parser.add_argument("-sp", "--singleArtistPerformance", nargs=3, dest='single_artist_performance', help="Computes the metric to evaluate the single-artist model. Expects three arguments: Artist name (`str`), Train (`bool`) and n_words (`int`). If n_words < 0 computes ppl instead of bleu metric.")
+    parser.add_argument("-mp", "--multipleArtistsPerformance", nargs=3, dest='multiple_artists_performance', help="Computes the metric to evaluate the multiple-artist model. Expects three arguments: Artist name (`str`), Train (`bool`) and n_words (`int`). If n_words < 0 computes ppl instead of bleu metric.")
+    parser.add_argument("-gp", "--genrePerformance", nargs=3, dest='genre_performance', help="Computes the metric to evaluate the genre model. Expects three arguments: Genre name (`str`), Train (`bool`) and n_words (`int`). If n_words < 0 computes ppl instead of bleu metric.")
 
     args = parser.parse_args()
 
