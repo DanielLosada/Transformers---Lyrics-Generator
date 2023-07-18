@@ -218,7 +218,7 @@ Experiment setup: We fine-tuned GPT-2 over the second dataset filtered by genre.
 Hypothesis: The model is going to be able to fit the genre and produce new songs following the style of the genre.
 
 Results:
-The full results can be seen in the W&B report. #TODO: add link to the genre "You are" report. Here we are going to show some examples of the results obtained.
+The full results can be seen in the W&B report: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Specific-genre-generated-lyrics-prompt-You-are---Vmlldzo0OTEyNjI1. Here we are going to show some examples of the results obtained.
 * Input prompt: "You are"
     * Genre: Reggae
     ```
