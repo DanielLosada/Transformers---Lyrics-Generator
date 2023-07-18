@@ -234,6 +234,7 @@ Experiment setup: Training with a full dataset to generate song lyrics similar t
 Hypothesis: Since we use the complete dataset, on more data the model should be even better fitted for lyrics generation in general. As for lyrics specific to a particular artist, though the model is fed with lyrics of a lot of different artists, we expect it to keep to the style and vocabulary of the chosen artist.
 
 Results: Here you can find some extracts of results that prove the hypothesis. 
+
 W&B link: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Multiple-artists-generated-lyrics-prompt-I-will---Vmlldzo0OTEyNjgw?accessToken=lnb3rb377mkatl0g5xk76ral4a4w7wk03wclk4dsvcvmxnmdg718hlqknmohwrs1
 
 * Input prompt: "I will"
@@ -275,7 +276,7 @@ W&B link: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Multiple-artis
      I mean, I am the slowest motherfucker I knew
 
 We can see that our results are similar to those of experiment 1, the lyrics stick to the style and the language of the chosen artist.
-However, we note that there is still quite a bit of room for improvement in terms of coherence of the lyrics.
+However, we note that there is still quite a bit of room for improvement in terms of coherence of the lyrics. We expected the results to be better in that sense.
 The main issue is the lack of computational resources to increase the dataset and/or further fine-tune the parameters.
 
 Here you can find mode examples with a different prompt: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Multiple-artists-generated-lyrics-prompt-You-are---Vmlldzo0OTEyNzQ3?accessToken=g3lev2vf26vg7jsg20q6a2qgmmq8faqczopt89e99f2gp1xprrjaznx87e3llqxk
