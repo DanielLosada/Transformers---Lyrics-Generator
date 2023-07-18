@@ -249,7 +249,7 @@ The full results can be seen in the W&B report. #TODO: add link to the genre "Yo
 
 <p align="right"><a href="#toc">To top</a></p>
 
-### 6.3 Experiment 3: Conditional lyrics generation <a name="experiment_3"></a>
+### 6.3 Experiment 3: Conditional lyrics generation with the same prompt <a name="experiment_3"></a>
 Experiment setup: For this experiment, we trained GPT-2 with the songs of ten artists from the first dataset. That way we ensure that we have 100 songs for each one. The objective is to build a conditional model that let you choose on whose style you want to generate songs. To do that, after the preprocessing of the lyrics, we added the artist name ar the beginning of them. Then, at generation time, we concatenate the name of the artist we want to generate before the initial prompt. That way we make the model understand the relationship between the lyric and the artist. 
 The ten artist used are the next ones:
 * 50 Cent 
@@ -266,7 +266,10 @@ The ten artist used are the next ones:
 Hypothesis: The model should produce similar results to the ones obtained on the first experiment.
 
 Results:
-The full results can be seen in the W&B report. #TODO: add link to the generate_multiple "You are" report. Here we are going to show some examples of the results obtained.
+The full results can be seen in the W&B report. 
+W&B link: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Multiple-artists-generated-lyrics-prompt-You-are---Vmlldzo0OTEyNzQ3?accessToken=g3lev2vf26vg7jsg20q6a2qgmmq8faqczopt89e99f2gp1xprrjaznx87e3llqxk. 
+
+Here we are going to show some examples of the results obtained.
 
 * Input prompt: "You are"
   * Artist: The Notorious B.I.G.
@@ -288,12 +291,15 @@ The full results can be seen in the W&B report. #TODO: add link to the generate_
   And put a new face on the story
   ```
 
-  As we can see, the model performs similar to the fist experiment. We can easyly see the change of style and topics depending on the artist requested even though the input prompt it's the same. The model went from the 'egotrip' and tough vocabulary from The Notorious B.I.G., to a heartbroken Justin Beaver.
+  As we can see, the model performs similar to the fist experiment. We can easyly see the change of style and topics depending on the artist requested even though the input prompt it's the same. The model went from the 'egotrip' and tough vocabulary from The Notorious B.I.G., to a heartbroken Justin Beaver.However, we note that there is still quite a bit of room for improvement in terms of coherence of the lyrics. We expected the results to be better in that sense. The main issue is the lack of computational resources to increase the dataset and/or further fine-tune the parameters.
 
   Conclusions:
   
-  The model is big enough to fit multiple artist at the same time and is able to understand the conditioned prompt. To see more generations with another input go to the W&B report. #TODO: add link to the "I will" report.
+  The model is big enough to fit multiple artist at the same time and is able to understand the conditioned prompt. To see more generations with another input go to the W&B report. 
+  W&B link: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Multiple-artists-generated-lyrics-prompt-I-will---Vmlldzo0OTEyNjgw?accessToken=lnb3rb377mkatl0g5xk76ral4a4w7wk03wclk4dsvcvmxnmdg718hlqknmohwrs1
    
+  Link to W&B training report: https://api.wandb.ai/links/upcproject/zzppte9f 
+  The training is quite stable with gradually decresing training loss and evaluation loss.
 
 <p align="right"><a href="#toc">To top</a></p>
 
