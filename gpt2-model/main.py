@@ -126,7 +126,7 @@ if __name__ == "__main__":
         print("Initial prompt selected: ", initial_prompt)
         lyrics_generator_params = LyricsGeneratorParams
         lyrics_generator = LyricsGenerator(config, "multipleArtists", lyrics_generator_params)
-        #initialise_wandb_project(config, "generate_multiple_" + artist.replace(" ", "_"))
+        initialise_wandb_project(config, "generate_multiple_" + artist.replace(" ", "_") + '_' + args.dataset_selection + '_' + initial_prompt.replace(" ", "_"))
         lyrics_generator.generate_lyrics(artist + ': ' + initial_prompt, table_name="generate_multipleArtists_" + artist.replace(" ", "_"), condition=artist)
     elif(args.generate_genre):
         print("Selected multiple-artist genre generation")
@@ -134,6 +134,7 @@ if __name__ == "__main__":
         initial_prompt = args.generate_genre[1]
         lyrics_generator_params = LyricsGeneratorParams
         lyrics_generator = LyricsGenerator(config, genre + '_79-musical-genres', lyrics_generator_params)
+        initialise_wandb_project(config, "generate_genre_" + genre.replace(" ", "_") + '_' + args.dataset_selection + '_' + initial_prompt.replace(" ", "_"))
         lyrics_generator.generate_lyrics(initial_prompt=initial_prompt, table_name="generate_genre_" + genre.replace(" ", "_"))
 
     # Performance evaluation options
