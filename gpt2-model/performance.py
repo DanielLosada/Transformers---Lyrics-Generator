@@ -90,7 +90,7 @@ def remove_last_words(data, n):
     data = '\n'.join(' '.join(v) for v in split_data)
     return data
 
-def compute_bleu_metric(config, n_words, filter, filter_generation=None):
+def compute_bleu_metric(config, n_words, filter, dataset_id, filter_generation=None, pretrained=True):
     """
     Computes bleu evaluation metric related to a selected trained model. It uses this model to generate some text and 
     compare it against the real text. Maximum bleu score is 1 and minimum is 0.
@@ -102,14 +102,18 @@ def compute_bleu_metric(config, n_words, filter, filter_generation=None):
             Number of words removed from the test set before training which will be compared with the generated ones.
         filter (`str`):
             Indicates which model to load in order to perform the metric calculation to.
+        dataset_id (`str`):
+            Indicates which dataset has been used to train the model.
         filter_generation (`str`, *optional*):
             If set will indicate that the selected model is the multiArtists one. It is used for its specific generation.
+        pretrained (`bool`, *optional*):
+            If set to true indicates to use a fine tuned gpt2-model otherwise indicates to use a row gpt2-model.
     Returns:
         performance_data (`BleuPerformanceParams`):
             Returns the computed metric for each test set.
     """
     # Load stored test lyrics information to avoid training again
-    f = open("./models/" + filter.replace(" ", "_") + "_performance/lyrics_test.json")
+    f = open("./models/" + filter.replace(" ", "_") + '_' + dataset_id + "_performance/lyrics_test.json")
     test_data=json.load(f)
 
     # Create table to store results
@@ -125,7 +129,7 @@ def compute_bleu_metric(config, n_words, filter, filter_generation=None):
     lyrics_generator_params.min_length = 1024
     # lyrics_generator_params.temperature = 1
     # lyrics_generator_params.top_p = 0.8
-    lyrics_generator = LyricsGenerator(config, filter + "_performance", lyrics_generator_params, True)
+    lyrics_generator = LyricsGenerator(config, filter + '_' + dataset_id + "_performance", lyrics_generator_params, pretrained)
 
     # Perform text generation and compute bleu scores
     performance_data = BleuPerformanceParams
@@ -137,15 +141,6 @@ def compute_bleu_metric(config, n_words, filter, filter_generation=None):
         initial_prompt_words = word_counter(initial_prompt[i])
         true_lyrics_words = word_counter(test_data['test_true_lyrics'][i])
 
-        # Check that true lyrics dataset contains the expected amount of verses
-        # if( verse_counter(test_data['test_true_lyrics'][i]) != removed_verses):
-        #     print("\n" + "#"*50 + " Test set number = ", str(i+1), "was bypassed...")
-        #     continue
-        # Drop long generations (after more than 1024 tokens it doesn't work)
-        # if((initial_prompt_words + true_lyrics_words) > 1024):
-        #     print("\n" + "#"*50 + " Test set number = ", str(i+1), "was bypassed...")
-        #     continue
-
         # Check that prompt is not empty
         if( true_lyrics_words != n_words):
             print("Sequence could not be generated: true_lyrics length was too short")
@@ -153,8 +148,6 @@ def compute_bleu_metric(config, n_words, filter, filter_generation=None):
             continue
 
         # Generate sentence with trained model
-        #lyrics_generator.params.max_length = (initial_prompt_words + true_lyrics_words) + generation_offset
-        #lyrics_generator.params.min_length = (initial_prompt_words + true_lyrics_words) + generation_offset
         print("\n" + "#"*50 + " Test set number = ", str(i+1))
         print("generator selected max_length =", lyrics_generator.params.max_length)
         print("generator selected min_length =", lyrics_generator.params.min_length)
@@ -225,13 +218,38 @@ def compute_bleu_metric(config, n_words, filter, filter_generation=None):
         print("Average number of generated words  = {:.2f}".format(statistics.mean(performance_data.generated_words)))
         print("Average bleu score                 = {:.2f}".format(statistics.mean(performance_data.bleu_scores)))
         print("\n" + "&"*60 + "\n")
-
-    wandb.log({filter.replace(" ", "_") + "_performance": table})
+    if(pretrained):
+        wandb.log({filter.replace(" ", "_") + '_' + dataset_id +"_bleu_performance_training": table})
+    else:
+        wandb.log({filter.replace(" ", "_") + '_' + dataset_id +"_bleu_performance_no_training": table})
     wandb.finish()
 
     return performance_data
 
-def compute_perplexity_metric(config, filter, dataset, pretrained=True):
+def compute_perplexity_metric(config, filter, dataset_id, pretrained=True):
+    """
+    Computes perplexity evaluation metric related to a selected trained model. Maximum ppl score is 0 and minimum is inf.
+    [1] https://huggingface.co/docs/transformers/perplexity
+
+    Args:
+        config:
+            The training model configuration parameters. Essentialy used to select the generator model.
+        n_words (`int`):
+            Number of words removed from the test set before training which will be compared with the generated ones.
+        filter (`str`):
+            Indicates which model to load in order to perform the metric calculation to.
+        dataset_id (`str`):
+            Indicates which dataset has been used to train the model.
+        pretrained (`bool`, *optional*):
+            If set to true indicates to use a fine tuned gpt2-model otherwise indicates to use a row gpt2-model.
+    Returns:
+        performance_data (`PerplexityPerformanceParams`):
+            Returns the computed metric for each test set.
+    """
+    # Load stored test lyrics information to avoid training again
+    f = open("./models/" + filter.replace(" ", "_") + '_' + dataset_id + "_performance/lyrics_test.json")
+    test_data=json.load(f)
+
     # Create table to store results
     table = wandb.Table(columns=["sequence length", "perplexity score"])
 
@@ -240,15 +258,15 @@ def compute_perplexity_metric(config, filter, dataset, pretrained=True):
 
     # load model
     if(pretrained):
-        model = AutoModelForCausalLM.from_pretrained("./models/" + filter.replace(" ", "_"))
+        model = AutoModelForCausalLM.from_pretrained("./models/" + filter.replace(" ", "_") + '_' + dataset_id + "_performance")
     else:
         model = AutoModelForCausalLM.from_pretrained("gpt2")
    
     max_length = model.config.n_positions
-    stride = 128
+    stride = 512
     performance_data = PerplexityPerformanceParams
-    for i in range(0,len(dataset.dataset['test']['lyrics'])):
-        encodings = tokenizer(dataset.dataset['test']['lyrics'][i], return_tensors="pt")
+    for i in range(0,len(test_data['test_trimmed_lyrics'])):
+        encodings = tokenizer(test_data['test_trimmed_lyrics'][i], return_tensors="pt")
         seq_len = encodings.input_ids.size(1)
 
         nlls = []
@@ -278,6 +296,7 @@ def compute_perplexity_metric(config, filter, dataset, pretrained=True):
         performance_data.seq_len.append(seq_len)
         performance_data.perplexity_scores.append((torch.exp(torch.stack(nlls).mean())).item())
         print("\n" + "&"*25)
+        print("test set number    =", performance_data.total_eval_datasets)
         print("sequence length    =", performance_data.seq_len[-1])
         print("perplexity score   =", performance_data.perplexity_scores[-1])
         print("&"*25)
@@ -292,8 +311,10 @@ def compute_perplexity_metric(config, filter, dataset, pretrained=True):
         print("Average sequence length            = {:.2f}".format(statistics.mean(performance_data.seq_len)))
         print("Average perplexity score           = {:.2f}".format(statistics.mean(performance_data.perplexity_scores)))
         print("\n" + "&"*60 + "\n")
-    
-    wandb.log({filter.replace(" ", "_"): table})
+    if(pretrained):
+        wandb.log({filter.replace(" ", "_") + '_' + dataset_id +"_ppl_performance_training": table})
+    else:
+        wandb.log({filter.replace(" ", "_") + '_' + dataset_id +"_ppl_performance_no_training": table})
     wandb.finish()
 
     return performance_data

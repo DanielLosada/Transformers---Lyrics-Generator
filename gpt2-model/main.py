@@ -58,9 +58,7 @@ def train_model(dataset, tokenized_dataset, save_name=''):
         trainer.save_model("./models/" + save_name.replace(" ", "_"))
 
 if __name__ == "__main__":
-    # TODO: remove this
-    # os.chdir('/home/paurosci/gits/Transformers---Lyrics-Generator/gpt2-model')
-
+    
     # Load the configuration file
     with open('config.json', 'r') as f:
         config = json.load(f)
@@ -82,13 +80,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    # TODO: remove this
-    # args.single_artist_performance=['Taylor Swift', 'False', '-1']
-    # args.dataset_selection = '79-musical-genres'
-    # args.multiple_artists_performance=['Eminem10', 'True', '20']
-    # args.train_multiple_artists = True
-    # args.genre_performance = ['Rock', 'True', '31']
-    
     # Training options
     if(args.train_single_artist):
         print("Selected single-artist training: ", args.train_single_artist)
@@ -100,7 +91,7 @@ if __name__ == "__main__":
         train_model(lyrics_dataset, tokenized_dataset, args.train_single_artist + '_' + args.dataset_selection)
     elif(args.train_multiple_artists):
         print("Selected multi-artist tranining")
-        lyrics_dataset = LyricsDataset(config, "multipleArtists", args.dataset_selection)
+        lyrics_dataset = LyricsDataset(config, "multipleArtists", 'genious-lyrics')
         lyrics_dataset.load_dataset_multiple_artists()
         tokenized_dataset = lyrics_dataset.dataset.map(
             lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
@@ -143,6 +134,8 @@ if __name__ == "__main__":
         artist = args.single_artist_performance[0]
         train = args.single_artist_performance[1]
         n_words = int(args.single_artist_performance[2])
+        dataset_id = args.dataset_selection
+        pretrained = True
 
         # Select metric to compute
         if n_words < 0:
@@ -153,12 +146,12 @@ if __name__ == "__main__":
 
         # Train the model
         if(train == 'True'):
-            lyrics_dataset = LyricsDataset(config, artist, args.dataset_selection, performance_evaluation_nremovals=n_words)
+            lyrics_dataset = LyricsDataset(config, artist, dataset_id, performance_evaluation_nremovals=n_words)
             lyrics_dataset.load_dataset_single_artist()
             tokenized_dataset = lyrics_dataset.dataset.map(
                 lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
             )
-            train_model(lyrics_dataset, tokenized_dataset, artist.replace(" ", "_") + "_performance")
+            train_model(lyrics_dataset, tokenized_dataset, artist.replace(" ", "_") + '_' + dataset_id + "_performance")
 
             # Store test lyrics in json file in order to prevent training again
             test_lyrics = {}
@@ -175,26 +168,26 @@ if __name__ == "__main__":
 
             if not os.path.exists("models"):
                 os.makedirs("models")
-            if not os.path.exists("./models/" + artist.replace(" ", "_") + "_performance"):
-                os.makedirs("./models/" + artist.replace(" ", "_") + "_performance")
-            with open("./models/" + artist.replace(" ", "_") + "_performance/lyrics_test.json","w") as f:
+            if not os.path.exists("./models/" + artist.replace(" ", "_") + '_' + dataset_id + "_performance"):
+                os.makedirs("./models/" + artist.replace(" ", "_") + '_' + dataset_id + "_performance")
+            with open("./models/" + artist.replace(" ", "_") + '_' + dataset_id + "_performance/lyrics_test.json","w") as f:
                 json.dump(test_lyrics, f)
-        elif(perplexity == 'True'):
-            lyrics_dataset = LyricsDataset(config, artist, args.dataset_selection)
-            lyrics_dataset.load_dataset_single_artist()
-            tokenized_dataset = lyrics_dataset.dataset.map(
-            lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
-            )
 
         # Evaluate the model
         if perplexity == 'True':
-            # Initialise wandb logging
-            initialise_wandb_project(config, artist.replace(" ", "_"))
-            perplexity_data = compute_perplexity_metric(config, artist, lyrics_dataset, True)
+            print("Selected perplexity metric")
+            if(pretrained):
+                initialise_wandb_project(config, artist.replace(" ", "_") + '_' + dataset_id +'_ppl_performance_training')
+            else:
+                initialise_wandb_project(config, artist.replace(" ", "_") + '_' + dataset_id +'_ppl_performance_no_training')
+            perplexity_data = compute_perplexity_metric(config, artist, dataset_id, pretrained)
         else:
-            # Initialise wandb logging
-            initialise_wandb_project(config, artist.replace(" ", "_")+'_performance')
-            performance_data = compute_bleu_metric(config, n_words, artist)
+            print("Selected bleu metric")
+            if(pretrained):
+                initialise_wandb_project(config, artist.replace(" ", "_") + '_' + dataset_id +'_bleu_performance_training')
+            else:
+                initialise_wandb_project(config, artist.replace(" ", "_") + '_' + dataset_id +'_bleu_performance_no_training')
+            performance_data = compute_bleu_metric(config, n_words, artist, dataset_id, pretrained=pretrained)
 
     elif(args.multiple_artists_performance):
         print("Selected multiple artists performance evaluation")
@@ -202,6 +195,8 @@ if __name__ == "__main__":
         train = args.multiple_artists_performance[1]
         n_words = int(args.multiple_artists_performance[2])
         artist = 'multipleArtists'
+        dataset_id = 'genious-lyrics'
+        pretrained = True
 
         # Select metric to compute
         if n_words < 0:
@@ -212,20 +207,17 @@ if __name__ == "__main__":
 
         # Train the model
         if(train == 'True'):
-            lyrics_dataset = LyricsDataset(config, 'multipleArtists', args.dataset_selection, performance_evaluation_nremovals=n_words)
+            lyrics_dataset = LyricsDataset(config, 'multipleArtists', dataset_id, performance_evaluation_nremovals=n_words)
             lyrics_dataset.load_dataset_multiple_artists()
             tokenized_dataset = lyrics_dataset.dataset.map(
                 lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
             )
-            train_model(lyrics_dataset, tokenized_dataset, artist + "_performance")
+            train_model(lyrics_dataset, tokenized_dataset, artist + '_' + dataset_id + "_performance")
             
             # Store test lyrics in json file in order to prevent training again
             test_lyrics = {}
             test_trimmed_lyrics = []
-            if args.dataset_selection == 'genious-lyrics':
-                dataset = lyrics_dataset.dataset['test']['lyrics']
-            elif args.dataset_selection == '79-musical-genres':
-                dataset = lyrics_dataset.dataset['test']['Lyric']
+            dataset = lyrics_dataset.dataset['test']['lyrics']
 
             for i in range(len(dataset)):
                 test_trimmed_lyrics.extend([str(dataset[i])])
@@ -234,10 +226,10 @@ if __name__ == "__main__":
 
             if not os.path.exists("models"):
                 os.makedirs("models")
-            if not os.path.exists("./models/" + artist + "_performance"):
+            if not os.path.exists("./models/" + artist + '_' + dataset_id + "_performance"):
                 print("We dont have it")
-                os.makedirs("./models/" + artist + "_performance")
-            with open("./models/" + artist + "_performance/lyrics_test.json","w") as f:
+                os.makedirs("./models/" + artist + '_' + dataset_id + "_performance")
+            with open("./models/" + artist + '_' + dataset_id + "_performance/lyrics_test.json","w") as f:
                 json.dump(test_lyrics, f)
         elif(perplexity == 'True'):
             lyrics_dataset = LyricsDataset(config, artist, args.dataset_selection)
@@ -246,21 +238,29 @@ if __name__ == "__main__":
             lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
             )
 
-        # Evaluate the model
+       # Evaluate the model
         if perplexity == 'True':
-            # Initialise wandb logging
-            initialise_wandb_project(config, artist)
-            perplexity_data = compute_perplexity_metric(config, artist, lyrics_dataset, True)
+            print("Selected perplexity metric")
+            if(pretrained):
+                initialise_wandb_project(config, artist.replace(" ", "_") + '_' + dataset_id +'_ppl_performance_training')
+            else:
+                initialise_wandb_project(config, artist.replace(" ", "_") + '_' + dataset_id +'_ppl_performance_no_training')
+            perplexity_data = compute_perplexity_metric(config, artist, dataset_id, pretrained)
         else:
-            # Initialise wandb logging
-            initialise_wandb_project(config, artist + '_performance')
-            performance_data = compute_bleu_metric(config, n_words, artist)
+            print("Selected bleu metric")
+            if(pretrained):
+                initialise_wandb_project(config, artist.replace(" ", "_") + '_' + dataset_id +'_bleu_performance_training')
+            else:
+                initialise_wandb_project(config, artist.replace(" ", "_") + '_' + dataset_id +'_bleu_performance_no_training')
+            performance_data = compute_bleu_metric(config, n_words, artist, dataset_id, pretrained=pretrained)
 
     elif(args.genre_performance):
         print("Selected genre performance evaluation")
         genre = args.genre_performance[0]
         train = args.genre_performance[1]
         n_words = int(args.genre_performance[2])
+        dataset_id = '79-musical-genres'
+        pretrained = True
 
         # Select metric to compute
         if n_words < 0:
@@ -271,12 +271,12 @@ if __name__ == "__main__":
 
         # Train the model
         if(train == 'True'):
-            lyrics_dataset = LyricsDataset(config, genre, "79-musical-genres", performance_evaluation_nremovals=n_words)
+            lyrics_dataset = LyricsDataset(config, genre, dataset_id, performance_evaluation_nremovals=n_words)
             lyrics_dataset.load_dataset_multiple_artists()
             tokenized_dataset = lyrics_dataset.dataset.map(
                 lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
             )
-            train_model(lyrics_dataset, tokenized_dataset, genre + "_performance")
+            train_model(lyrics_dataset, tokenized_dataset, genre + '_' + dataset_id + "_performance")
             
             # Store test lyrics in json file in order to prevent training again
             test_lyrics = {}
@@ -285,24 +285,27 @@ if __name__ == "__main__":
                 test_trimmed_lyrics.extend([str(lyrics_dataset.dataset['test']['Lyric'][i])])
             test_lyrics['test_trimmed_lyrics'] = test_trimmed_lyrics
             test_lyrics['test_true_lyrics'] = lyrics_dataset.true_lyrics_dataset
-            with open("./models/" + genre + "_performance/lyrics_test.json","w") as f:
+
+            if not os.path.exists("models"):
+                os.makedirs("models")
+            if not os.path.exists("./models/" + genre.replace(" ", "_") + '_' + dataset_id + "_performance"):
+                os.makedirs("./models/" + genre.replace(" ", "_") + '_' + dataset_id + "_performance")
+            with open("./models/" + genre.replace(" ", "_") + '_' + dataset_id + "_performance/lyrics_test.json","w") as f:
                 json.dump(test_lyrics, f)
-        elif(perplexity == 'True'):
-            lyrics_dataset = LyricsDataset(config, genre, "79-musical-genres")
-            lyrics_dataset.load_dataset_multiple_artists()
-            tokenized_dataset = lyrics_dataset.dataset.map(
-            lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
-            )
-        # Initialise wandb logging
-        initialise_wandb_project(config, genre.replace(" ", "_")+'_performance')
 
         # Evaluate the model
         if perplexity == 'True':
-            # Initialise wandb logging
-            initialise_wandb_project(config, genre)
-            perplexity_data = compute_perplexity_metric(config, genre, lyrics_dataset, True)
+            print("Selected perplexity metric")
+            if(pretrained):
+                initialise_wandb_project(config, genre.replace(" ", "_") + '_' + dataset_id +'_ppl_performance_training')
+            else:
+                initialise_wandb_project(config, genre.replace(" ", "_") + '_' + dataset_id +'_ppl_performance_no_training')
+            perplexity_data = compute_perplexity_metric(config, genre, dataset_id, pretrained)
         else:
-            # Initialise wandb logging
-            initialise_wandb_project(config, genre + '_performance')
-            performance_data = compute_bleu_metric(config, n_words, genre)
+            print("Selected bleu metric")
+            if(pretrained):
+                initialise_wandb_project(config, genre.replace(" ", "_") + '_' + dataset_id +'_bleu_performance_training')
+            else:
+                initialise_wandb_project(config, genre.replace(" ", "_") + '_' + dataset_id +'_bleu_performance_no_training')
+            performance_data = compute_bleu_metric(config, n_words, genre, dataset_id, pretrained=pretrained)
 

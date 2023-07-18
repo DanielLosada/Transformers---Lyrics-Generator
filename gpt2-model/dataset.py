@@ -17,8 +17,6 @@ class LyricsDataset():
         self.tokenizer = AutoTokenizer.from_pretrained(self.config["model"])
         self.tokenizer.pad_token = self.tokenizer.eos_token
         self.files_to_delete = ["(Scriptonite)", "BTS", "Damso", "Genius English Translations", "Genius Romanizations", "JuL", "Nekfeu", "Oxxxymiron"]
-        # TODO: Remove this
-        #self.files_to_multiartist = ["Eminem10", "Justin Bieber10"]
         self.files_to_multiartist = ["50 Cent", "Imagine Dragons", "Justin Bieber", "Taylor Swift", "Queen", "Lil Peep", "Arctic Monkeys", "The Notorious B.I.G.", "Radiohead", "Mac Miller"]
         self.dataset=""
         self.true_lyrics_dataset=[]
@@ -194,8 +192,7 @@ class LyricsDataset():
             data['Lyric'] = data['Lyric'].apply(lambda x: re.sub(r'\(.*?\)', '', x))
             
             data = data.drop(columns=['ALink','SLink','Link','Popularity'])
-            #TODO: Remove this
-            #data = data.drop(data.index[9:-1])
+
         return data
     
     def __preprocess_lyrics(self, data):
@@ -255,8 +252,7 @@ class LyricsDataset():
                 data['Lyric'][i] = '\n'.join(' '.join(v) for v in split_data)
             
             data = data.drop(columns=['ALink','SLink','Link','Popularity'])
-            #TODO: Remove this
-            #data = data.drop(data.index[9:-1])
+
         return data
 
     def __split_train_custom_eval(self, csvFile, test_size):
