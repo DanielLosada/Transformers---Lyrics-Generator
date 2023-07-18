@@ -64,37 +64,37 @@ Generate genre model lyrics:
 python main.py --generateGenre "Rock" "You are"
 ```
 
-Compute single-artist preformance BLEU score (with training enabled and 20 last words from test dataset removal)
+Compute single-artist preformance BLEU score (with training enabled and 20 last words from test dataset removal):
 ```
 python main.py --performanceSingleArtist "Taylor Swift" "True" 20
 ```
 
-Compute single-artist preformance BLEU score (without training and 20 last words from test dataset removal)
+Compute single-artist preformance BLEU score (without training and 20 last words from test dataset removal):
 ```
 python main.py --performanceSingleArtist "Taylor Swift" "False" 20
 ```
 
-Compute single-artist preformance PPL score
+Compute single-artist preformance PPL score:
 ```
 python main.py --performanceSingleArtist "Taylor Swift" "True" -1
 ```
 
-Compute multiple-artist preformance BLEU score (with training enabled and 20 last words from test dataset removal)
+Compute multiple-artist preformance BLEU score (with training enabled and 20 last words from test dataset removal):
 ```
 python main.py --performanceMultipleArtists "Eminem" "True" 20
 ```
 
-Compute multiple-artist preformance PPL score
+Compute multiple-artist preformance PPL score:
 ```
 python main.py --performanceMultipleArtists "Eminem" "True" -1
 ```
 
-Compute genre preformance BLEU score (with training enabled and 20 last words from test dataset removal)
+Compute genre preformance BLEU score (with training enabled and 20 last words from test dataset removal):
 ```
 python main.py --performanceMultipleArtists "Reggae" "True" 20
 ```
 
-Compute genre preformance PPL score
+Compute genre preformance PPL score:
 ```
 python main.py --performanceMultipleArtists "Reggae" "True" -1
 ```
