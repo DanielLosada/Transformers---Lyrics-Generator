@@ -6,7 +6,6 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 from generator import LyricsGeneratorParams, LyricsGenerator
 from nltk.translate.bleu_score import sentence_bleu
 from tqdm import tqdm
-from evaluate import load
 
 # Load device to use eith GPU or CPU
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
