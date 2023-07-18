@@ -1,10 +1,15 @@
 {
     "base_dir":"./",
     "dataset_path":"data",
+    "epochs":30,
+    "val_size":0.2,
     "dataset_zip":
     {
-        "genious-lyrics":"datasets/genious-lyrics.zip",
+        "genius-lyrics":"datasets/genius-lyrics.zip",
         "79-musical-genres":"datasets/79-musical-genres.zip"
     },
-    "model":"DistilGPT2"
+    "model":"gpt2",
+    "wandb":{
+        "wandb_api_key": "9f248a1e46162ed3f7e654e0cf6fe0437f879df8"
+    }
 }
