@@ -72,7 +72,7 @@ if __name__ == "__main__":
     parser.add_argument("-gs", "--generateSingleArtist", dest='generate_single_artist', type=str, help="Pass the artist name to generate lyrics. Use the same name you used to train it.")
     parser.add_argument("-gm", "--generateMultipleArtists", dest='generate_multiple_artists',type=str, help="Pass the artist name to generate lyrics with the model trained with multiple artists. Use the same name you used to train it.")
     parser.add_argument("-gg", "--generateGenre", dest='generate_genre',type=str, help="Pass the artist name to generate lyrics with the model trained with multiple artists genre. Use the same name you used to train it.")
-    parser.add_argument("-ds", "--datasetSelection", dest='dataset_selection', choices=["genious-lyrics","79-musical-genres"], default = "genious-lyrics", help="Offers dataset selection between two choices")
+    parser.add_argument("-ds", "--datasetSelection", dest='dataset_selection', choices=["genius-lyrics","79-musical-genres"], default = "genius-lyrics", help="Offers dataset selection between two choices")
     
     parser.add_argument("-sp", "--singleArtistPerformance", nargs=3, dest='single_artist_performance', help="Computes the metric to evaluate the single-artist model")
     parser.add_argument("-mp", "--multipleArtistsPerformance", nargs=3, dest='multiple_artists_performance', help="Computes the metric to evaluate the multiple-artist model")
@@ -91,7 +91,7 @@ if __name__ == "__main__":
         train_model(lyrics_dataset, tokenized_dataset, args.train_single_artist + '_' + args.dataset_selection)
     elif(args.train_multiple_artists):
         print("Selected multi-artist tranining")
-        lyrics_dataset = LyricsDataset(config, "multipleArtists", 'genious-lyrics')
+        lyrics_dataset = LyricsDataset(config, "multipleArtists", 'genius-lyrics')
         lyrics_dataset.load_dataset_multiple_artists()
         tokenized_dataset = lyrics_dataset.dataset.map(
             lyrics_dataset.tokenize, batched=True, remove_columns=lyrics_dataset.dataset["train"].column_names
@@ -156,7 +156,7 @@ if __name__ == "__main__":
             # Store test lyrics in json file in order to prevent training again
             test_lyrics = {}
             test_trimmed_lyrics = []
-            if args.dataset_selection == 'genious-lyrics':
+            if args.dataset_selection == 'genius-lyrics':
                 dataset = lyrics_dataset.dataset['test']['lyrics']
             elif args.dataset_selection == '79-musical-genres':
                 dataset = lyrics_dataset.dataset['test']['Lyric']
@@ -195,7 +195,7 @@ if __name__ == "__main__":
         train = args.multiple_artists_performance[1]
         n_words = int(args.multiple_artists_performance[2])
         artist = 'multipleArtists'
-        dataset_id = 'genious-lyrics'
+        dataset_id = 'genius-lyrics'
         pretrained = True
 
         # Select metric to compute
