@@ -42,7 +42,7 @@ GitHub repository: [https://github.com/DanielLosada/Transformers---Lyrics-Genera
     3. [Milestones](#milestones)
 2. [Data Set](#dataset)
 3. [Working Environment](#working_env)
-4. [General Architecture](#architecture)
+4. [General Architecture and implementation](#architecture)
 5. [Preprocessing the data set](#dataset_preprocess)
 6. [Results](#results)
     1. [Experiment 1: Single-artist training](#experiment_1)
@@ -118,7 +118,7 @@ We started out in [Google Colab](https://colab.research.google.com/) as it was f
 </p>
 <p align="right"><a href="#toc">To top</a></p>
 
-## 4. General Architecture <a name="architecture"></a>
+## 4. General Architecture and implementation <a name="architecture"></a>
 The development of advanced language models has brought significant changes to tasks like lyrics generation in natural language processing. These models, based on transformer architectures, have shown impressive skills in understanding and creating meaningful text that makes sense in different contexts. GPT, one of these models, has received a lot of attention because of its outstanding performance and flexibility. We have chosen to utilize GPT-2, which is the most recent version of the GPT models accessible on the Hugging Face platform.
 
 GPT-2 consists of solely stacked decoder blocks from the transformer architecture. This architecture allows GPT-2 to effectively capture the relationships between words and generate coherent and contextually relevant text.
@@ -126,10 +126,16 @@ GPT-2 consists of solely stacked decoder blocks from the transformer architectur
 The GPT-2 model was trained on a large corpus of text data that consisted of approximately 40 gigabytes of text (around 8 million tokens). The model has 1.5 billion parameters.
 
 <p align="left">
-  <a href="https://drive.google.com/uc?export=view&id=1phbpF208uCZM_w4tmRwuD0BA9IdGb68G">
-    <img src="https://drive.google.com/uc?export=view&id=1phbpF208uCZM_w4tmRwuD0BA9IdGb68G" alt="Image" style="width: 500px; height: 500px; display: inline-block;" title="Image" />
+  <a href="https://drive.google.com/uc?export=view&id=1ywV_aKn0qnO4IR9Bxmwqxw2Gt7lyehcg">
+    <img src="https://drive.google.com/uc?export=view&id=1ywV_aKn0qnO4IR9Bxmwqxw2Gt7lyehcg" alt="Image" style="width: 800px; height: auto; display: inline-block;" title="Image" />
   </a>
 </p>
+
+For implementation we used the Hugging Face Transformers library. We initialized the language model using AutoModelForCausalLM. For tokenizing we utilized the AutoTokenizer class from the transformers library, which automatically selects the tokenizer associated with the specific pre-trained model you are using, ensuring compatibility between the model and tokenizer. 
+
+For training we created a data collator specifically for language modeling training using the DataCollatorForLanguageModeling class from the transformers library. The data collator is responsible for batching and preparing the input data during training.
+Then we instantiated the Trainer object from the same library with the model, training arguments, and datasets.
+The trainer trains the model using the trainer.train() method.
 <p align="right"><a href="#toc">To top</a></p>
 
 ## 5. Preprocessing the data set <a name="dataset_preprocess"></a>
