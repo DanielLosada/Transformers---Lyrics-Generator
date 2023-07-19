@@ -115,7 +115,8 @@ GitHub repository: [https://github.com/DanielLosada/Transformers---Lyrics-Genera
 3. [Working Environment](#working_env)
 4. [General Architecture and implementation](#architecture)
 5. [Preprocessing the data set](#dataset_preprocess)
-6. [Results](#results)
+6. [Postprocessing the generated text](#generation_postprocessing)
+7. [Results](#results)
     1. [Experiment 1: Single-artist training and generation with same prompt](#experiment_1)
     2. [Experiment 2: Specific genre training and generation with same prompt](#experiment_2)
     3. [Experiment 3: Conditional lyrics generation with the same prompt](#experiment_3)
@@ -123,9 +124,9 @@ GitHub repository: [https://github.com/DanielLosada/Transformers---Lyrics-Genera
     5. [Experiment 5: Performance evaluation single-artist GPT-2 vs fine tuned GPT-2](#experiment_5)
     6. [Experiment 6: Performance evaluation single-artist different datasets](#experiment_6)
     7. [Experiment 7: T5 model](#experiment_7)
-7. [Conclusions](#conclusions)
-8. [Next Steps](#next_steps)
-9. [References](#references)
+8. [Conclusions](#conclusions)
+9. [Next Steps](#next_steps)
+10. [References](#references)
 
 ## 1. Introduction <a name="intro"></a>
 Lyrics generation, the task of automatically generating song lyrics using deep learning techniques, has gained significant attention in recent years. With the advancements in natural language processing and deep learning, generating creative and coherent lyrics has become an intriguing but still a challenging task. This project aims to explore and address these challenges by leveraging state-of-the-art deep learning models and fine-tuning them on suitable datasets. 
@@ -220,9 +221,16 @@ Overall, the preprocessing steps involve:
 * tokenizing the datasets for further processing, setting a maximum context length (maximum context length for GPT-2 model is 1024 tokens but we use 512 due to limitations in computational resources)
 <p align="right"><a href="#toc">To top</a></p>
 
-## 6. Results <a name="results"></a>
+## 6. Postprocessing the generated text <a name="generation_postprocessing"></a>
+
+  After generating the text with the trained model, we postprocessed the results.
+  * Removing unnecessary line breaks: In some cases, the model generated consecutive line breaks ("\n"), which were not required. We removed these redundant line breaks to improve the readability of the generated text.
+  * Eliminating word repetition: Occasionally, the model produced consecutive occurrences of the same word. To maintain naturalness while reducing excessive repetition, we allowed only two consecutive equal words. If there were more than two consecutive equal words, the additional repetitions were removed.
+  * Addressing sentence repetition: The model sometimes generated two sentences that were identical or very similar. To ensure greater variety and avoid redundancy, we computed the cosine similarity between consecutive sentences. If the cosine similarity between two consecutive sentences exceeded a threshold of 0.8, we retained only one of them.
+
+## 7. Results <a name="results"></a>
     
-### 6.1 Experiment 1: Single-artist training and generation with same prompt <a name="experiment_1"></a>
+### 7.1 Experiment 1: Single-artist training and generation with same prompt <a name="experiment_1"></a>
 
 
 **Training on Genius Lyrics dataset** https://www.kaggle.com/datasets/mervedin/genius-lyrics
@@ -281,7 +289,7 @@ The full performance results can be seen in the W&B report: https://wandb.ai//up
   
    Link to W&B training report: https://wandb.ai/upcproject/Lyrics%20Generator/reports/Single-artist-training-on-genius-lyrics-dataset--Vmlldzo0ODg5NjEz
 
-### 6.2 Experiment 2: Specific genre training and generation with same prompt <a name="experiment_2"></a>
+### 7.2 Experiment 2: Specific genre training and generation with same prompt <a name="experiment_2"></a>
 
 Experiment setup: We conducted fine-tuning of GPT-2 using the second dataset filtered by genre. The dataset consisted of songs from different genres, and the number of songs available for each genre varied. This experiment aimed to explore and learn the patterns of genres more generally, rather than focusing solely on individual artists. The number of songs used for each genre are as follows:
 
@@ -334,7 +342,7 @@ Here we are going to show some examples of the results obtained.
 
 <p align="right"><a href="#toc">To top</a></p>
 
-### 6.3 Experiment 3: Conditional lyrics generation with the same prompt <a name="experiment_3"></a>
+### 7.3 Experiment 3: Conditional lyrics generation with the same prompt <a name="experiment_3"></a>
 Experiment setup: For this experiment, we trained GPT-2 using the songs of ten artists from the first dataset. We ensured that we had 100 songs for each artist, providing a balanced dataset. The objective was to create a conditional model that allows users to choose the artist whose style they want the generated songs to emulate. To achieve this, we modified the preprocessing step by adding the name of the artist at the beginning of each lyric. During generation, we concatenated the desired artist's name before the initial prompt, enabling the model to understand the relationship between the lyrics and the artist.
 
 The ten artists used in this experiment are as follows:
@@ -390,7 +398,7 @@ Here we are going to show some examples of the results obtained.
 
   <p align="right"><a href="#toc">To top</a></p>
 
-### 6.4 Experiment 4: Conditional lyrics generation based on the prompt <a name="experiment_4"></a>
+### 7.4 Experiment 4: Conditional lyrics generation based on the prompt <a name="experiment_4"></a>
 
 Experiment setup:
 
@@ -432,7 +440,7 @@ https://wandb.ai//upcproject/Lyrics%20Generator/reports/Conditional-lyrics-gener
   Conclusion:
   In conclusion, the model shows the capability to fit both styles, despite their distinct differences, and generally knows when to employ the more appropriate style. However, there is still room for improvement in terms of maintaining consistency and coherence throughout the generated lyrics.
 
-### 6.5 Experiment 5: Performance evaluation single-artist GPT-2 vs fine tuned GPT-2 <a name="experiment_5"></a>
+### 7.5 Experiment 5: Performance evaluation single-artist GPT-2 vs fine tuned GPT-2 <a name="experiment_5"></a>
 
 **A. BLEU SCORE**
 
@@ -488,7 +496,7 @@ Conclusions : Our hypothesis is confirmed and we get lower values of perplexity 
 Link to the performance report for single-artist BLEU score and perplexity: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Single-artist-performance-report--Vmlldzo0ODkxNDA4?accessToken=4noqi3yx5rreg3syp16ikpary7jzravi875c57fg2k6ku6jvkef2nliu4k7tipu2
 <p align="right"><a href="#toc">To top</a></p>
 
-### 6.6 Experiment 6: Performance evaluation single-artist different datasets <a name="experiment_6"></a>
+### 7.6 Experiment 6: Performance evaluation single-artist different datasets <a name="experiment_6"></a>
 
 **A. BLEU SCORE**
 
@@ -562,7 +570,7 @@ Conclusions: Similarly to the previous metric PPL score shows to be higher in ly
 
 Link to the performance report for single-artist BLEU score and perplexity: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Single-artist-performance-report--Vmlldzo0ODkxNDA4?accessToken=4noqi3yx5rreg3syp16ikpary7jzravi875c57fg2k6ku6jvkef2nliu4k7tipu2
 
-### 6.7 Experiment 6: T5 model <a name="experiment_7"></a>
+### 7.7 Experiment 6: T5 model <a name="experiment_7"></a>
 T5 (Text-To-Text Transfer Transformer) is a transformer-based language model developed by Google Research. Unlike GPT-2, which is primarily designed for autoregressive language generation, T5 follows a "text-to-text" framework. Instead of generating lyrics word by word like GPT-2, T5 is trained to map an input text prompt to an output text sequence.
 T5 was trained on a large and diverse collection of publicly available text data from the internet. The specific details regarding the exact number of data, tokens, and parameters used for training T5 have not been disclosed publicly by Google Research. However, it is known to be a large-scale model with billions of parameters.
 
@@ -574,7 +582,7 @@ Unfortunately, due to time constraints and our prioritization of experimenting w
 
 <p align="right"><a href="#toc">To top</a></p>
 
-## 7. Conclusions <a name="conclusions"></a>
+## 8. Conclusions <a name="conclusions"></a>
 Model Performance: The performance of the lyrics generator heavily depends on the size and quality of the dataset used for fine-tuning. When fine-tuning the model on a small dataset, the generated lyrics may lack coherence, structure, and meaningfulness. On the other hand, fine-tuning the model on a larger and more diverse dataset tends to produce more coherent and contextually relevant lyrics.
 
 Training time and hardware requirements: Fine-tuning the GPT-2 model on a large dataset can be a computationally intensive task. It is essential to have access to sufficient computational power to train the model effectively.
@@ -582,7 +590,7 @@ Training time and hardware requirements: Fine-tuning the GPT-2 model on a large 
 Creativity: While the lyrics generator can produce very good outputs, it is important to note that the model will always lack true creativity and originality that a human songwriter could produce. However, it can serve as a valuable tool for generating initial ideas or providing inspiration to human songwriters.
 <p align="right"><a href="#toc">To top</a></p>
 
-## 8. Next Steps <a name="next_steps"></a>
+## 9. Next Steps <a name="next_steps"></a>
 After completing the project, several potential further steps for research and exploration can be proposed:
 
 * Trying a model with different architecture (e.g. T5)
