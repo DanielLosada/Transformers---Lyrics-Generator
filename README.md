@@ -166,6 +166,10 @@ After trying all of them, we have opted for using datasets from Kaggle.
 We have chosen the following 2 datasets:
 * https://www.kaggle.com/datasets/mervedin/genius-lyrics
 * https://www.kaggle.com/datasets/neisse/scrapped-lyrics-from-6-genres
+
+The first dataset (Genius lyrics) contains 81 artist's song lyrics labeled by their filename. There are 100 songs for each artist.
+
+The second dataset (Song lyrics from 79 musical genres) was obtained using scraping, it contains lyrics of multiple artists and additionally it sorts them by genre. It consists of two datasets - artists-data.csv and lyrics-data.csv. lyrics-data.csv has data on 379.893 song lyrics from 4.239 artists, including artist name, song name, lyrics and lyrics language. artists-data.csv has data on 4.168 artists with styles, popularity and number of songs.
 <p align="right"><a href="#toc">To top</a></p>
 
 ## 3. Working Environment <a name="working_env"></a>
