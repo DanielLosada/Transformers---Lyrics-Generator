@@ -170,7 +170,14 @@ We have chosen the following 2 datasets:
 
 The first dataset (Genius lyrics) contains 81 artist's song lyrics labeled by their filename. There are 100 songs for each artist.
 
-The second dataset (Song lyrics from 79 musical genres) was obtained using scraping, it contains lyrics of multiple artists and additionally it sorts them by genre. It consists of two datasets - artists-data.csv and lyrics-data.csv. lyrics-data.csv has data on 379.893 song lyrics from 4.239 artists, including artist name, song name, lyrics and lyrics language. artists-data.csv has data on 4.168 artists with styles, popularity and number of songs.
+The second dataset, obtained through web scraping, encompasses song lyrics from 79 different musical genres. It includes lyrics from numerous artists along with supplementary information such as the genre and popularity of each artist. The dataset is composed of two CSV files: "artists-data.csv" and "lyrics-data.csv".
+
+The "lyrics-data.csv" file contains data on a substantial number of song lyrics, totaling 379,893 entries, spanning across 4,239 artists. Each entry includes details such as the artist name, song name, lyrics content, and the language in which the lyrics are written.
+
+The "artists-data.csv" file provides information about 4,168 artists featured in the dataset. It includes additional details like the genre associated with each artist, their popularity, and the number of songs attributed to them.
+
+Together, these CSV files form a comprehensive collection of song lyrics, artist information, and relevant metadata from a diverse range of musical genres.
+
 <p align="right"><a href="#toc">To top</a></p>
 
 ## 3. Working Environment <a name="working_env"></a>
