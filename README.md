@@ -173,8 +173,8 @@ We have chosen the following 2 datasets:
 We started out in [Google Colab](https://colab.research.google.com/) as it was fast and easy for us to access. Then we passed on to training locally and via a VM instance on [Google Cloud](https://cloud.google.com/) but we had a problem with access to GPUs on Google Cloud therefore we couldn't complete our training there. To view the results we used [wandb](https://wandb.ai/site). 
 
 <p align="middle">
-  <a href="https://drive.google.com/uc?export=view&id=1jgmyVjKrc69KLUzmZw7j2BYIghZrDnZL">
-    <img src="https://drive.google.com/uc?export=view&id=1jgmyVjKrc69KLUzmZw7j2BYIghZrDnZL" alt="Image" style="width: auto; max-width: 50%; height: 80px; display: inline-block;" title="Image" />
+  <a href="https://drive.google.com/uc?export=view&id=1Bo-HNWlYIK75T5-wHaX_YLHGheVev2E_">
+    <img src="https://drive.google.com/uc?export=view&id=1Bo-HNWlYIK75T5-wHaX_YLHGheVev2E_" alt="Image" style="width: auto; max-width: 50%; height: 80px; display: inline-block;" title="Image" />
   </a>
   
   <a href="https://drive.google.com/uc?export=view&id=1N2ui7rYVl6WPUAgzuMgFe7TU2c_MGm56">
