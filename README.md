@@ -175,7 +175,7 @@ The second dataset (Song lyrics from 79 musical genres) was obtained using scrap
 
 ## 3. Working Environment <a name="working_env"></a>
 [PyTorch](https://pytorch.org/) is used as the main framework.
-We started out in [Google Colab](https://colab.research.google.com/) as it was fast and easy for us to access. Then the intention was to pass on to training via a VM instance on [Google Cloud](https://cloud.google.com/) but since we had a problem with access to GPUs on Google Cloud, we couldn't complete our training there. In the end we were training only locally, we had a limited access to GPU RTX 1080 Ti which we used for more time consuming experiments, and for faster experiments we trained without GPU. To view the results we used [wandb](https://wandb.ai/site). 
+We started out in [Google Colab](https://colab.research.google.com/) as it was fast and easy for us to access. Then the intention was to pass on to training via a VM instance on [Google Cloud](https://cloud.google.com/) but since we had a problem with access to GPUs on Google Cloud, we couldn't complete our training there. In the end we were training only locally, we had a limited access to GPU RTX 1080 Ti which we used for more time consuming experiments (training), and for faster experiments (generation) we proceeded without GPU. To view the results we used [wandb](https://wandb.ai/site). 
 
 <p align="middle">
   <a href="https://drive.google.com/uc?export=view&id=1Bo-HNWlYIK75T5-wHaX_YLHGheVev2E_">
@@ -184,10 +184,6 @@ We started out in [Google Colab](https://colab.research.google.com/) as it was f
   
   <a href="https://drive.google.com/uc?export=view&id=1N2ui7rYVl6WPUAgzuMgFe7TU2c_MGm56">
     <img src="https://drive.google.com/uc?export=view&id=1N2ui7rYVl6WPUAgzuMgFe7TU2c_MGm56" alt="Image" style="width: auto; max-width: 50%; height: 80px; display: inline-block;" title="Image" />
-  </a>
-  
-  <a href="https://drive.google.com/uc?export=view&id=1LClGQxV6tDbLHU4dEowivvrehZPXnkHB">
-    <img src="https://drive.google.com/uc?export=view&id=1LClGQxV6tDbLHU4dEowivvrehZPXnkHB" alt="Image" style="width: auto; max-width: 40%; height: 80px; display: inline-block;" title="Image" />
   </a>
   
   <a href="https://drive.google.com/uc?export=view&id=1gq6dYc2tmIJV2bvIZDrq2TaokTSYYm-j">
