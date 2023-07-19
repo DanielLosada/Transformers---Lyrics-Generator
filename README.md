@@ -295,7 +295,12 @@ The full performance results can be seen in the W&B report: https://wandb.ai//up
 
 ### 7.2 Experiment 2: Specific genre training and generation with same prompt <a name="experiment_2"></a>
 
-Experiment setup: We conducted fine-tuning of GPT-2 using the second dataset filtered by genre. The dataset consisted of songs from different genres, and the number of songs available for each genre varied. This experiment aimed to explore and learn the patterns of genres more generally, rather than focusing solely on individual artists. The number of songs used for each genre are as follows:
+Experiment setup: We conducted fine-tuning of GPT-2 using the second dataset filtered by genre. The dataset consisted of songs from different genres, and the number of songs available for each genre varied. This experiment aimed to explore and learn the patterns of genres more generally, rather than focusing solely on individual artists. To select the songs for our experiment, we implemented two criteria for dataset filtering:
+
+* Genre matching: Within the dataset, each artist is associated with the genre or genres they perform. We specifically chose songs from artists who exclusively belong to the desired genre. This approach serves two purposes. Firstly, it ensures that we focus on songs that align with the target genre, preventing the inclusion of songs with different styles. Secondly, it allows us to manage the computational requirements of the training process, as including songs from artists with diverse genres would lead to an overwhelming amount of data.
+* Artist popularity: We established a popularity threshold of 5 based on the "Popularity" column in the dataset. The popularity value is derived from website visits where the dataset was sourced. By setting this threshold, we ensure that we only include songs from artists who have attained a certain level of popularity. This step is crucial for ensuring the accuracy of the lyrics and genre information. We aim to work with data from more popular artists to increase confidence in the correctness of the provided information.
+
+The number of songs used for each genre are as follows:
 
 * Pop: 375
 * Reggae: 223
