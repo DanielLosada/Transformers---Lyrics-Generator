@@ -126,9 +126,8 @@ def compute_bleu_metric(config, n_words, filter, dataset_id, filter_generation=N
     lyrics_generator_params.num_sequences = 1
     lyrics_generator_params.max_length = 1024
     lyrics_generator_params.min_length = 1024
-    # lyrics_generator_params.temperature = 1
-    # lyrics_generator_params.top_p = 0.8
-    lyrics_generator = LyricsGenerator(config, filter + '_' + dataset_id + "_performance", lyrics_generator_params, pretrained)
+
+    lyrics_generator = LyricsGenerator(config, filter + '_' + dataset_id + "_performance", lyrics_generator_params, pretrained, data_logging=False)
 
     # Perform text generation and compute bleu scores
     performance_data = BleuPerformanceParams
@@ -209,14 +208,15 @@ def compute_bleu_metric(config, n_words, filter, dataset_id, filter_generation=N
             )
 
     # Display final results
-    print("\n" + "&"*20 + " General statistics " + "&"*20 + "\n")
     if(performance_data.total_eval_datasets > 0):
+        print("\n" + "&"*20 + " General statistics " + "&"*20 + "\n")
         print("Total number of evaluated datasets = ", performance_data.total_eval_datasets)
         print("Average number of prompt words     = {:.2f}".format(statistics.mean(performance_data.prompt_words)))
         print("Average number of reference words  = {:.2f}".format(statistics.mean(performance_data.reference_words)))
         print("Average number of generated words  = {:.2f}".format(statistics.mean(performance_data.generated_words)))
         print("Average bleu score                 = {:.2f}".format(statistics.mean(performance_data.bleu_scores)))
         print("\n" + "&"*60 + "\n")
+    
     if(pretrained):
         wandb.log({filter.replace(" ", "_") + '_' + dataset_id +"_bleu_performance_training": table})
     else:
@@ -281,8 +281,6 @@ def compute_perplexity_metric(config, filter, dataset_id, pretrained=True):
                 outputs = model(input_ids, labels=target_ids)
 
                 # loss is calculated using CrossEntropyLoss which averages over valid labels
-                # N.B. the model only calculates loss over trg_len - 1 labels, because it internally shifts the labels
-                # to the left by 1.
                 neg_log_likelihood = outputs.loss
 
             nlls.append(neg_log_likelihood)
