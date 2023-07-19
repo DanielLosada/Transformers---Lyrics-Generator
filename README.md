@@ -247,7 +247,7 @@ Experiment setup: We conducted fine-tuning of GPT-2 using a dataset of 100 lyric
 Hypothesis: Despite the utilization of only 100 songs, we anticipate that the model will successfully adapt to the vocabulary and style of each artist, allowing it to extend the given input prompt in the artist's specific style. However, in terms of training, overfitting might be expected.
 
 Resuts: 
-The full performance results can be seen in the W&B report: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Single-artist-generated-lyrics-prompt-You-are---Vmlldzo0OTEyNTA2?accessToken=afvobacengbowa8wyvxxhnqvju9x60r0egsa52n7qvjpcnvtveo1597f3ncpp1pu.
+The full performance results can be seen in the W&B report: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Single-artist-generated-lyrics-prompt-You-are---Vmlldzo0OTEyNTA2?accessToken=afvobacengbowa8wyvxxhnqvju9x60r0egsa52n7qvjpcnvtveo1597f3ncpp1pu
  Here we are going to show some examples of the results obtained.
 * Input prompt: "You are"
     * Artist: 50 Cent
@@ -294,8 +294,7 @@ The full performance results can be seen in the W&B report: https://wandb.ai//up
 
    Regarding the training process, we observed that the loss decreases, although not rapidly. This can be attributed to the fact that the pre-trained GPT-2 model has already been trained on a substantial amount of data and possesses a strong capability to generate coherent English text.
   
-   Link to W&B training report: https://wandb.ai/upcproject/Lyrics%20Generator/reports/Single-artist-training-on-genius-lyrics-dataset--Vmlldzo0ODg5NjEz
-
+   Link to W&B training report: https://api.wandb.ai/links/upcproject/xkw1ugdh
 ### 7.2 Experiment 2: Specific genre training and generation with same prompt <a name="experiment_2"></a>
 
 Experiment setup: We conducted fine-tuning of GPT-2 using the second dataset filtered by genre. The dataset consisted of songs from different genres, and the number of songs available for each genre varied. This experiment aimed to explore and learn the patterns of genres more generally, rather than focusing solely on individual artists. To select the songs for our experiment, we implemented two criteria for dataset filtering:
@@ -313,7 +312,7 @@ The number of songs used for each genre are as follows:
 Hypothesis: We hypothesize that the model will be capable of adapting to the specific genres and generate new songs that align with the style of each genre.
 
 Results:
-The full results can be seen in the W&B report: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Specific-genre-generated-lyrics-prompt-You-are---Vmlldzo0OTEyNjI1. 
+The full results can be seen in the W&B report: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Specific-genre-generated-lyrics-prompt-You-are---Vmlldzo0OTEyNjI1?accessToken=al65ot18qofx8shodfimvfybklq0g95q07gsjbgdj21228vq7e6y19wnsmxcy4la 
 Here we are going to show some examples of the results obtained.
 * Input prompt: "You are"
     * Genre: Reggae
@@ -350,7 +349,7 @@ Here we are going to show some examples of the results obtained.
 
     Training resuts were siliar to those obtained with single-artist training.
     
-    Link to W&B training report: https://wandb.ai/upcproject/Lyrics%20Generator/reports/Genre-training-on-79-musical-genres-dataset--Vmlldzo0OTAyMjY4
+    Link to W&B training report: https://api.wandb.ai/links/upcproject/opb8hkt3
 
 <p align="right"><a href="#toc">To top</a></p>
 
@@ -373,7 +372,7 @@ Hypothesis: We hypothesize that the model trained in this experiment will genera
 
 Results:
 The full results can be seen in the W&B report. 
-W&B link: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Multiple-artists-generated-lyrics-prompt-You-are---Vmlldzo0OTEyNzQ3?accessToken=g3lev2vf26vg7jsg20q6a2qgmmq8faqczopt89e99f2gp1xprrjaznx87e3llqxk. 
+W&B link: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Multiple-artists-generated-lyrics-prompt-You-are---Vmlldzo0OTEyNzQ3?accessToken=g3lev2vf26vg7jsg20q6a2qgmmq8faqczopt89e99f2gp1xprrjaznx87e3llqxk
 
 Here we are going to show some examples of the results obtained.
 
