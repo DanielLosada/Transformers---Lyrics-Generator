@@ -592,7 +592,14 @@ Unfortunately, due to time constraints and our prioritization of experimenting w
 <p align="right"><a href="#toc">To top</a></p>
 
 ## 8. Conclusions <a name="conclusions"></a>
-Model Performance: The performance of the lyrics generator heavily depends on the size and quality of the dataset used for fine-tuning. When fine-tuning the model on a small dataset, the generated lyrics may lack coherence, structure, and meaningfulness. On the other hand, fine-tuning the model on a larger and more diverse dataset tends to produce more coherent and contextually relevant lyrics.
+
+Model Performance: The performance of the lyrics generator is heavily influenced by the size and quality of the dataset used for fine-tuning. When fine-tuning the model on a small dataset, the generated lyrics may exhibit limitations in terms of coherence, structure, and meaningfulness. In contrast, fine-tuning the model on a larger and more diverse dataset tends to yield lyrics that are more coherent and contextually relevant.
+
+Furthermore, we observed that the model's performance is affected when generating lyrics for artists who extensively utilize slang or have unconventional grammar. This could be attributed to the limited availability of data capturing such patterns, making it challenging for the model to learn them effectively. Additionally, issues with the tokenizer may arise, preventing correct tokenization of new or fragmented words.
+
+Interestingly, during single artist training, we noticed that artists like 50 Cent or Lil Wayne exhibited higher validation loss compared to other artists. This suggests that these artists' lyrics may pose additional challenges for the model, potentially due to their unique linguistic characteristics or unconventional usage of language.
+
+In summary, the performance of the lyrics generator depends on factors such as dataset size, diversity, and the linguistic patterns present in the training data.
 
 Training time and hardware requirements: Fine-tuning the GPT-2 model on a large dataset can be a computationally intensive task. It is essential to have access to sufficient computational power to train the model effectively.
 
