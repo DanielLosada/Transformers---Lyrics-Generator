@@ -355,6 +355,7 @@ Here we are going to show some examples of the results obtained.
 Experiment setup: For this experiment, we trained GPT-2 using the songs of ten artists from the first dataset. We ensured that we had 100 songs for each artist, providing a balanced dataset. The objective was to create a conditional model that allows users to choose the artist whose style they want the generated songs to emulate. To achieve this, we modified the preprocessing step by adding the name of the artist at the beginning of each lyric. During generation, we concatenated the desired artist's name before the initial prompt, enabling the model to understand the relationship between the lyrics and the artist.
 
 The ten artists used in this experiment are as follows:
+* 50 Cent
 * Imagine Dragons
 * Justin Bieber
 * Taylor Swift
