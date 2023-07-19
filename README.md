@@ -1,8 +1,4 @@
 # Transformers - Lyrics-Generator
-## Dataset
-The dataset used for this project is the [Lyrics Dataset](https://www.kaggle.com/datasets/mervedin/genius-lyrics) from Kaggle.
-
-Or this one: [Lyrics Dataset](https://www.kaggle.com/neisse/scrapped-lyrics-from-6-genres)
 
 ## Installation
 ### With Conda
@@ -120,14 +116,16 @@ GitHub repository: [https://github.com/DanielLosada/Transformers---Lyrics-Genera
 4. [General Architecture and implementation](#architecture)
 5. [Preprocessing the data set](#dataset_preprocess)
 6. [Results](#results)
-    1. [Experiment 1: Single-artist training](#experiment_1)
-    2. [Experiment 2: Specific genre training](#experiment_2)
-    3. [Experiment 3: Conditional lyrics generation](#experiment_3)
-    4. [Experiment 4: Performance evaluation](#experiment_4)
-    5. [Experiment 5: T5 model](#experiment_5)
+    1. [Experiment 1: Single-artist training and generation with same prompt](#experiment_1)
+    2. [Experiment 2: Specific genre training and generation with same prompt](#experiment_2)
+    3. [Experiment 3: Conditional lyrics generation with the same prompt](#experiment_3)
+    4. [Experiment 4: Conditional lyrics generation based on the prompt](#experiment_4)
+    5. [Experiment 5: Performance evaluation single-artist GPT-2 vs fine tuned GPT-2](#experiment_5)
+    6. [Experiment 6: Performance evaluation single-artist different datasets](#experiment_6)
+    7. [Experiment 7: T5 model](#experiment_7)
 7. [Conclusions](#conclusions)
-10. [Next Steps](#next_steps)
-11. [References](#references)
+8. [Next Steps](#next_steps)
+9. [References](#references)
 
 ## 1. Introduction <a name="intro"></a>
 Lyrics generation, the task of automatically generating song lyrics using deep learning techniques, has gained significant attention in recent years. With the advancements in natural language processing and deep learning, generating creative and coherent lyrics has become an intriguing but still a challenging task. This project aims to explore and address these challenges by leveraging state-of-the-art deep learning models and fine-tuning them on suitable datasets. 
@@ -175,8 +173,8 @@ We have chosen the following 2 datasets:
 We started out in [Google Colab](https://colab.research.google.com/) as it was fast and easy for us to access. Then we passed on to training locally and via a VM instance on [Google Cloud](https://cloud.google.com/) but we had a problem with access to GPUs on Google Cloud therefore we couldn't complete our training there. To view the results we used [wandb](https://wandb.ai/site). 
 
 <p align="middle">
-  <a href="https://drive.google.com/uc?export=view&id=1jgmyVjKrc69KLUzmZw7j2BYIghZrDnZL">
-    <img src="https://drive.google.com/uc?export=view&id=1jgmyVjKrc69KLUzmZw7j2BYIghZrDnZL" alt="Image" style="width: auto; max-width: 50%; height: 80px; display: inline-block;" title="Image" />
+  <a href="https://drive.google.com/uc?export=view&id=1Bo-HNWlYIK75T5-wHaX_YLHGheVev2E_">
+    <img src="https://drive.google.com/uc?export=view&id=1Bo-HNWlYIK75T5-wHaX_YLHGheVev2E_" alt="Image" style="width: auto; max-width: 50%; height: 80px; display: inline-block;" title="Image" />
   </a>
   
   <a href="https://drive.google.com/uc?export=view&id=1N2ui7rYVl6WPUAgzuMgFe7TU2c_MGm56">
@@ -426,7 +424,7 @@ https://wandb.ai//upcproject/Lyrics%20Generator/reports/Conditional-lyrics-gener
   Conclusion:
   The model is able to fit both styles, even though they are really different, and in general, know when to use the more appropiate one.
 
-### 6.4 Experiment 4: Performance evaluation single-artist GPT-2 vs fine tuned GPT-2 <a name="experiment_4"></a>
+### 6.5 Experiment 5: Performance evaluation single-artist GPT-2 vs fine tuned GPT-2 <a name="experiment_5"></a>
 
 **A. BLEU SCORE**
 
@@ -482,7 +480,7 @@ Conclusions : Our hypothesis is confirmed and we get lower values of perplexity 
 Link to the performance report for single-artist BLEU score and perplexity: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Single-artist-performance-report--Vmlldzo0ODkxNDA4?accessToken=4noqi3yx5rreg3syp16ikpary7jzravi875c57fg2k6ku6jvkef2nliu4k7tipu2
 <p align="right"><a href="#toc">To top</a></p>
 
-### 6.5 Experiment 5: Performance evaluation single-artist different datasets <a name="experiment_5"></a>
+### 6.6 Experiment 6: Performance evaluation single-artist different datasets <a name="experiment_6"></a>
 
 **A. BLEU SCORE**
 
@@ -556,7 +554,7 @@ Conclusions: Similarly to the previous metric PPL score shows to be higher in ly
 
 Link to the performance report for single-artist BLEU score and perplexity: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Single-artist-performance-report--Vmlldzo0ODkxNDA4?accessToken=4noqi3yx5rreg3syp16ikpary7jzravi875c57fg2k6ku6jvkef2nliu4k7tipu2
 
-### 6.6 Experiment 6: T5 model <a name="experiment_6"></a>
+### 6.7 Experiment 6: T5 model <a name="experiment_7"></a>
 T5 (Text-To-Text Transfer Transformer) is a transformer-based language model developed by Google Research. Unlike GPT-2, which is primarily designed for autoregressive language generation, T5 follows a "text-to-text" framework. Instead of generating lyrics word by word like GPT-2, T5 is trained to map an input text prompt to an output text sequence.
 T5 was trained on a large and diverse collection of publicly available text data from the internet. The specific details regarding the exact number of data, tokens, and parameters used for training T5 have not been disclosed publicly by Google Research. However, it is known to be a large-scale model with billions of parameters.
 
