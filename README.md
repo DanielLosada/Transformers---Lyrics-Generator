@@ -480,7 +480,7 @@ Conclusions : Our hypothesis is confirmed and we get lower values of perplexity 
 Link to the performance report for single-artist BLEU score and perplexity: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Single-artist-performance-report--Vmlldzo0ODkxNDA4?accessToken=4noqi3yx5rreg3syp16ikpary7jzravi875c57fg2k6ku6jvkef2nliu4k7tipu2
 <p align="right"><a href="#toc">To top</a></p>
 
-### 6.6 Experiment 6: Performance evaluation single-artist different datasets <a name="experiment_5"></a>
+### 6.6 Experiment 6: Performance evaluation single-artist different datasets <a name="experiment_6"></a>
 
 **A. BLEU SCORE**
 
