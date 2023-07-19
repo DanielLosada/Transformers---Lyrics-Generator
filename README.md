@@ -570,7 +570,7 @@ T5 was trained on a large and diverse collection of publicly available text data
   <img src="https://drive.google.com/uc?export=view&id=1VdnrzFDsd-yFs99O8ujCDiWPRzJFdoow" alt="Image" style="width: auto; max-width: 70%; height: auto; display: inline-block;" title="Image" />
 </a>
 
-Unfortunately due to the lack of time we could not conduct the T5 experiment.
+Unfortunately, due to time constraints and our prioritization of experimenting with GPT-2, we were unable to conduct the T5 experiment.
 
 <p align="right"><a href="#toc">To top</a></p>
 
