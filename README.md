@@ -227,9 +227,9 @@ Overall, the preprocessing steps involve:
 
 **Training on Genius Lyrics dataset** https://www.kaggle.com/datasets/mervedin/genius-lyrics
 
-Experiment setup: We fine-tuned GPT-2 on 100 lyrics by a single artist. We used local environment for training. For generatiion we use the same input prompt for all the artist tested. We use a small input prompt to not condition the model too much with it. We want to see how it behaves with a small input prompt for each artist tested. We trained and tested on 6 artists: 50 Cent, Taylor Swift, The Beatles, Queen, Justin Bieber, and Imagine Dragons. 
+Experiment setup: We conducted fine-tuning of GPT-2 using a dataset of 100 lyrics from a single artist. The training took place in a local environment. During the generation phase, we employed the same input prompt for all the tested artists. To avoid excessively conditioning the model, we utilized a concise input prompt. Our objective was to observe the model's behavior when provided with a limited input prompt for each tested artist. The training and testing were performed on six artists: 50 Cent, Taylor Swift, The Beatles, Queen, Justin Bieber, and Imagine Dragons.
 
-Hypothesis: Even though we only use 100 songs, the model should be able to fit the vocabulary and style of each one of them, and continue the input prompt with the artist style. In terms of training we might expect overfitting.
+Hypothesis: Despite the utilization of only 100 songs, we anticipate that the model will successfully adapt to the vocabulary and style of each artist, allowing it to extend the given input prompt in the artist's specific style. However, in terms of training, overfitting might be expected.
 
 Resuts: 
 The full performance results can be seen in the W&B report: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Single-artist-generated-lyrics-prompt-You-are---Vmlldzo0OTEyNTA2?accessToken=afvobacengbowa8wyvxxhnqvju9x60r0egsa52n7qvjpcnvtveo1597f3ncpp1pu.
@@ -270,28 +270,31 @@ The full performance results can be seen in the W&B report: https://wandb.ai//up
     Hear your friend sing, "The World Won't Stop Talking"
     ```
 
-    On this examples of the results obtained, we can see how on 50 Cent, the model understood that his lyrics have more agressive tone, talks about drugs, sex, crime, etc. When going to Taylor Swift, the style changes completely. Now talks way more about feelings and love, and it's really delicate with the words used. When generating The Beatles, we can see some claim pro peace.
+    In these examples, we can observe that for 50 Cent, the model captured the aggressive tone, discussing topics such as drugs, sex, and crime. When generating lyrics for Taylor Swift, the style drastically changes, focusing more on emotions, love, and using delicate language. For The Beatles, the model generates lyrics emphasizing a message of peace.
 
     Conclusions:
-    We can conclude, that the Hypothesis was correct, not only changes the tone and vocabulary used to one that the artist would use, also change the topic of the lyrics. We can see that the model is able to fit the vocabulary and style of each artist, and continue the input prompt with the artist style. We can see the same behaviour with the other artists tested and with other inputs. To see more generations with another input go to the W&B report: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Single-artist-generated-lyrics-prompt-I-will---Vmlldzo0OTEyMjg5?accessToken=sxxzyfrnouae43t9ilfl0rzxuf41n0ryvdykyukfa3lre40oifpxq9x6pnf261ay
+    Based on our findings, we can conclude that our hypothesis was correct. The model not only adapts the tone and vocabulary to match each artist's style but also adjusts the lyrical themes. We observed that the model successfully fits the vocabulary and style of each artist, allowing it to extend the given input prompt in the artist's specific style. This behavior remained consistent across various artists and input prompts.
 
-   As far as it goes for the training, we see that the loss goes down but not very fast. It could be explained by the fact that the pre-trained GPT-2 model is already trained on a big amount of data and is capable of generating a good text in English.
+    To explore further generations with different input prompts, I recommend referring to the W&B report at the following link: W&B Report: Single-artist Generated Lyrics.
+
+   Regarding the training process, we observed that the loss decreases, although not rapidly. This can be attributed to the fact that the pre-trained GPT-2 model has already been trained on a substantial amount of data and possesses a strong capability to generate coherent English text.
   
-   Link to W&B training report: https://api.wandb.ai/links/upcproject/uxoj59gw
+   Link to W&B training report: https://wandb.ai/upcproject/Lyrics%20Generator/reports/Single-artist-training-on-genius-lyrics-dataset--Vmlldzo0ODg5NjEz
 
 ### 6.2 Experiment 2: Specific genre training and generation with same prompt <a name="experiment_2"></a>
 
-Experiment setup: We fine-tuned GPT-2 over the second dataset filtered by genre. Depending on the genre we found more or less songs. It's a similar situation to the experiment 1, but we want to try to learn the patterns of something more general than an artist. The amount of songs used for each genre are:
+Experiment setup: We conducted fine-tuning of GPT-2 using the second dataset filtered by genre. The dataset consisted of songs from different genres, and the number of songs available for each genre varied. This experiment aimed to explore and learn the patterns of genres more generally, rather than focusing solely on individual artists. The number of songs used for each genre are as follows:
 
 * Pop: 375
 * Reggae: 223
 * Rock: 954
 * Hip Hop: 108
 
-Hypothesis: The model is going to be able to fit the genre and produce new songs following the style of the genre.
+Hypothesis: We hypothesize that the model will be capable of adapting to the specific genres and generate new songs that align with the style of each genre.
 
 Results:
-The full results can be seen in the W&B report: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Specific-genre-generated-lyrics-prompt-You-are---Vmlldzo0OTEyNjI1. Here we are going to show some examples of the results obtained.
+The full results can be seen in the W&B report: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Specific-genre-generated-lyrics-prompt-You-are---Vmlldzo0OTEyNjI1. 
+Here we are going to show some examples of the results obtained.
 * Input prompt: "You are"
     * Genre: Reggae
     ```
@@ -317,22 +320,24 @@ The full results can be seen in the W&B report: https://wandb.ai//upcproject/Lyr
     And this is just my dream for you
     ```
 
-    As we can see, the results are similar to the previous experiments. The topics and the way they are expressed match the genre. For example, reagge it's really related to Rastafari, a religion developed in Jamaica during the 1930s. That's why in many reggae songs, the main topic it's religion and the relationship between human and god. Also, another common topic is freedom, related to the slavery past of black people in Jamaica and to a society that doesn't fit with the rastafari way of seeing live. As we can see in the snipped of reggae generated text above, these two topics are convined. On the other hand, the model doesn't really use rastafari slang. Maybe there are just not enough examples on the training for the model to learn how to and when use them. Also we observe how the lyrics generated for "Pop" are mainly talking about love or heartbreak, and on "Rock" tend to use more complex vocabulary and sentences. On "Hip Hop" we find the same problem than on reggae, it doesn't really use specific vocabulary and the "Hip Hop" style is not really visible, but make sense seeing the amount of songs used for the training.
+    The results of this experiment align with our previous findings. The generated lyrics demonstrate a strong association with their respective genres, both in terms of topics and expression. For instance, reggae lyrics often revolve around Rastafari, a religion developed in Jamaica during the 1930s. Consequently, reggae songs frequently address themes of religion and the relationship between humanity and God. Additionally, freedom is a common topic in reggae, reflecting the historical context of slavery and the misalignment of society with Rastafarian values. The provided snippet of reggae-generated text exemplifies the combination of these themes. However, the model doesn't incorporate specific Rastafarian slang, possibly due to insufficient training examples to capture those nuances.
+
+    Similarly, the generated lyrics for the "Pop" genre predominantly focus on love and heartbreak, while the "Rock" genre exhibits more complex vocabulary and sentence structures. On the other hand, the "Hip Hop" genre's style and specific vocabulary are not as distinctly represented, likely due to the limited number of songs used for training.
 
     Conclusion:
 
-    As we observed in the prvious experiment, the model was also able to fit the genre and learn the style and tone of it, even though it looks like it's harder for it to use specific vocabulary. We can see the same behaviour with other inputs. To see more generations with another input go to the W&B report: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Specific-genre-generated-lyrics-prompt-I-will---Vmlldzo0OTEyNTYx?accessToken=9leuj9h6e51qzjqvomv3xgp4tf9tnrf1hsbb06r9mi623kqbavlf29k0bx6gwbxm
+    In conclusion, our observations from this experiment reaffirm that the model is capable of fitting the genre, learning its style and tone. However, it appears to struggle with utilizing specific genre-related vocabulary. To explore additional generations with another input go to the W&B report: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Specific-genre-generated-lyrics-prompt-I-will---Vmlldzo0OTEyNTYx?accessToken=9leuj9h6e51qzjqvomv3xgp4tf9tnrf1hsbb06r9mi623kqbavlf29k0bx6gwbxm
 
-   Training resuts were siliar to those obtained with single-artist training.
-  
-   Link to W&B training report: https://api.wandb.ai/links/upcproject/icp5ie11
+    Training resuts were siliar to those obtained with single-artist training.
+    
+    Link to W&B training report: https://wandb.ai/upcproject/Lyrics%20Generator/reports/Genre-training-on-79-musical-genres-dataset--Vmlldzo0OTAyMjY4
 
 <p align="right"><a href="#toc">To top</a></p>
 
 ### 6.3 Experiment 3: Conditional lyrics generation with the same prompt <a name="experiment_3"></a>
-Experiment setup: For this experiment, we trained GPT-2 with the songs of ten artists from the first dataset. That way we ensure that we have 100 songs for each one. The objective is to build a conditional model that let you choose on whose style you want to generate songs. To do that, after the preprocessing of the lyrics, we added the artist name ar the beginning of them. Then, at generation time, we concatenate the name of the artist we want to generate before the initial prompt. That way we make the model understand the relationship between the lyric and the artist. 
-The ten artist used are the next ones:
-* 50 Cent 
+Experiment setup: For this experiment, we trained GPT-2 using the songs of ten artists from the first dataset. We ensured that we had 100 songs for each artist, providing a balanced dataset. The objective was to create a conditional model that allows users to choose the artist whose style they want the generated songs to emulate. To achieve this, we modified the preprocessing step by adding the name of the artist at the beginning of each lyric. During generation, we concatenated the desired artist's name before the initial prompt, enabling the model to understand the relationship between the lyrics and the artist.
+
+The ten artists used in this experiment are as follows:
 * Imagine Dragons
 * Justin Bieber
 * Taylor Swift
@@ -343,7 +348,7 @@ The ten artist used are the next ones:
 * Radiohead
 * Mac Miller
 
-Hypothesis: The model should produce similar results to the ones obtained on the first experiment.
+Hypothesis: We hypothesize that the model trained in this experiment will generate similar results to those obtained in the first experiment.
 
 Results:
 The full results can be seen in the W&B report. 
@@ -371,11 +376,12 @@ Here we are going to show some examples of the results obtained.
   And put a new face on the story
   ```
 
-  As we can see, the model performs similar to the fist experiment. We can easily see the change of style and topics depending on the artist requested even though the input prompt it's the same. The model went from the 'egotrip' and tough vocabulary from The Notorious B.I.G., to a heartbroken Justin Bieber. However, we note that there is still quite a bit of room for improvement in terms of coherence of the lyrics. We expected the results to be better in that sense. The main issue is the lack of computational resources to increase the dataset and/or further fine-tune the parameters.
+  As observed, the model in this experiment demonstrates similar performance to the first experiment. It successfully captures the change in style and topics based on the requested artist, even when using the same input prompt. For example, the model transitions from the 'egotrip' and tough vocabulary of The Notorious B.I.G. to the heartbroken themes commonly associated with Justin Bieber. However, it is important to note that there is still room for improvement in terms of coherence in the generated lyrics. We had expected better results in this aspect, but limitations in computational resources prevented further fine-tuning of the model parameters or expanding the dataset.
 
   Conclusions:
   
-  The model is big enough to fit multiple artist at the same time and is able to understand the conditioned prompt. To see more generations with another input go to the W&B report. 
+  In conclusion, the model's capacity to accommodate multiple artists simultaneously and understand conditioned prompts is evident. To explore additional generations with different inputs, we recommend referring to the W&B report for more details and examples.
+
   W&B link: https://wandb.ai//upcproject/Lyrics%20Generator/reports/Multiple-artists-generated-lyrics-prompt-I-will---Vmlldzo0OTEyNjgw?accessToken=lnb3rb377mkatl0g5xk76ral4a4w7wk03wclk4dsvcvmxnmdg718hlqknmohwrs1
    
   Link to W&B training report: https://api.wandb.ai/links/upcproject/zzppte9f
@@ -387,9 +393,11 @@ Here we are going to show some examples of the results obtained.
 ### 6.4 Experiment 4: Conditional lyrics generation based on the prompt <a name="experiment_4"></a>
 
 Experiment setup:
-For this experiment, we trained GPT-2 with lyrics from the first dataset with lyrics of 50 Cent and Justin Bieber. Both of them have 100 songs. The difference with the previous experiment is, that instead of conditioning the generation specifying the artist. We use an initial prompt that will lead the model to follow one style or the other.
 
-Hypothesis: The model will be able to understand, based on the topic or style of the initial prompt, which style should follow. Sometimes might get confused and mix both styles even though they are really different.
+In this experiment, we trained GPT-2 using lyrics from the first dataset, focusing on the contributions of 50 Cent and Justin Bieber. Each artist provided 100 songs for training. Unlike the previous experiment, we did not explicitly condition the model by specifying the artist during the generation process. Instead, we utilized an initial prompt that was already embedded within the lyrics. This initial prompt served as a guiding input, indicating the desired style and acting as a guiding factor for the model. It is important to note that the initial prompt was integrated naturally into the lyrics and did not serve as explicit instructions for the model.
+
+Hypothesis: 
+Our hypothesis is that the model will be capable of discerning the intended style to follow based on the topic or style presented in the initial prompt. However, there is a possibility that the model may occasionally exhibit confusion and blend the two distinct styles, despite their inherent differences.
 
 Results:
 The full results can be seen in the W&B report: 
@@ -419,10 +427,10 @@ https://wandb.ai//upcproject/Lyrics%20Generator/reports/Conditional-lyrics-gener
   I miss ya
   ```
 
-  As we can see, depending on the input prompt the model will use the style that it's more apropiate for it. But as we can see on the second example, the lyrics start with a Justin Bieber style, and at some point switch to a 50 Cent style. That should not happen as its not coherent with itself.
+  As observed, the model demonstrates the ability to adapt to different styles based on the input prompt provided. However, there are instances where the transition between styles may not be entirely coherent or consistent, as exemplified in the second example where the lyrics start with a Justin Bieber style but switch to a 50 Cent style. This inconsistency detracts from the overall coherence of the generated lyrics.
 
   Conclusion:
-  The model is able to fit both styles, even though they are really different, and in general, know when to use the more appropiate one.
+  In conclusion, the model shows the capability to fit both styles, despite their distinct differences, and generally knows when to employ the more appropriate style. However, there is still room for improvement in terms of maintaining consistency and coherence throughout the generated lyrics.
 
 ### 6.5 Experiment 5: Performance evaluation single-artist GPT-2 vs fine tuned GPT-2 <a name="experiment_5"></a>
 
